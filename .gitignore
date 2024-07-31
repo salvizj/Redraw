@@ -1,0 +1,29 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go build files
+*.test
+*.out
+*.a
+
+# Dependency directories
+vendor/
+Gopkg.lock
+Gopkg.toml
+
+# IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# random txt
+.txt
+
+# Environment files
+.env
+.env.local
