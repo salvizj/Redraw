@@ -10,7 +10,8 @@ import (
 
 func main() {
     db.Initialize()
-
+    defer db.DB.Close()
+	db.CreateTables()
     http.HandleFunc("/hello", handlers.HelloHandler)
     http.HandleFunc("/", handlers.IndexHandler)
     fmt.Println("Server is running on http://localhost:8080")

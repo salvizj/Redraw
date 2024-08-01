@@ -3,6 +3,7 @@ my folder structure:
 api/handlers
 api/middleware
 cmd/main.go
-supabase/supabase.go
+db/connection,go
+db/migrations.go
 test
 utils
