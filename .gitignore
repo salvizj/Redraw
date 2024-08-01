@@ -21,9 +21,14 @@ Gopkg.toml
 *.swp
 *.swo
 
-# random txt
-.txt
+# Text files (If you want to exclude specific text files, specify them)
+*.txt
 
 # Environment files
 .env
 .env.local
+
+# Ignore all files that are generated during builds and local setups
+*.log
+*.tmp
+*.bak
