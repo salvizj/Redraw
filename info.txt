@@ -1,8 +1,0 @@
-my folder structure:
-
-api/handlers
-api/middleware
-cmd/main.go
-supabase/supabase.go
-test
-utils
