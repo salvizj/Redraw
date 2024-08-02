@@ -39,4 +39,4 @@ func Initialize() {
         fmt.Fprintf(os.Stderr, "failed to open db %s: %s", connURL, err)
         os.Exit(1)
     }
-}
+    }

@@ -1,9 +1,14 @@
 my folder structure:
 
 api/handlers
+api/routes/routes.go
 api/middleware
+server/server.go
 cmd/main.go
-db/connection,go
+db/connection.go
 db/migrations.go
+static/css/styles.css
+static/index.html
+utils/uuid.go
 test
 utils

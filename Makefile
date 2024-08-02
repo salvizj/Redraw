@@ -5,9 +5,14 @@ BINARY_NAME=Redraw
 default: build
 
 # Build the Go application
-build:
+build: frontend-build
 	@echo "Building the Go application..."
 	go build -o $(BINARY_NAME) cmd/main.go
+
+# Build the frontend application
+frontend-build:
+	@echo "Building the frontend application..."
+	npm run build --prefix frontend
 
 # Run the Go application
 run: build
@@ -18,6 +23,7 @@ run: build
 clean:
 	@echo "Cleaning up..."
 	@rm -f $(BINARY_NAME)
+	@rm -rf frontend/dist
 
 # Format the code
 fmt:
@@ -34,4 +40,4 @@ deps:
 	@echo "Installing dependencies..."
 	go mod tidy
 
-.PHONY: build run clean fmt test deps
+.PHONY: build frontend-build run clean fmt test deps
