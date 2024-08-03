@@ -1,4 +1,3 @@
-// MainComponent.tsx
 import axios from 'axios';
 import React, { useState } from 'react';
 import CreateRoomForm from './CreateRoomForm';

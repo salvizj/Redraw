@@ -4,9 +4,9 @@ import Button from '../Button/Button';
 import Label from '../Label/Label';
 import styles from './Form.module.css';
 
-interface CreateRoomFormProps {
+type CreateRoomFormProps = {
 	onSubmit: (formData: { username: string }) => void;
-}
+};
 
 const CreateRoomForm: React.FC<CreateRoomFormProps> = ({ onSubmit }) => {
 	const [username, setUsername] = useState('');

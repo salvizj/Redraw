@@ -4,9 +4,9 @@ import Button from '../Button/Button';
 import Label from '../Label/Label';
 import styles from './Form.module.css';
 
-interface JoinRoomFormProps {
+type JoinRoomFormProps = {
 	onSubmit: (formData: { username: string; roomId: string }) => void;
-}
+};
 
 const JoinRoomForm: React.FC<JoinRoomFormProps> = ({ onSubmit }) => {
 	const [formData, setFormData] = useState({ username: '', roomId: '' });
