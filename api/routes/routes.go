@@ -2,47 +2,42 @@ package routes
 
 import (
 	"net/http"
-	"path/filepath"
+
+	"github.com/salvizj/Redraw/api/handlers" 
 )
 
-// Determine MIME type based on file extension
-func mimeTypeForFile(filePath string) string {
-	ext := filepath.Ext(filePath)
-	switch ext {
-	case ".js":
-		return "application/javascript"
-	case ".css":
-		return "text/css"
-	case ".html":
-		return "text/html"
-	case ".png":
-		return "image/png"
-	case ".jpg", ".jpeg":
-		return "image/jpeg"
-	case ".svg":
-		return "image/svg+xml"
-	default:
-		return "application/octet-stream"
-	}
+var staticRoutes = []string{
+	"/",
+	"/about",
 }
 
-// Serve static files with correct MIME types
-func serveStaticFiles(w http.ResponseWriter, r *http.Request) {
-	filePath := "./frontend/dist" + r.URL.Path
-	if mimeType := mimeTypeForFile(filePath); mimeType != "" {
-		w.Header().Set("Content-Type", mimeType)
-	}
-	http.ServeFile(w, r, filePath)
+var apiRoutes = map[string]http.HandlerFunc{
+	"/create-room": handlers.CreateRoomHandler,
+	"/join-room":   handlers.JoinRoomHandler,
 }
 
-// InitializeRoutes sets up the routes for serving the React app
 func InitializeRoutes() {
+	staticFileServer := http.FileServer(http.Dir("./frontend/dist"))
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// Serve static files if they exist, otherwise serve index.html
-		if r.URL.Path == "/" || r.URL.Path == "" || r.URL.Path == "/about" {
-			http.ServeFile(w, r, "./frontend/dist/index.html")
-		} else {
-			serveStaticFiles(w, r)
+		// Check if the request path matches an API route
+		if handler, found := apiRoutes[r.URL.Path]; found {
+			handler.ServeHTTP(w, r)
+			return
 		}
+
+		// Check if the request path is for the React app
+		for _, route := range staticRoutes {
+			if r.URL.Path == route {
+				http.ServeFile(w, r, "./frontend/dist/index.html")
+				return
+			}
+		}
+
+		staticFileServer.ServeHTTP(w, r)
+	})
+
+	http.HandleFunc("/404", func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
 	})
 }
