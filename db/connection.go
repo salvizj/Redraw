@@ -12,15 +12,12 @@ import (
 // DB holds the database connection instance
 var DB *sql.DB
 
-// Initialize initializes the database connection
 func Initialize() {
-    // Load environment variables
     if err := godotenv.Load(); err != nil {
         fmt.Fprintf(os.Stderr, "Error loading .env file: %v", err)
         os.Exit(1)
     }
 
-    // Get environment variables
     url := os.Getenv("TURSO_DATABASE_URL")
     token := os.Getenv("TURSO_AUTH_TOKEN")
 
@@ -32,7 +29,6 @@ func Initialize() {
     // Construct the connection URL
     connURL := fmt.Sprintf("%s?authToken=%s", url, token)
 
-    // Open the database connection
     var err error
     DB, err = sql.Open("libsql", connURL)
     if err != nil {

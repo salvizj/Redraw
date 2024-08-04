@@ -23,7 +23,7 @@ const MainComponent: React.FC = () => {
 
 	const handleJoinRoom = async (data: {
 		username: string;
-		roomId: string;
+		roomUserId: string;
 	}) => {
 		try {
 			const response = await axios.post(

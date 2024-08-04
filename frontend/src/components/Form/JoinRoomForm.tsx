@@ -5,11 +5,11 @@ import Label from '../Label/Label';
 import styles from './Form.module.css';
 
 type JoinRoomFormProps = {
-	onSubmit: (formData: { username: string; roomId: string }) => void;
+	onSubmit: (formData: { username: string; roomUserId: string }) => void;
 };
 
 const JoinRoomForm: React.FC<JoinRoomFormProps> = ({ onSubmit }) => {
-	const [formData, setFormData] = useState({ username: '', roomId: '' });
+	const [formData, setFormData] = useState({ username: '', roomUserId: '' });
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setFormData({
@@ -34,13 +34,13 @@ const JoinRoomForm: React.FC<JoinRoomFormProps> = ({ onSubmit }) => {
 				name="username"
 			/>
 
-			<Label htmlFor="roomId">Room ID</Label>
+			<Label htmlFor="roomUserId">Room ID</Label>
 			<InputField
 				type="text"
-				value={formData.roomId}
+				value={formData.roomUserId}
 				onChange={handleChange}
 				placeholder="Enter room ID"
-				name="roomId"
+				name="roomUserId"
 			/>
 
 			<Button type="submit">Join A Room</Button>
