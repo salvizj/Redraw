@@ -3,17 +3,16 @@ package routes
 import (
 	"net/http"
 
-	"github.com/salvizj/Redraw/api/handlers" 
+	"github.com/salvizj/Redraw/api/handlers"
 )
 
 var staticRoutes = []string{
 	"/",
-	"/about",
 }
 
 var apiRoutes = map[string]http.HandlerFunc{
-	"/create-room": handlers.CreateRoomHandler,
-	"/join-room":   handlers.JoinRoomHandler,
+	"/create-lobby": handlers.CreateLobbyHandler,
+	"/join-lobby":   handlers.JoinLobbyHandler,
 }
 
 func InitializeRoutes() {
