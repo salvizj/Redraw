@@ -1,15 +1,15 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-interface LobbyContextType {
+type LobbyContextType = {
 	lobbyId: string | null;
 	setLobbyId: React.Dispatch<React.SetStateAction<string | null>>;
-}
+};
 
 const LobbyContext = createContext<LobbyContextType | undefined>(undefined);
 
-interface LobbyProviderProps {
+type LobbyProviderProps = {
 	children: ReactNode;
-}
+};
 
 export const LobbyProvider: React.FC<LobbyProviderProps> = ({ children }) => {
 	const [lobbyId, setLobbyId] = useState<string | null>(null);
