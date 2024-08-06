@@ -1,54 +1,31 @@
 import React from 'react';
 import LobbyForm from '../components/LobbyForm';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
-const CreateLobby = async (data: { username: string }) => {
-	try {
-		const response = await axios.post(
-			'http://localhost:8080/create-lobby',
-			data
-		);
-		return response.data; // Assumes response contains { lobbyId }
-	} catch (error) {
-		console.error('Error creating lobby:', error);
-		throw error;
-	}
-};
-
-const JoinLobby = async (data: { username: string; lobbyId: string }) => {
-	try {
-		const response = await axios.post(
-			'http://localhost:8080/join-lobby',
-			data
-		);
-		return response.data; // Assumes response contains necessary information
-	} catch (error) {
-		console.error('Error joining lobby:', error);
-		throw error;
-	}
-};
+import { useLobby } from '../context/LobbyContext';
+import { createLobby, joinLobby } from '../api/lobbyApi';
 
 const IndexPage: React.FC = () => {
 	const navigate = useNavigate();
+	const { setLobbyId } = useLobby();
 
 	const handleSubmit = async (formData: {
 		username: string;
 		lobbyId?: string;
 	}) => {
 		try {
-			if (formData.lobbyId != null) {
-				await JoinLobby({
+			let lobbyData;
+			if (formData.lobbyId) {
+				lobbyData = await joinLobby({
 					username: formData.username,
 					lobbyId: formData.lobbyId,
 				});
-				navigate(`/lobby`);
 			} else {
-				await CreateLobby({
+				lobbyData = await createLobby({
 					username: formData.username,
 				});
-				navigate(`/lobby`);
 			}
+			setLobbyId(lobbyData.lobbyId);
+			navigate(`/lobby`);
 		} catch (error) {
 			console.error('Error during submission:', error);
 		}
