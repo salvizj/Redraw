@@ -12,7 +12,7 @@ const LobbyPage: React.FC = () => {
 				.writeText(url)
 				.then(() => {
 					setCopied(true);
-					setTimeout(() => setCopied(false), 2000); // Reset the copied state after 2 seconds
+					setTimeout(() => setCopied(false), 2000);
 				})
 				.catch((err) => {
 					console.error('Failed to copy the text to clipboard:', err);
