@@ -11,6 +11,7 @@ const App: React.FC = () => {
 				<Routes>
 					<Route path="/" element={<IndexPage />} />
 					<Route path="/lobby" element={<LobbyPage />} />
+					<Route path="/game" element={<GamePage />}
 				</Routes>
 			</Router>
 		</LobbyProvider>
