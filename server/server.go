@@ -14,10 +14,10 @@ func StartServer() {
 
     db.CreateTables()
 
-    routes.InitializeRoutes()
+    r := routes.InitializeRoutes()
 
     fmt.Println("Server is running on http://localhost:8080")
-    if err := http.ListenAndServe(":8080", nil); err != nil {
+    if err := http.ListenAndServe(":8080", r); err != nil {
         fmt.Printf("Server failed to start: %s\n", err)
     }
 }

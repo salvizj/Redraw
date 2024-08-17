@@ -3,40 +3,23 @@ package routes
 import (
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/salvizj/Redraw/api/handlers"
 )
 
-var staticRoutes = []string{
-	"/",
-}
+func InitializeRoutes() *mux.Router {
+	r := mux.NewRouter()
 
-var apiRoutes = map[string]http.HandlerFunc{
-	"/create-lobby": handlers.CreateLobbyHandler,
-	"/join-lobby":   handlers.JoinLobbyHandler,
-}
+	r.HandleFunc("/create-lobby", handlers.CreateLobbyHandler).Methods(http.MethodPost)
+	r.HandleFunc("/join-lobby", handlers.JoinLobbyHandler).Methods(http.MethodPost)
 
-func InitializeRoutes() {
 	staticFileServer := http.FileServer(http.Dir("./frontend/dist"))
+	r.PathPrefix("/").Handler(http.StripPrefix("/", staticFileServer))
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// Check if the request path matches an API route
-		if handler, found := apiRoutes[r.URL.Path]; found {
-			handler.ServeHTTP(w, r)
-			return
-		}
-
-		// Check if the request path is for the React app
-		for _, route := range staticRoutes {
-			if r.URL.Path == route {
-				http.ServeFile(w, r, "./frontend/dist/index.html")
-				return
-			}
-		}
-
-		staticFileServer.ServeHTTP(w, r)
-	})
-
-	http.HandleFunc("/404", func(w http.ResponseWriter, r *http.Request) {
+	// Custom 404 page
+	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 	})
+
+	return r
 }
