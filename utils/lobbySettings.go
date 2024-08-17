@@ -6,21 +6,18 @@ import (
 	"time"
 
 	"github.com/salvizj/Redraw/db"
+	"github.com/salvizj/Redraw/types"
+
 )
-type LobbySettings struct {
-	LobbySettingsId string
-	PlayerCount     int
-	MaxPlayerCount  int
-	Status          string
-	CreatedAt       time.Time
-}
+
 func CreateLobbySettings() (string, error) {
 	LobbySettingsId := GenerateUUID()
-	LobbySettings := LobbySettings{
+	Status := types.StatusWaiting
+	LobbySettings := types.LobbySettings{
 		LobbySettingsId: LobbySettingsId,
 		PlayerCount:     0,
 		MaxPlayerCount:  10,
-		Status:          "Active",
+		Status:          Status,
 		CreatedAt:       time.Now(),
 	}
 

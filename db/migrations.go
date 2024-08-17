@@ -10,8 +10,7 @@ func CreateTables() {
 	CREATE TABLE IF NOT EXISTS Lobby (
 		LobbyId TEXT PRIMARY KEY,
 		LobbySettingsId TEXT,
-		Username TEXT,
-		Role TEXT,
+		Status TEXT,               
 		CreatedAt DATETIME
 	);
 	`
@@ -21,7 +20,7 @@ func CreateTables() {
 		LobbySettingsId TEXT PRIMARY KEY,
 		PlayerCount INT,
 		MaxPlayerCount INT,
-		Status TEXT,
+		Status TEXT,               
 		CreatedAt DATETIME
 	);
 	`
@@ -31,9 +30,9 @@ func CreateTables() {
 		SessionId TEXT PRIMARY KEY,
 		Username TEXT,
 		LobbyId TEXT,
-		Role TEXT,
-		SubmittedPrompt TEXT, 
-		ReceivedPrompt TEXT, 
+		Role TEXT,                 
+		SubmittedPrompt TEXT,       
+		ReceivedPrompt TEXT,        
 		HasSubmittedPrompt BOOLEAN DEFAULT FALSE,
 		CreatedAt DATETIME
 	);

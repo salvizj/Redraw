@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/salvizj/Redraw/utils"
+	"github.com/salvizj/Redraw/types"
 )
 
 func CreateLobbyHandler(w http.ResponseWriter, r *http.Request) {
@@ -23,14 +24,13 @@ func CreateLobbyHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		LobbyId, err := utils.CreateLobby(LobbySettingsId, data.Username, "Admin")
+		LobbyId, err := utils.CreateLobby(LobbySettingsId)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		SessionId, err := utils.CreateSession(LobbyId, data.Username, "Admin")
+		Role := types.RoleLeader
+		SessionId, err := utils.CreateSession(LobbyId, data.Username, Role)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
