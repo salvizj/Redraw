@@ -31,6 +31,7 @@ func CreateTables() {
 		SessionId TEXT PRIMARY KEY,
 		Username TEXT,
 		LobbyId TEXT,
+		Role TEXT,
 		SubmittedPrompt TEXT, 
 		ReceivedPrompt TEXT, 
 		HasSubmittedPrompt BOOLEAN DEFAULT FALSE,

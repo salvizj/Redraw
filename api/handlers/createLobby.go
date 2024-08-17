@@ -30,7 +30,7 @@ func CreateLobbyHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		SessionId, err := utils.CreateSession(LobbyId, data.Username)
+		SessionId, err := utils.CreateSession(LobbyId, data.Username, "Admin")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
