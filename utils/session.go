@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/salvizj/Redraw/db"
@@ -21,7 +23,6 @@ func CreateSession(LobbyId, Username string, Role types.Role) (string, error) {
 		CreatedAt:         time.Now(),
 	}
 
-	// Updated query with correct column names and the correct number of placeholders
 	query := `INSERT INTO Session (SessionId, Username, LobbyId, Role, SubmittedPrompt, ReceivedPrompt, HasSubmittedPrompt, CreatedAt)
               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
 
@@ -39,4 +40,19 @@ func CreateSession(LobbyId, Username string, Role types.Role) (string, error) {
 	}
 
 	return Session.SessionId, nil
+}
+func GetUserRole(SessionId string) (types.Role, error) {
+	var Role types.Role
+
+	query := `SELECT Role FROM Session WHERE sessionId = ?`
+
+	err := db.DB.QueryRow(query, SessionId).Scan(&Role)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", fmt.Errorf("no session found with the given SessionId: %s", SessionId)
+		}
+		return "", err
+	}
+
+	return Role, nil
 }

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useLobby } from '../context/LobbyContext';
+import useUserRole from '../hooks/useUserRole';
 
 const LobbyPage: React.FC = () => {
 	const { lobbyId } = useLobby();
+	const { role, error } = useUserRole();
 	const [copied, setCopied] = useState(false);
 
 	const handleCopyToClipboard = () => {
@@ -26,6 +28,8 @@ const LobbyPage: React.FC = () => {
 			{lobbyId ? (
 				<div>
 					<p>Lobby ID: {lobbyId}</p>
+					{role && <p>User Role: {role}</p>}
+					{error && <p style={{ color: 'red' }}>{error}</p>}
 					<button onClick={handleCopyToClipboard}>
 						Copy Lobby URL
 					</button>
@@ -36,6 +40,7 @@ const LobbyPage: React.FC = () => {
 			) : (
 				<p>No lobby joined.</p>
 			)}
+			{role === 'leader' && <button>Start</button>}
 		</div>
 	);
 };

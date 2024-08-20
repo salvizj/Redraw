@@ -12,7 +12,8 @@ func InitializeRoutes() *mux.Router {
 
 	r.HandleFunc("/create-lobby", handlers.CreateLobbyHandler).Methods(http.MethodPost)
 	r.HandleFunc("/join-lobby", handlers.JoinLobbyHandler).Methods(http.MethodPost)
-
+	r.HandleFunc("/get-user-role", handlers.GetUserRoleHandler).Methods(http.MethodPost)
+	
 	staticFileServer := http.FileServer(http.Dir("./frontend/dist"))
 	r.PathPrefix("/").Handler(http.StripPrefix("/", staticFileServer))
 
