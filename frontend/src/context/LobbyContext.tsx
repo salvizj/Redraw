@@ -7,11 +7,7 @@ type LobbyContextType = {
 
 const LobbyContext = createContext<LobbyContextType | undefined>(undefined);
 
-type LobbyProviderProps = {
-	children: ReactNode;
-};
-
-export const LobbyProvider: React.FC<LobbyProviderProps> = ({ children }) => {
+const LobbyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const [lobbyId, setLobbyId] = useState<string | null>(null);
 
 	return (
@@ -21,10 +17,12 @@ export const LobbyProvider: React.FC<LobbyProviderProps> = ({ children }) => {
 	);
 };
 
-export const useLobby = (): LobbyContextType => {
+const useLobbyContext = (): LobbyContextType => {
 	const context = useContext(LobbyContext);
-	if (context === undefined) {
-		throw new Error('useLobby must be used within a LobbyProvider');
+	if (!context) {
+		throw new Error('useLobbyContext must be used within a LobbyProvider');
 	}
 	return context;
 };
+
+export { LobbyProvider, useLobbyContext };

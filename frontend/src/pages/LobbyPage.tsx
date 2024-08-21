@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { useLobby } from '../context/LobbyContext';
+import { useLobbyContext } from '../context/LobbyContext';
 import useUserRole from '../hooks/useUserRole';
 
 const LobbyPage: React.FC = () => {
-	const { lobbyId } = useLobby();
+	const { lobbyId } = useLobbyContext();
 	const { role, error } = useUserRole();
 	const [copied, setCopied] = useState(false);
 
 	const handleCopyToClipboard = () => {
 		if (lobbyId) {
-			const url = `http://localhost:8080/?l=${lobbyId}`;
+			const baseUrl = process.env.BASE_URL;
+			const url = `${baseUrl}/?l=${lobbyId}`;
 			navigator.clipboard
 				.writeText(url)
 				.then(() => {

@@ -1,12 +1,12 @@
 import React from 'react';
 import LobbyForm from '../components/LobbyForm';
 import { useNavigate } from 'react-router-dom';
-import { useLobby } from '../context/LobbyContext';
+import { useLobbyContext } from '../context/LobbyContext';
 import { createLobby, joinLobby } from '../api/lobbyApi';
 
 const IndexPage: React.FC = () => {
 	const navigate = useNavigate();
-	const { setLobbyId } = useLobby();
+	const { setLobbyId } = useLobbyContext();
 
 	const handleSubmit = async (formData: {
 		username: string;

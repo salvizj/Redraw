@@ -6,10 +6,10 @@ const DrawingCanvas: React.FC = () => {
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
-		if (!canvas) return; // Add null check
+		if (!canvas) return;
 
 		const ctx = canvas.getContext('2d');
-		if (!ctx) return; // Add null check for context
+		if (!ctx) return;
 
 		ctx.lineWidth = 2;
 		ctx.lineCap = 'round';
@@ -17,12 +17,12 @@ const DrawingCanvas: React.FC = () => {
 
 		const startDrawing = (event: MouseEvent) => {
 			setDrawing(true);
-			draw(event); // Draw a dot where the user starts
+			draw(event);
 		};
 
 		const stopDrawing = () => {
 			setDrawing(false);
-			ctx.beginPath(); // Start a new path so the next stroke doesn't connect
+			ctx.beginPath();
 		};
 
 		const draw = (event: MouseEvent) => {

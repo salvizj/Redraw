@@ -13,8 +13,8 @@ var upgrader = websocket.Upgrader{
     },
 }
 
-var clients = make(map[*websocket.Conn]bool) // Connected clients
-var broadcast = make(chan Message)           // Broadcast channel
+var clients = make(map[*websocket.Conn]bool) 
+var broadcast = make(chan Message)           
 
 // Message defines the structure of messages sent over WebSocket
 type Message struct {
@@ -26,7 +26,6 @@ type Message struct {
 
 // WebSocketHandler handles WebSocket requests
 func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
-    // Upgrade initial GET request to a WebSocket
     ws, err := upgrader.Upgrade(w, r, nil)
     if err != nil {
         log.Printf("Failed to upgrade to WebSocket: %v", err)
@@ -46,10 +45,7 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
             break
         }
 
-        // Handle the incoming message based on its type
         if msg.Type == "start-game" {
-            // Handle the start of the game
-            // For example, shuffle and assign prompts, then notify all players
             handleStartGame(msg.LobbyId)
         } else {
             // Broadcast message to all connected clients
@@ -59,10 +55,7 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleStartGame(lobbyId string) {
-    // Your logic to start the game, shuffle prompts, and notify players
-    // Example: assignPrompts(lobbyId)
 
-    // Notify all players in the lobby that the game has started
     for client := range clients {
         err := client.WriteJSON(Message{
             Type:    "game-started",
