@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLobbyContext } from '../context/LobbyContext';
 import useUserRole from '../hooks/useUserRole';
 
@@ -6,6 +7,7 @@ const LobbyPage: React.FC = () => {
 	const { lobbyId } = useLobbyContext();
 	const { role, error } = useUserRole();
 	const [copied, setCopied] = useState(false);
+	const navigate = useNavigate();
 
 	const handleCopyToClipboard = () => {
 		if (lobbyId) {
@@ -21,6 +23,10 @@ const LobbyPage: React.FC = () => {
 					console.error('Failed to copy the text to clipboard:', err);
 				});
 		}
+	};
+
+	const handleStart = () => {
+		navigate('/GamePage');
 	};
 
 	return (
@@ -41,7 +47,7 @@ const LobbyPage: React.FC = () => {
 			) : (
 				<p>No lobby joined.</p>
 			)}
-			{role === 'leader' && <button>Start</button>}
+			{role === 'leader' && <button onClick={handleStart}>Start</button>}
 		</div>
 	);
 };
