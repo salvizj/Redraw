@@ -1,10 +1,10 @@
 package handlers
 
 import (
-    "log"
-    "net/http"
+	"log"
+	"net/http"
 
-    "github.com/gorilla/websocket"
+	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{
@@ -13,10 +13,8 @@ var upgrader = websocket.Upgrader{
     },
 }
 
-var clients = make(map[*websocket.Conn]bool) 
-var broadcast = make(chan Message)           
+var lobbies = make(map[string]map[*websocket.Conn]bool)
 
-// Message defines the structure of messages sent over WebSocket
 type Message struct {
     Type      string `json:"type"`
     SessionId string `json:"sessionId"`
@@ -24,7 +22,6 @@ type Message struct {
     Content   string `json:"content"`
 }
 
-// WebSocketHandler handles WebSocket requests
 func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
     ws, err := upgrader.Upgrade(w, r, nil)
     if err != nil {
@@ -33,52 +30,80 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
     }
     defer ws.Close()
 
-    clients[ws] = true
+    var currentLobbyId string
 
     for {
         var msg Message
-        // Read in a new message as JSON and map it to a Message object
         err := ws.ReadJSON(&msg)
         if err != nil {
             log.Printf("Error reading JSON: %v", err)
-            delete(clients, ws)
+            if currentLobbyId != "" {
+                leaveLobby(currentLobbyId, ws)
+            }
             break
         }
 
-        if msg.Type == "start-game" {
-            handleStartGame(msg.LobbyId)
-        } else {
-            // Broadcast message to all connected clients
-            broadcast <- msg
+        if currentLobbyId == "" && msg.LobbyId != "" {
+            currentLobbyId = msg.LobbyId
+            joinLobby(currentLobbyId, ws)
+        }
+
+        switch msg.Type {
+        case "start-game":
+            handleStartGame(currentLobbyId)
+        default:
+            broadcastMessageToLobby(currentLobbyId, msg)
+        }
+    }
+}
+
+func joinLobby(lobbyId string, ws *websocket.Conn) {
+    if lobbies[lobbyId] == nil {
+        lobbies[lobbyId] = make(map[*websocket.Conn]bool)
+    }
+    lobbies[lobbyId][ws] = true
+}
+
+func leaveLobby(lobbyId string, ws *websocket.Conn) {
+    if clients, ok := lobbies[lobbyId]; ok {
+        delete(clients, ws)
+        if len(clients) == 0 {
+            delete(lobbies, lobbyId)
         }
     }
 }
 
 func handleStartGame(lobbyId string) {
-
-    for client := range clients {
-        err := client.WriteJSON(Message{
-            Type:    "game-started",
-            LobbyId: lobbyId,
-            Content: "The game has started!",
-        })
-        if err != nil {
-            log.Printf("Error sending message: %v", err)
-            client.Close()
-            delete(clients, client)
+    if clients, ok := lobbies[lobbyId]; ok {
+        for client := range clients {
+            err := client.WriteJSON(Message{
+                Type:    "game-started",
+                LobbyId: lobbyId,
+                Content: "The game has started!",
+            })
+            if err != nil {
+                log.Printf("Error sending game-started message: %v", err)
+                client.Close()
+                delete(clients, client)
+                if len(clients) == 0 {
+                    delete(lobbies, lobbyId)
+                }
+            }
         }
     }
 }
 
-func BroadcastMessages() {
-    for {
-        msg := <-broadcast
+func broadcastMessageToLobby(lobbyId string, msg Message) {
+    if clients, ok := lobbies[lobbyId]; ok {
         for client := range clients {
             err := client.WriteJSON(msg)
             if err != nil {
                 log.Printf("Error broadcasting message: %v", err)
                 client.Close()
                 delete(clients, client)
+                if len(clients) == 0 {
+                    delete(lobbies, lobbyId)
+                }
             }
         }
     }
