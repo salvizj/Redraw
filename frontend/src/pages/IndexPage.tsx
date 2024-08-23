@@ -30,7 +30,6 @@ const IndexPage: React.FC = () => {
 			console.error('Error during submission:', error);
 		}
 	};
-
 	return (
 		<div>
 			<h1>Index Page</h1>
