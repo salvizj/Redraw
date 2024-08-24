@@ -11,8 +11,7 @@ import { FormData } from '../types';
 const IndexPage: React.FC = () => {
 	const navigate = useNavigate();
 	const { setLobbyId, setPlayers } = useLobbyContext();
-	const { setSessionId, setUsername, setRole } = useUserContext();
-
+	const { setUsername, setRole } = useUserContext();
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -36,11 +35,9 @@ const IndexPage: React.FC = () => {
 				});
 			}
 
-			setSessionId(responseData.sessionId);
 			setUsername(formData.username);
 			setRole(responseData.role);
 
-			// Fetch details after form submission
 			await fetchUserDetails();
 			await fetchLobbyDetails();
 
