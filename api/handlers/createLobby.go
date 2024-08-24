@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/salvizj/Redraw/utils"
 	"github.com/salvizj/Redraw/types"
+	"github.com/salvizj/Redraw/utils"
 )
 
 func CreateLobbyHandler(w http.ResponseWriter, r *http.Request) {

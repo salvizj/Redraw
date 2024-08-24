@@ -9,26 +9,25 @@ import (
 	"github.com/salvizj/Redraw/types"
 )
 
-func CreateLobby (LobbySettingsId string) (string, error){
+func CreateLobby(LobbySettingsId string) (string, error) {
 	Status := types.StatusWaiting
 	LobbyId := GenerateUUID()
-	    Lobby := types.Lobby{
-		LobbyId: LobbyId,
-        LobbySettingsId: LobbySettingsId,
-		Status: Status,
- 		CreatedAt: time.Now(),
-    }
+	Lobby := types.Lobby{
+		LobbyId:         LobbyId,
+		LobbySettingsId: LobbySettingsId,
+		Status:          Status,
+		CreatedAt:       time.Now(),
+	}
 
 	query := `INSERT INTO Lobby (LobbyId, LobbySettingsId, Status, CreatedAt)
               VALUES (?, ?, ?, ?)`
-    _, err := db.DB.Exec(query, Lobby.LobbyId, Lobby.LobbySettingsId, Lobby.Status, Lobby.CreatedAt)
-    if err != nil {
-        return "", err
-    }
+	_, err := db.DB.Exec(query, Lobby.LobbyId, Lobby.LobbySettingsId, Lobby.Status, Lobby.CreatedAt)
+	if err != nil {
+		return "", err
+	}
 
-    return Lobby.LobbyId, nil
+	return Lobby.LobbyId, nil
 }
-
 
 func GetLobbyIdBySessionId(SessionId string) (string, error) {
 	var LobbyId string
@@ -44,4 +43,3 @@ func GetLobbyIdBySessionId(SessionId string) (string, error) {
 
 	return LobbyId, nil
 }
-

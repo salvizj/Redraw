@@ -7,7 +7,6 @@ import (
 
 	"github.com/salvizj/Redraw/db"
 	"github.com/salvizj/Redraw/types"
-
 )
 
 func CreateLobbySettings() (string, error) {
@@ -31,7 +30,7 @@ func CreateLobbySettings() (string, error) {
 	return LobbySettings.LobbySettingsId, nil
 }
 
-func GetLobbySettingsIdByLobbyId (LobbyId string)(string, error){
+func GetLobbySettingsIdByLobbyId(LobbyId string) (string, error) {
 	var LobbySettingsId string
 
 	query := `SELECT LobbySettingsId FROM Lobby WHERE LobbyId = ?`

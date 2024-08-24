@@ -1,68 +1,68 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from "react";
 
 const DrawingCanvas: React.FC = () => {
-	const canvasRef = useRef<HTMLCanvasElement | null>(null);
-	const [drawing, setDrawing] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [drawing, setDrawing] = useState(false);
 
-	useEffect(() => {
-		const canvas = canvasRef.current;
-		if (!canvas) return;
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-		const ctx = canvas.getContext('2d');
-		if (!ctx) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-		ctx.lineWidth = 2;
-		ctx.lineCap = 'round';
-		ctx.strokeStyle = 'black';
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "black";
 
-		const startDrawing = (event: MouseEvent) => {
-			setDrawing(true);
-			draw(event);
-		};
+    const startDrawing = (event: MouseEvent) => {
+      setDrawing(true);
+      draw(event);
+    };
 
-		const stopDrawing = () => {
-			setDrawing(false);
-			ctx.beginPath();
-		};
+    const stopDrawing = () => {
+      setDrawing(false);
+      ctx.beginPath();
+    };
 
-		const draw = (event: MouseEvent) => {
-			if (!drawing) return;
+    const draw = (event: MouseEvent) => {
+      if (!drawing) return;
 
-			ctx.lineTo(
-				event.clientX - canvas.offsetLeft,
-				event.clientY - canvas.offsetTop
-			);
-			ctx.stroke();
-			ctx.beginPath();
-			ctx.moveTo(
-				event.clientX - canvas.offsetLeft,
-				event.clientY - canvas.offsetTop
-			);
-		};
+      ctx.lineTo(
+        event.clientX - canvas.offsetLeft,
+        event.clientY - canvas.offsetTop,
+      );
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(
+        event.clientX - canvas.offsetLeft,
+        event.clientY - canvas.offsetTop,
+      );
+    };
 
-		const handleMouseDown = startDrawing;
-		const handleMouseUp = stopDrawing;
-		const handleMouseMove = draw;
+    const handleMouseDown = startDrawing;
+    const handleMouseUp = stopDrawing;
+    const handleMouseMove = draw;
 
-		canvas.addEventListener('mousedown', handleMouseDown);
-		canvas.addEventListener('mouseup', handleMouseUp);
-		canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener("mousedown", handleMouseDown);
+    canvas.addEventListener("mouseup", handleMouseUp);
+    canvas.addEventListener("mousemove", handleMouseMove);
 
-		return () => {
-			canvas.removeEventListener('mousedown', handleMouseDown);
-			canvas.removeEventListener('mouseup', handleMouseUp);
-			canvas.removeEventListener('mousemove', handleMouseMove);
-		};
-	}, [drawing]);
+    return () => {
+      canvas.removeEventListener("mousedown", handleMouseDown);
+      canvas.removeEventListener("mouseup", handleMouseUp);
+      canvas.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, [drawing]);
 
-	return (
-		<canvas
-			ref={canvasRef}
-			width={500}
-			height={500}
-			style={{ border: '1px solid black', cursor: 'crosshair' }}
-		/>
-	);
+  return (
+    <canvas
+      ref={canvasRef}
+      width={500}
+      height={500}
+      style={{ border: "1px solid black", cursor: "crosshair" }}
+    />
+  );
 };
 
 export default DrawingCanvas;

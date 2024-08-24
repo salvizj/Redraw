@@ -38,7 +38,6 @@ func CreateTables() {
 	);
 	`
 
-
 	if _, err := DB.Exec(createLobbyTable); err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating Lobby table: %v\n", err)
 	}

@@ -2,10 +2,19 @@
 BINARY_NAME=Redraw
 
 # Default target executed when no specific target is specified
-default: build
+default: all
+
+# All target: build the entire project (both frontend and backend)
+all: format frontend-build build
+
+# Format the code
+format:
+	@echo "Formatting the code..."
+	npx prettier --write "**/*.tsx" "**/*.ts" 
+	go fmt ./...                          
 
 # Build the Go application
-build: frontend-build
+build:
 	@echo "Building the Go application..."
 	go build -o $(BINARY_NAME) cmd/main.go
 
@@ -15,7 +24,7 @@ frontend-build:
 	npm run build --prefix frontend
 
 # Run the Go application
-run: build
+run: format build
 	@echo "Running the Go application..."
 	./$(BINARY_NAME)
 
@@ -24,11 +33,6 @@ clean:
 	@echo "Cleaning up..."
 	@rm -f $(BINARY_NAME)
 	@rm -rf frontend/dist
-
-# Format the code
-fmt:
-	@echo "Formatting the code..."
-	go fmt ./...
 
 # Run tests
 test:
@@ -40,4 +44,4 @@ deps:
 	@echo "Installing dependencies..."
 	go mod tidy
 
-.PHONY: build frontend-build run clean fmt test deps
+.PHONY: default all format build frontend-build run clean test deps

@@ -9,7 +9,6 @@ import (
 	"github.com/salvizj/Redraw/types"
 )
 
-
 func CreateSession(LobbyId, Username string, Role types.Role) (string, error) {
 	SessionId := GenerateUUID()
 	Session := types.Session{
@@ -17,23 +16,23 @@ func CreateSession(LobbyId, Username string, Role types.Role) (string, error) {
 		Username:           Username,
 		LobbyId:            LobbyId,
 		Role:               Role,
-		SubmittedPrompt:   "",
-		ReceivedPrompt:    "",
+		SubmittedPrompt:    "",
+		ReceivedPrompt:     "",
 		HasSubmittedPrompt: false,
-		CreatedAt:         time.Now(),
+		CreatedAt:          time.Now(),
 	}
 
 	query := `INSERT INTO Session (SessionId, Username, LobbyId, Role, SubmittedPrompt, ReceivedPrompt, HasSubmittedPrompt, CreatedAt)
               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
 
-	_, err := db.DB.Exec(query, 
-		Session.SessionId, 
-		Session.Username, 
-		Session.LobbyId, 
-		Session.Role, 
-		Session.SubmittedPrompt, 
-		Session.ReceivedPrompt, 
-		Session.HasSubmittedPrompt, 
+	_, err := db.DB.Exec(query,
+		Session.SessionId,
+		Session.Username,
+		Session.LobbyId,
+		Session.Role,
+		Session.SubmittedPrompt,
+		Session.ReceivedPrompt,
+		Session.HasSubmittedPrompt,
 		Session.CreatedAt)
 	if err != nil {
 		return "", err

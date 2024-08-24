@@ -17,12 +17,11 @@ const (
 	RolePlayer Role = "player"
 )
 
-
 type Lobby struct {
-    LobbyId         string             
-    LobbySettingsId string    
-    Status          Status         
-    CreatedAt       time.Time     
+	LobbyId         string
+	LobbySettingsId string
+	Status          Status
+	CreatedAt       time.Time
 }
 
 type LobbySettings struct {
@@ -34,12 +33,12 @@ type LobbySettings struct {
 }
 
 type Session struct {
-	SessionId string
-	Username  string
-	LobbyId   string
-	Role      Role
-	SubmittedPrompt string 
-	ReceivedPrompt string 
+	SessionId          string
+	Username           string
+	LobbyId            string
+	Role               Role
+	SubmittedPrompt    string
+	ReceivedPrompt     string
 	HasSubmittedPrompt bool
-	CreatedAt time.Time
+	CreatedAt          time.Time
 }
