@@ -7,7 +7,7 @@ all: format frontend-build build
 format:
 	@echo "Formatting the code..."
 	npx prettier --write "**/*.tsx" "**/*.ts"  
-	go fmt ./...                               
+	go fmt ./...
 
 build:
 	@echo "Building the Go application..."
@@ -15,7 +15,7 @@ build:
 
 frontend-build:
 	@echo "Building the frontend application..."
-	npm run build --prefix frontend
+	@cd frontend && npm install && npm run build || (echo "Frontend build failed" && exit 1)
 
 run: build
 	@echo "Running the Go application..."

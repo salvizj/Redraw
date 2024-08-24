@@ -1,18 +1,18 @@
 export type Player = {
-	username: string;
-	role: string;
+  username: string;
+  role: string;
 };
 export type LobbyDetails = {
-	lobbyId: string;
-	players: Player[];
+  lobbyId: string;
+  players: Player[];
 };
 
 export type FormData = {
-	username: string;
-	lobbyId?: string;
+  username: string;
+  lobbyId?: string;
 };
 export type UserDetails = {
-	lobbyId: string;
-	role: string;
-	username: string;
+  lobbyId: string;
+  role: string;
+  username: string;
 };
