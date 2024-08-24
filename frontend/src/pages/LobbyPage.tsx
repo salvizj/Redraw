@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useUserContext } from '../context/userContext';
 
 const LobbyPage: React.FC = () => {
-	const { lobbyId, role, error } = useUserContext();
 	const [copied, setCopied] = useState(false);
 	const [copyError, setCopyError] = useState<string | null>(null);
 	const navigate = useNavigate();

@@ -1,28 +1,36 @@
 import React from 'react';
-import LobbyForm from '../components/LobbyForm';
 import { useNavigate } from 'react-router-dom';
-import { useUserContext } from '../context/userContext';
-import { createLobby, joinLobby } from '../api/lobbyApi';
+import LobbyForm from '../components/LobbyForm';
+import { createLobby, joinLobby } from '../api/submitLobbyFormApi';
+import { fetchLobbyDetails } from '../api/getLobbyDetailsApi';
+import { useLobbyContext } from '../context/lobbyContext';
 
 const IndexPage: React.FC = () => {
 	const navigate = useNavigate();
-	const { setLobbyId } = useUserContext();
+	const { setLobbyId, setPlayers } = useLobbyContext();
 
 	const handleSubmit = async (formData: {
 		username: string;
 		lobbyId?: string;
 	}) => {
 		try {
-			let lobbyData;
+			let responseData;
 			if (formData.lobbyId) {
-				lobbyData = await joinLobby({
+				responseData = await joinLobby({
 					username: formData.username,
 					lobbyId: formData.lobbyId,
 				});
 			} else {
-				lobbyData = await createLobby({ username: formData.username });
+				responseData = await createLobby({
+					username: formData.username,
+				});
 			}
-			setLobbyId(lobbyData.lobbyId);
+
+			const details = await fetchLobbyDetails();
+
+			setLobbyId(details.lobbyId);
+			setPlayers(details.players);
+
 			navigate('/lobby');
 		} catch (error) {
 			console.error('Error during submission:', error);

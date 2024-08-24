@@ -42,3 +42,7 @@ type Session struct {
 	HasSubmittedPrompt bool
 	CreatedAt          time.Time
 }
+type PlayerDetails struct {
+	Username string `json:"username"`
+	Role     string `json:"role"`
+}

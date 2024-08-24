@@ -9,7 +9,6 @@ import (
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
 
-// DB holds the database connection instance
 var DB *sql.DB
 
 func Initialize() {
@@ -26,7 +25,6 @@ func Initialize() {
 		os.Exit(1)
 	}
 
-	// Construct the connection URL
 	connURL := fmt.Sprintf("%s?authToken=%s", url, token)
 
 	var err error

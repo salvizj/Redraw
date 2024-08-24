@@ -12,7 +12,7 @@ func InitializeRoutes() *mux.Router {
 
 	r.HandleFunc("/create-lobby", handlers.CreateLobbyHandler).Methods(http.MethodPost)
 	r.HandleFunc("/join-lobby", handlers.JoinLobbyHandler).Methods(http.MethodPost)
-	r.HandleFunc("/get-user-info", handlers.GetUserInfoHandler).Methods(http.MethodPost)
+	r.HandleFunc("/get-lobby-details", handlers.GetLobbyDetailsHandler).Methods(http.MethodPost)
 	r.HandleFunc("/ws", handlers.WebSocketHandler)
 
 	staticFileServer := http.FileServer(http.Dir("./frontend/dist"))
