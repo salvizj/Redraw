@@ -1,13 +1,21 @@
-import React from "react";
-import DrawingCanvas from "../components/DrawingCanvas";
+import React from 'react';
+import { useGameContext } from '../context/gameContext';
+import Canvas from '../components/Canvas';
+import Chat from '../components/Chat';
 
 const GamePage: React.FC = () => {
-  return (
-    <div>
-      <h1>Game Page</h1>
-      <DrawingCanvas />
-    </div>
-  );
+	const { canvasState, updateCanvasState } = useGameContext();
+
+	return (
+		<div>
+			<h1>Game Page</h1>
+			<Canvas
+				canvasState={canvasState}
+				updateCanvasState={updateCanvasState}
+			/>
+			<Chat />
+		</div>
+	);
 };
 
 export default GamePage;

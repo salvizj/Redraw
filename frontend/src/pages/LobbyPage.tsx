@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLobbyContext } from '../context/LobbyContext';
-import useUserRole from '../hooks/useUserRole';
+import { useUserContext } from '../context/userContext';
 
 const LobbyPage: React.FC = () => {
-	const { lobbyId } = useLobbyContext();
-	const { role, error } = useUserRole();
+	const { lobbyId, role, error } = useUserContext();
 	const [copied, setCopied] = useState(false);
 	const [copyError, setCopyError] = useState<string | null>(null);
 	const navigate = useNavigate();
@@ -29,7 +27,7 @@ const LobbyPage: React.FC = () => {
 	};
 
 	const handleStart = () => {
-		navigate('/GamePage');
+		navigate('/game');
 	};
 
 	return (
@@ -52,7 +50,7 @@ const LobbyPage: React.FC = () => {
 				<p>No lobby joined.</p>
 			)}
 			{role === 'leader' && <button onClick={handleStart}>Start</button>}
-			{role === 'player' && <p> Wait for leader to start a game </p>}
+			{role === 'player' && <p>Wait for the leader to start the game</p>}
 		</div>
 	);
 };

@@ -23,42 +23,32 @@ const LobbyForm: React.FC<LobbyFormProps> = ({ onSubmit }) => {
 		setUsername(e.target.value);
 	};
 
-	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		setError(null);
-
-		if (!username.trim()) {
-			setError('Username cannot be empty.');
-			return;
+		if (username) {
+			onSubmit({ username, lobbyId: lobbyId || undefined });
+		} else {
+			setError('Username is required');
 		}
-
-		if (/<script|<\/script>/i.test(username)) {
-			setError('Username cannot contain scripts.');
-			return;
-		}
-
-		if (username.length > 20) {
-			setError('Username cannot be longer than 20 characters.');
-			return;
-		}
-
-		onSubmit({ username, lobbyId: lobbyId ?? undefined });
 	};
 
 	return (
 		<form onSubmit={handleSubmit}>
-			<label htmlFor="username">Username</label>
-			<input
-				type="text"
-				value={username}
-				onChange={handleChange}
-				placeholder="Enter your username"
-				name="username"
-			/>
-			<button type="submit">
-				{lobbyId ? <>lobbyId: Join a Lobby</> : <>Create a lobby</>}
-			</button>
+			<div>
+				<label>
+					Username:
+					<input
+						type="text"
+						value={username}
+						onChange={handleChange}
+						required
+					/>
+				</label>
+			</div>
 			{error && <p style={{ color: 'red' }}>{error}</p>}
+			<button type="submit">
+				{lobbyId ? 'Join Lobby' : 'Create Lobby'}
+			</button>
 		</form>
 	);
 };
