@@ -53,6 +53,7 @@ func GetLobbyIdBySessionId(SessionId string) (string, error) {
 
 	return LobbyId, nil
 }
+
 func GetLobbyAndUserFromSession(sessionId string) (lobbyId string, role string, username string, err error) {
 	session, err := GetSessionById(sessionId)
 	if err != nil {
@@ -63,6 +64,7 @@ func GetLobbyAndUserFromSession(sessionId string) (lobbyId string, role string, 
 	username = session.Username
 	return
 }
+
 func GetPlayersInLobby(lobbyId string) ([]types.PlayerDetails, error) {
 	var players []types.PlayerDetails
 	query := `SELECT Username, Role FROM Session WHERE LobbyId = ?`

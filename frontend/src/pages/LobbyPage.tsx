@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLobbyContext } from '../context/lobbyContext';
 import { useUserContext } from '../context/userContext';
 
 const LobbyPage: React.FC = () => {
+	const { lobbyId, players } = useLobbyContext();
+	const { username, role } = useUserContext();
 	const [copied, setCopied] = useState(false);
 	const [copyError, setCopyError] = useState<string | null>(null);
 	const navigate = useNavigate();
@@ -35,15 +38,27 @@ const LobbyPage: React.FC = () => {
 			{lobbyId ? (
 				<div>
 					<p>Lobby ID: {lobbyId}</p>
-					{role && <p>User Role: {role}</p>}
-					{error && <p style={{ color: 'red' }}>{error}</p>}
+					<p>Username: {username}</p>
+					<p>User Role: {role}</p>
+					{players.length > 0 && (
+						<div>
+							<h2>Players in Lobby:</h2>
+							<ul>
+								{players.map((player) => (
+									<li key={player.username}>
+										{player.username} - {player.role}
+									</li>
+								))}
+							</ul>
+						</div>
+					)}
+					{copyError && <p style={{ color: 'red' }}>{copyError}</p>}
 					<button onClick={handleCopyToClipboard}>
 						Copy Lobby URL
 					</button>
 					{copied && (
 						<p style={{ color: 'green' }}>Copied to clipboard!</p>
 					)}
-					{copyError && <p style={{ color: 'red' }}>{copyError}</p>}
 				</div>
 			) : (
 				<p>No lobby joined.</p>

@@ -1,10 +1,9 @@
 package routes
 
 import (
-	"net/http"
-
 	"github.com/gorilla/mux"
 	"github.com/salvizj/Redraw/api/handlers"
+	"net/http"
 )
 
 func InitializeRoutes() *mux.Router {
@@ -12,7 +11,8 @@ func InitializeRoutes() *mux.Router {
 
 	r.HandleFunc("/create-lobby", handlers.CreateLobbyHandler).Methods(http.MethodPost)
 	r.HandleFunc("/join-lobby", handlers.JoinLobbyHandler).Methods(http.MethodPost)
-	r.HandleFunc("/get-lobby-details", handlers.GetLobbyDetailsHandler).Methods(http.MethodPost)
+	r.HandleFunc("/get-lobby-details", handlers.GetLobbyDetailsHandler).Methods(http.MethodGet)
+	r.HandleFunc("/get-user-details", handlers.GetUserDetailsHandler).Methods(http.MethodGet)
 	r.HandleFunc("/ws", handlers.WebSocketHandler)
 
 	staticFileServer := http.FileServer(http.Dir("./frontend/dist"))

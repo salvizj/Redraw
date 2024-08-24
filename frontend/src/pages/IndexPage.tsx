@@ -1,18 +1,31 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LobbyForm from '../components/LobbyForm';
 import { createLobby, joinLobby } from '../api/submitLobbyFormApi';
-import { fetchLobbyDetails } from '../api/getLobbyDetailsApi';
 import { useLobbyContext } from '../context/lobbyContext';
+import { useUserContext } from '../context/userContext';
+import { useLobbyDetails } from '../hooks/useLobbyDetails';
+import { useUserDetails } from '../hooks/useUserDetails';
+import { FormData } from '../types';
 
 const IndexPage: React.FC = () => {
 	const navigate = useNavigate();
 	const { setLobbyId, setPlayers } = useLobbyContext();
+	const { setSessionId, setUsername, setRole } = useUserContext();
 
-	const handleSubmit = async (formData: {
-		username: string;
-		lobbyId?: string;
-	}) => {
+	// Using hooks to fetch user and lobby details
+	const {
+		userDetails,
+		loading: userLoading,
+		error: userError,
+	} = useUserDetails();
+	const {
+		lobbyDetails,
+		loading: lobbyLoading,
+		error: lobbyError,
+	} = useLobbyDetails();
+
+	const handleSubmit = async (formData: FormData) => {
 		try {
 			let responseData;
 			if (formData.lobbyId) {
@@ -26,16 +39,26 @@ const IndexPage: React.FC = () => {
 				});
 			}
 
-			const details = await fetchLobbyDetails();
-
-			setLobbyId(details.lobbyId);
-			setPlayers(details.players);
-
-			navigate('/lobby');
+			setSessionId(responseData.sessionId);
+			setUsername(formData.username);
+			setRole(responseData.role);
 		} catch (error) {
 			console.error('Error during submission:', error);
 		}
 	};
+
+	useEffect(() => {
+		if (userDetails && lobbyDetails) {
+			setLobbyId(lobbyDetails.lobbyId);
+			setPlayers(lobbyDetails.players);
+
+			navigate('/lobby');
+		}
+	}, [userDetails, lobbyDetails, setLobbyId, setPlayers, navigate]);
+
+	if (userLoading || lobbyLoading) return <div>Loading...</div>;
+	if (userError || lobbyError)
+		return <div>Error: {userError?.message || lobbyError?.message}</div>;
 
 	return (
 		<div>
