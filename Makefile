@@ -17,7 +17,7 @@ frontend-build:
 	@echo "Building the frontend application..."
 	@cd frontend && npm install && npm run build || (echo "Frontend build failed" && exit 1)
 
-run: build
+run: frontend-build build
 	@echo "Running the Go application..."
 	./$(BINARY_NAME)
 

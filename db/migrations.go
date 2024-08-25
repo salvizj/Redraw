@@ -48,6 +48,4 @@ func CreateTables() {
 		fmt.Fprintf(os.Stderr, "Error creating Session table: %v\n", err)
 	}
 
-	fmt.Println("Tables created successfully")
-
 }

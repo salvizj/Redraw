@@ -28,3 +28,16 @@ export type LobbyContextType = {
 	setLobbyId: (lobbyid: string | null) => void;
 	setPlayers: (players: Player[]) => void;
 };
+export type Message = {
+	type: string;
+	sessionId?: string;
+	lobbyId: string;
+	content?: string;
+};
+
+export type WsApi = {
+	connect: (lobbyId: string) => void;
+	disconnect: () => void;
+	sendMessage: (msg: Message) => void;
+	onMessage: (callback: (msg: Message) => void) => void;
+};

@@ -46,3 +46,9 @@ type PlayerDetails struct {
 	Username string `json:"username"`
 	Role     string `json:"role"`
 }
+type Message struct {
+	Type      string `json:"type"`
+	SessionId string `json:"sessionId"`
+	LobbyId   string `json:"lobbyId"`
+	Content   string `json:"content"`
+}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { fetchLobbyDetails } from '../api/getLobbyDetailsApi';
 import { LobbyDetails } from '../types';
 
@@ -7,17 +7,18 @@ export const useLobbyDetails = () => {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<Error | null>(null);
 
-	const fetchDetails = async () => {
+	const fetchDetails = useCallback(async () => {
 		setLoading(true);
 		try {
 			const details = await fetchLobbyDetails();
+			console.log(details);
 			setLobbyDetails(details);
 		} catch (err) {
 			setError(err as Error);
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, []);
 
 	return { lobbyDetails, loading, error, fetchDetails };
 };

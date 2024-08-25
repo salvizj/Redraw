@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { fetchUserDetails } from '../api/getUserDetailsApi';
 import { UserDetails } from '../types';
 
@@ -7,7 +7,7 @@ export const useUserDetails = () => {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<Error | null>(null);
 
-	const fetchDetails = async () => {
+	const fetchDetails = useCallback(async () => {
 		setLoading(true);
 		try {
 			const data = await fetchUserDetails();
@@ -17,7 +17,7 @@ export const useUserDetails = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, []);
 
 	return { userDetails, loading, error, fetchDetails };
 };

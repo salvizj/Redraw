@@ -3,8 +3,10 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/salvizj/Redraw/types"
 )
 
 var upgrader = websocket.Upgrader{
@@ -14,13 +16,6 @@ var upgrader = websocket.Upgrader{
 }
 
 var lobbies = make(map[string]map[*websocket.Conn]bool)
-
-type Message struct {
-	Type      string `json:"type"`
-	SessionId string `json:"sessionId"`
-	LobbyId   string `json:"lobbyId"`
-	Content   string `json:"content"`
-}
 
 func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
@@ -32,8 +27,10 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 
 	var currentLobbyId string
 
+	go handlePing(ws)
+
 	for {
-		var msg Message
+		var msg types.Message
 		err := ws.ReadJSON(&msg)
 		if err != nil {
 			log.Printf("Error reading JSON: %v", err)
@@ -57,6 +54,17 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handlePing(ws *websocket.Conn) {
+	for {
+		time.Sleep(10 * time.Second)
+		if err := ws.WriteMessage(websocket.PingMessage, nil); err != nil {
+			log.Printf("Error sending ping: %v", err)
+			ws.Close()
+			break
+		}
+	}
+}
+
 func joinLobby(lobbyId string, ws *websocket.Conn) {
 	if lobbies[lobbyId] == nil {
 		lobbies[lobbyId] = make(map[*websocket.Conn]bool)
@@ -76,7 +84,7 @@ func leaveLobby(lobbyId string, ws *websocket.Conn) {
 func handleStartGame(lobbyId string) {
 	if clients, ok := lobbies[lobbyId]; ok {
 		for client := range clients {
-			err := client.WriteJSON(Message{
+			err := client.WriteJSON(types.Message{
 				Type:    "game-started",
 				LobbyId: lobbyId,
 				Content: "The game has started!",
@@ -93,7 +101,7 @@ func handleStartGame(lobbyId string) {
 	}
 }
 
-func broadcastMessageToLobby(lobbyId string, msg Message) {
+func broadcastMessageToLobby(lobbyId string, msg types.Message) {
 	if clients, ok := lobbies[lobbyId]; ok {
 		for client := range clients {
 			err := client.WriteJSON(msg)
