@@ -3,7 +3,6 @@ import { useLobbyContext } from '../context/lobbyContext';
 import { useUserContext } from '../context/userContext';
 import { useLobbyDetails } from '../hooks/useLobbyDetails';
 import { useUserDetails } from '../hooks/useUserDetails';
-import useWsApi from '../api/wsApi';
 
 const LobbyPage: React.FC = () => {
 	const { lobbyId, players, setLobbyId, setPlayers } = useLobbyContext();
@@ -25,8 +24,6 @@ const LobbyPage: React.FC = () => {
 		loading: loadingUserDetails,
 		error: errorUserDetails,
 	} = useUserDetails();
-
-	const { connect, disconnect, sendMessage, onMessage } = useWsApi();
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -57,22 +54,6 @@ const LobbyPage: React.FC = () => {
 		setPlayers,
 	]);
 
-	useEffect(() => {
-		if (lobbyId) {
-			connect(lobbyId);
-
-			onMessage((message) => {
-				if (message.type === 'LOBBY_UPDATE') {
-					fetchLobbyDetails();
-				}
-			});
-
-			return () => {
-				disconnect();
-			};
-		}
-	}, [lobbyId, connect, disconnect, fetchLobbyDetails, onMessage]);
-
 	const handleCopyToClipboard = () => {
 		if (lobbyId) {
 			const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -90,11 +71,7 @@ const LobbyPage: React.FC = () => {
 		}
 	};
 
-	const handleStart = () => {
-		if (lobbyId) {
-			sendMessage({ type: 'start-game', lobbyId });
-		}
-	};
+	const handleStart = () => {};
 
 	return (
 		<div>

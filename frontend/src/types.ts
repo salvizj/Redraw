@@ -36,7 +36,7 @@ export type Message = {
 };
 
 export type WsApi = {
-	connect: (lobbyId: string) => void;
+	connect: (sessionId: string, lobbyId: string) => void;
 	disconnect: () => void;
 	sendMessage: (msg: Message) => void;
 	onMessage: (callback: (msg: Message) => void) => void;

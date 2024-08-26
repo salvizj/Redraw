@@ -48,7 +48,7 @@ type PlayerDetails struct {
 }
 type Message struct {
 	Type      string `json:"type"`
-	SessionId string `json:"sessionId"`
-	LobbyId   string `json:"lobbyId"`
 	Content   string `json:"content"`
+	SessionId string `json:"sessionId,omitempty"`
+	LobbyId   string `json:"lobbyId,omitempty"`
 }
