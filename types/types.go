@@ -5,9 +5,8 @@ import "time"
 type Status string
 
 const (
-	StatusWaiting   Status = "waiting"
-	StatusActive    Status = "active"
-	StatusCompleted Status = "completed"
+	StatusWaiting Status = "waiting"
+	StatusActive  Status = "active"
 )
 
 type Role string
@@ -43,12 +42,23 @@ type Session struct {
 	CreatedAt          time.Time
 }
 type PlayerDetails struct {
-	Username string `json:"username"`
-	Role     string `json:"role"`
+	Username string
+	Role     string
 }
+
+type MessageType string
+
+const (
+	Join         MessageType = "join"
+	Leave        MessageType = "leave"
+	StartGame    MessageType = "startGame"
+	Notification MessageType = "notification"
+	GameStarted  MessageType = "gameStarted"
+)
+
 type Message struct {
-	Type      string `json:"type"`
-	Content   string `json:"content"`
-	SessionId string `json:"sessionId,omitempty"`
-	LobbyId   string `json:"lobbyId,omitempty"`
+	Type      MessageType
+	SessionID string
+	LobbyID   string
+	Data      interface{}
 }

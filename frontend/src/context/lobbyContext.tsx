@@ -1,25 +1,36 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
-import { LobbyContextType, Player } from "../types";
+import React, { createContext, useContext, useState } from 'react';
+import { Player } from '../types';
+
+type LobbyContextType = {
+	lobbyId: string | null;
+	players: Player[];
+	setLobbyId: (lobbyId: string | null) => void;
+	setPlayers: (players: Player[]) => void;
+};
 
 const LobbyContext = createContext<LobbyContextType | undefined>(undefined);
 
-const LobbyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [lobbyId, setLobbyId] = useState<string | null>(null);
-  const [players, setPlayers] = useState<Player[]>([]);
-
-  return (
-    <LobbyContext.Provider value={{ lobbyId, players, setLobbyId, setPlayers }}>
-      {children}
-    </LobbyContext.Provider>
-  );
+export const useLobbyContext = () => {
+	const context = useContext(LobbyContext);
+	if (context === undefined) {
+		throw new Error('useLobbyContext must be used within a LobbyProvider');
+	}
+	return context;
 };
 
-const useLobbyContext = (): LobbyContextType => {
-  const context = useContext(LobbyContext);
-  if (!context) {
-    throw new Error("useLobbyContext must be used within a LobbyProvider");
-  }
-  return context;
-};
+export const LobbyProvider: React.FC<{ children: React.ReactNode }> = ({
+	children,
+}) => {
+	const [lobbyId, setLobbyId] = useState<string | null>(null);
+	const [players, setPlayers] = useState<Player[]>([]);
 
-export { LobbyProvider, useLobbyContext };
+	console.log('Provider values:', { lobbyId, players });
+
+	return (
+		<LobbyContext.Provider
+			value={{ lobbyId, players, setLobbyId, setPlayers }}
+		>
+			{children}
+		</LobbyContext.Provider>
+	);
+};

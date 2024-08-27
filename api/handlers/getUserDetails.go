@@ -12,6 +12,7 @@ func GetUserDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
+
 	cookie, err := r.Cookie("sessionId")
 	if err != nil {
 		http.Error(w, "Session ID not found in cookies", http.StatusUnauthorized)
@@ -27,13 +28,15 @@ func GetUserDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := struct {
-		LobbyId  string `json:"lobbyId"`
-		Role     string `json:"role"`
-		Username string `json:"username"`
+		SessionId string `json:"sessionId"`
+		LobbyId   string `json:"lobbyId"`
+		Role      string `json:"role"`
+		Username  string `json:"username"`
 	}{
-		LobbyId:  lobbyId,
-		Role:     role,
-		Username: username,
+		SessionId: sessionId,
+		LobbyId:   lobbyId,
+		Role:      role,
+		Username:  username,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

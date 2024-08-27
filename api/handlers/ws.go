@@ -7,34 +7,23 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
+	"github.com/salvizj/Redraw/types"
 )
 
-// Message represents the structure of WebSocket messages
-type Message struct {
-	Type      string `json:"type"`
-	SessionID string `json:"sessionId,omitempty"`
-	Data      any    `json:"data,omitempty"` // Use `interface{}` for general-purpose data
-}
-
-// Client represents a WebSocket client
 type Client struct {
 	conn      *websocket.Conn
 	sessionID string
 }
 
-// upgrader is used to upgrade HTTP connections to WebSocket connections
 var upgrader = websocket.Upgrader{}
 
-// clients holds all active WebSocket connections
 var clients = make(map[*Client]bool)
 
-// broadcast is a channel used to send messages to all connected clients
-var broadcast = make(chan Message)
+var broadcast = make(chan types.Message)
 
 // mutex to synchronize access to the clients map
 var mutex = &sync.Mutex{}
 
-// WebSocketHandler handles WebSocket requests from clients
 func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -48,7 +37,6 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	clients[client] = true
 	mutex.Unlock()
 
-	// Handle incoming messages
 	go ReadMsgs(client)
 }
 
@@ -67,27 +55,35 @@ func ReadMsgs(client *Client) {
 			return
 		}
 
-		var message Message
+		var message types.Message
 		if err := json.Unmarshal(msg, &message); err != nil {
 			fmt.Println("Error while unmarshalling message:", err)
 			continue
 		}
 
 		switch message.Type {
-		case "join":
+		case types.Join:
 			client.sessionID = message.SessionID
-			broadcast <- Message{Type: "notification", Data: fmt.Sprintf("Client with session ID %s joined", client.sessionID)}
-		case "leave":
-			broadcast <- Message{Type: "notification", Data: fmt.Sprintf("Client with session ID %s left", client.sessionID)}
-		case "startGame":
-			broadcast <- Message{Type: "gameStarted", Data: "The game has started!"}
+			broadcast <- types.Message{
+				Type: types.Notification,
+				Data: fmt.Sprintf("Client with session ID %s joined", client.sessionID),
+			}
+		case types.Leave:
+			broadcast <- types.Message{
+				Type: types.Notification,
+				Data: fmt.Sprintf("Client with session ID %s left", client.sessionID),
+			}
+		case types.StartGame:
+			broadcast <- types.Message{
+				Type: types.GameStarted,
+				Data: "The game has started!",
+			}
 		default:
-			broadcast <- message // Broadcast the message to all clients
+			broadcast <- message
 		}
 	}
 }
 
-// BroadcastMsgs broadcasts messages to all connected clients
 func BroadcastMsgs() {
 	for msg := range broadcast {
 		mutex.Lock()
