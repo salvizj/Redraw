@@ -1,58 +1,61 @@
-import React, { useEffect, useState } from 'react';
-import { useLobbyContext } from '../context/lobbyContext';
-import { useUserContext } from '../context/userContext';
-import { useLobbyDetails } from '../hooks/useLobbyDetails';
-import { useUserDetails } from '../hooks/useUserDetails';
-import { useWebSocket } from '../hooks/useWebSocket';
-import { HandleCopyToClipboard } from '../components/HandleCopyToClipboard';
-import { MessageType } from '../types';
+import React, { useEffect, useState } from 'react'
+import { useLobbyContext } from '../context/lobbyContext'
+import { useUserContext } from '../context/userContext'
+import { useLobbyDetails } from '../hooks/useLobbyDetails'
+import { useUserDetails } from '../hooks/useUserDetails'
+import { useWebSocket } from '../hooks/useWebSocket'
+import { MessageType } from '../types'
+import PlayersInLobby from '../components/PlayersInLobby'
+import StartButton from '../components/StartButton'
+import HandleCopyToClipboard from '../components/HandleCopyToClipboard'
 
 const LobbyPage: React.FC = () => {
-	const { lobbyId, players, setLobbyId, setPlayers } = useLobbyContext();
+	const { lobbyId, players, setLobbyId, setPlayers } = useLobbyContext()
 	const { username, role, sessionId, setSessionId, setUsername, setRole } =
-		useUserContext();
-	const [copied, setCopied] = useState(false);
-	const [copyError, setCopyError] = useState<string | null>(null);
-	const [fetchError, setFetchError] = useState<string | null>(null);
-	const { message, sendMessage } = useWebSocket();
+		useUserContext()
+	const [fetchError, setFetchError] = useState<string | null>(null)
+	const { message, sendMessage } = useWebSocket()
 
 	const {
 		fetchDetails: fetchLobbyDetails,
 		lobbyDetails,
 		loading: loadingLobbyDetails,
 		error: errorLobbyDetails,
-	} = useLobbyDetails();
-
+	} = useLobbyDetails()
 	const {
 		fetchDetails: fetchUserDetails,
 		userDetails,
 		loading: loadingUserDetails,
 		error: errorUserDetails,
-	} = useUserDetails();
+	} = useUserDetails()
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				await fetchUserDetails();
-				await fetchLobbyDetails();
+				await fetchUserDetails()
+				await fetchLobbyDetails()
 			} catch {
-				setFetchError('Failed to fetch lobby or user details.');
+				setFetchError('Failed to fetch lobby or user details.')
 			}
-		};
+		}
 
-		fetchData();
-	}, [fetchUserDetails, fetchLobbyDetails]);
+		fetchData()
+	}, [fetchUserDetails, fetchLobbyDetails])
 
 	useEffect(() => {
 		if (userDetails && lobbyDetails) {
-			setSessionId(userDetails.sessionId);
-			setUsername(userDetails.username);
-			setRole(userDetails.role);
-			setLobbyId(lobbyDetails.lobbyId);
-			setPlayers(lobbyDetails.players);
-			console.log('Players set:', lobbyDetails.players);
-			if (lobbyId && sessionId) {
-				sendMessage(MessageType.Join, lobbyId, sessionId);
+			setSessionId(userDetails.sessionId)
+			setUsername(userDetails.username)
+			setRole(userDetails.role)
+			setLobbyId(lobbyDetails.lobbyId)
+			setPlayers(lobbyDetails.players)
+
+			if (lobbyDetails.lobbyId && userDetails.sessionId) {
+				sendMessage(
+					MessageType.Join,
+					lobbyDetails.lobbyId,
+					userDetails.sessionId
+				)
 			}
 		}
 	}, [
@@ -63,14 +66,15 @@ const LobbyPage: React.FC = () => {
 		setRole,
 		setLobbyId,
 		setPlayers,
-	]);
+		sendMessage,
+	])
 
 	const handleStart = () => {
 		if (lobbyId && sessionId) {
-			sendMessage(MessageType.Join, lobbyId, sessionId);
+			sendMessage(MessageType.StartGame, lobbyId, sessionId)
 		}
-	};
-
+	}
+	console.log(players)
 	return (
 		<div>
 			<h1>Lobby Page</h1>
@@ -88,50 +92,19 @@ const LobbyPage: React.FC = () => {
 					<p>Lobby ID: {lobbyId}</p>
 					<p>Username: {username}</p>
 					<p>User Role: {role}</p>
-					{players.length > 0 ? (
-						<div>
-							<h2>Players in Lobby:</h2>
-							<ul>
-								{players.map((player) => (
-									<li key={player.username}>
-										{' '}
-										{/* Ensure 'username' is correct */}
-										{player.username} - {player.role}{' '}
-										{/* Ensure 'role' is correct */}
-									</li>
-								))}
-							</ul>
-						</div>
-					) : (
-						<p>No players to display.</p>
-					)}
-					<button
-						onClick={() =>
-							HandleCopyToClipboard(
-								lobbyId,
-								setCopied,
-								setCopyError
-							)
-						}
-					>
-						Copy Lobby URL
-					</button>
-					{copied && (
-						<p style={{ color: 'green' }}>Copied to clipboard!</p>
-					)}
-					{copyError && <p style={{ color: 'red' }}>{copyError}</p>}
+					<PlayersInLobby players={players} />
+					<HandleCopyToClipboard lobbyId={lobbyId} />
 				</div>
 			) : (
 				<p>No lobby joined.</p>
 			)}
-			{role === 'leader' && <button onClick={handleStart}>Start</button>}
-			{role === 'player' && <p>Wait for the leader to start the game</p>}
+			<StartButton handleStart={handleStart} role={role} />
 			<div>
 				<h2>Latest Message:</h2>
 				<p>{message ? JSON.stringify(message) : 'No messages yet'}</p>
 			</div>
 		</div>
-	);
-};
+	)
+}
 
-export default LobbyPage;
+export default LobbyPage
