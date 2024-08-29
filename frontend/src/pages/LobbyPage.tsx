@@ -38,7 +38,6 @@ const LobbyPage: React.FC = () => {
 				setFetchError('Failed to fetch lobby or user details.')
 			}
 		}
-
 		fetchData()
 	}, [fetchUserDetails, fetchLobbyDetails])
 
@@ -74,35 +73,43 @@ const LobbyPage: React.FC = () => {
 			sendMessage(MessageType.StartGame, lobbyId, sessionId)
 		}
 	}
-	console.log(players)
+
 	return (
-		<div>
-			<h1>Lobby Page</h1>
+		<div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-6">
+			<h1 className="text-4xl font-bold mb-6 text-blue-400">
+				Lobby Page
+			</h1>
 			{loadingUserDetails || loadingLobbyDetails ? (
-				<p>Loading...</p>
-			) : errorUserDetails || errorLobbyDetails || fetchError ? (
-				<p style={{ color: 'red' }}>
+				<p className="text-blue-300">Loading...</p>
+			) : fetchError || errorUserDetails || errorLobbyDetails ? (
+				<p className="text-red-500">
 					Error:{' '}
 					{fetchError ||
 						errorUserDetails?.message ||
 						errorLobbyDetails?.message}
 				</p>
 			) : lobbyId ? (
-				<div>
-					<p>Lobby ID: {lobbyId}</p>
-					<p>Username: {username}</p>
-					<p>User Role: {role}</p>
+				<div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md">
+					<p className="text-lg mb-2">Lobby ID: {lobbyId}</p>
+					<p className="text-lg mb-2">Username: {username}</p>
+					<p className="text-lg mb-4">User Role: {role}</p>
 					<PlayersInLobby players={players} />
 					<HandleCopyToClipboard lobbyId={lobbyId} />
+					<StartButton handleStart={handleStart} role={role} />
+					<div className="mt-4">
+						<h2 className="text-xl font-semibold mb-2">
+							Latest Message:
+						</h2>
+						<p>
+							{message
+								? JSON.stringify(message)
+								: 'No messages yet'}
+						</p>
+					</div>
 				</div>
 			) : (
 				<p>No lobby joined.</p>
 			)}
-			<StartButton handleStart={handleStart} role={role} />
-			<div>
-				<h2>Latest Message:</h2>
-				<p>{message ? JSON.stringify(message) : 'No messages yet'}</p>
-			</div>
 		</div>
 	)
 }

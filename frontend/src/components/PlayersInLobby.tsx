@@ -7,12 +7,12 @@ interface PlayersInLobbyProps {
 
 const PlayersInLobby: React.FC<PlayersInLobbyProps> = ({ players }) => {
 	return (
-		<div>
-			<h2>Players in Lobby:</h2>
+		<div className="mt-4">
+			<h2 className="text-xl font-semibold mb-2">Players in Lobby:</h2>
 			{players.length > 0 ? (
-				<ul>
+				<ul className="list-disc pl-5">
 					{players.map((player) => (
-						<li key={player.username}>
+						<li key={player.username} className="mb-2">
 							{player.username} - {player.role}
 						</li>
 					))}

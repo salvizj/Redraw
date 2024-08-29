@@ -1,46 +1,49 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import LobbyForm from '../components/LobbyForm';
-import { createLobby, joinLobby } from '../api/submitLobbyFormApi';
-import { FormData } from '../types';
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import LobbyForm from '../components/LobbyForm'
+import { createLobby, joinLobby } from '../api/submitLobbyFormApi'
+import { FormData } from '../types'
 
 const IndexPage: React.FC = () => {
-	const navigate = useNavigate();
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+	const navigate = useNavigate()
+	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState<string | null>(null)
 
 	const handleSubmit = async (formData: FormData) => {
-		setLoading(true);
-		setError(null);
+		setLoading(true)
+		setError(null)
 
 		try {
 			if (formData.lobbyId) {
 				await joinLobby({
 					username: formData.username,
 					lobbyId: formData.lobbyId,
-				});
+				})
 			} else {
-				await createLobby({
-					username: formData.username,
-				});
+				await createLobby({ username: formData.username })
 			}
-
-			navigate('/lobby');
+			navigate('/lobby')
 		} catch (error) {
-			setError('Error during submission');
+			setError('Error during submission')
 		} finally {
-			setLoading(false);
+			setLoading(false)
 		}
-	};
-
-	if (loading) return <div>Loading...</div>;
-	if (error) return <div>Error: {error}</div>;
+	}
 
 	return (
-		<div>
-			<h1>Index Page</h1>
-			<LobbyForm onSubmit={handleSubmit} />
+		<div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-6">
+			<h1 className="text-4xl font-bold mb-6 text-blue-400">
+				Welcome to the Lobby
+			</h1>
+			{loading ? (
+				<p className="text-blue-300">Loading...</p>
+			) : error ? (
+				<p className="text-red-500">{error}</p>
+			) : (
+				<LobbyForm onSubmit={handleSubmit} />
+			)}
 		</div>
-	);
-};
-export default IndexPage;
+	)
+}
+
+export default IndexPage

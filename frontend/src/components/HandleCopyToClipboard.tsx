@@ -28,10 +28,17 @@ const HandleCopyToClipboard: React.FC<HandleCopyToClipboardProps> = ({
 	}
 
 	return (
-		<div>
-			<button onClick={handleCopy}>Copy Lobby URL</button>
-			{copied && <p style={{ color: 'green' }}>Copied to clipboard!</p>}
-			{copyError && <p style={{ color: 'red' }}>{copyError}</p>}
+		<div className="mt-4">
+			<button
+				onClick={handleCopy}
+				className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 transition"
+			>
+				Copy Lobby URL
+			</button>
+			{copied && (
+				<p className="text-green-500 mt-2">Copied to clipboard!</p>
+			)}
+			{copyError && <p className="text-red-500 mt-2">{copyError}</p>}
 		</div>
 	)
 }
