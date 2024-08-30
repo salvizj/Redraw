@@ -1,6 +1,14 @@
 import { useState, useCallback } from 'react'
 import { fetchLobbyDetails } from '../api/getLobbyDetailsApi'
-import { LobbyDetails } from '../types'
+
+type Player = {
+	username: string
+	role: string
+}
+type LobbyDetails = {
+	lobbyId: string
+	players: Player[]
+}
 
 export const useLobbyDetails = () => {
 	const [lobbyDetails, setLobbyDetails] = useState<LobbyDetails | null>(null)

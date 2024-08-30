@@ -1,5 +1,9 @@
 import React from 'react'
-import { StartButtonProps } from '../types'
+
+export type StartButtonProps = {
+	role: string | null
+	handleStart: () => void
+}
 
 const StartButton: React.FC<StartButtonProps> = ({ role, handleStart }) => {
 	if (role !== 'leader') {

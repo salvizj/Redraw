@@ -4,25 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sync"
 
 	"github.com/gorilla/websocket"
 	"github.com/salvizj/Redraw/types"
 )
 
-type Client struct {
-	conn      *websocket.Conn
-	sessionID string
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
-var upgrader = websocket.Upgrader{}
-
-var clients = make(map[*Client]bool)
-
-var broadcast = make(chan types.Message)
-
-// mutex to synchronize access to the clients map
-var mutex = &sync.Mutex{}
+var clients = make(map[*websocket.Conn]bool)
+var broadcastChannel = make(chan types.Message)
 
 func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -30,71 +24,51 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error while upgrading connection:", err)
 		return
 	}
+	defer conn.Close()
 
-	// Register the new client
-	client := &Client{conn: conn}
-	mutex.Lock()
-	clients[client] = true
-	mutex.Unlock()
+	clients[conn] = true
+	fmt.Println("Client connected")
 
-	go ReadMsgs(client)
-}
-
-func ReadMsgs(client *Client) {
-	defer func() {
-		client.conn.Close()
-		mutex.Lock()
-		delete(clients, client)
-		mutex.Unlock()
-	}()
+	go ReadMessages(conn)
 
 	for {
-		_, msg, err := client.conn.ReadMessage()
+		_, message, err := conn.ReadMessage()
 		if err != nil {
 			fmt.Println("Error while reading message:", err)
-			return
+			delete(clients, conn)
+			break
 		}
 
-		var message types.Message
-		if err := json.Unmarshal(msg, &message); err != nil {
+		var msg types.Message
+		if err := json.Unmarshal(message, &msg); err != nil {
 			fmt.Println("Error while unmarshalling message:", err)
 			continue
 		}
 
-		switch message.Type {
-		case types.Join:
-			client.sessionID = message.SessionID
-			broadcast <- types.Message{
-				Type: types.Notification,
-				Data: fmt.Sprintf("Client with session ID %s joined", client.sessionID),
+		broadcastChannel <- msg
+	}
+}
+
+func ReadMessages(conn *websocket.Conn) {
+	for msg := range broadcastChannel {
+		for client := range clients {
+			if err := client.WriteJSON(msg); err != nil {
+				fmt.Println("Error while broadcasting message:", err)
+				client.Close()
+				delete(clients, client)
 			}
-		case types.Leave:
-			broadcast <- types.Message{
-				Type: types.Notification,
-				Data: fmt.Sprintf("Client with session ID %s left", client.sessionID),
-			}
-		case types.StartGame:
-			broadcast <- types.Message{
-				Type: types.GameStarted,
-				Data: "The game has started!",
-			}
-		default:
-			broadcast <- message
 		}
 	}
 }
 
-func BroadcastMsgs() {
-	for msg := range broadcast {
-		mutex.Lock()
+func BroadcastMessages() {
+	for msg := range broadcastChannel {
 		for client := range clients {
-			err := client.conn.WriteJSON(msg)
-			if err != nil {
+			if err := client.WriteJSON(msg); err != nil {
 				fmt.Println("Error while broadcasting message:", err)
-				client.conn.Close()
+				client.Close()
 				delete(clients, client)
 			}
 		}
-		mutex.Unlock()
 	}
 }

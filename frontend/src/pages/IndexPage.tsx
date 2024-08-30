@@ -2,7 +2,11 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import LobbyForm from '../components/LobbyForm'
 import { createLobby, joinLobby } from '../api/submitLobbyFormApi'
-import { FormData } from '../types'
+
+type FormData = {
+	username: string
+	lobbyId?: string
+}
 
 const IndexPage: React.FC = () => {
 	const navigate = useNavigate()

@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
+type FormData = {
+	username: string
+	lobbyId?: string
+}
+
 type LobbyFormProps = {
-	onSubmit: (formData: { username: string; lobbyId?: string }) => void
+	onSubmit: (data: FormData) => void
 }
 
 const LobbyForm: React.FC<LobbyFormProps> = ({ onSubmit }) => {

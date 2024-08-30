@@ -1,10 +1,11 @@
 import React from 'react'
-import { Player } from '../types'
 
-interface PlayersInLobbyProps {
-	players: Player[]
+type PlayersInLobbyProps = {
+	players: {
+		username: string
+		role: string
+	}[]
 }
-
 const PlayersInLobby: React.FC<PlayersInLobbyProps> = ({ players }) => {
 	return (
 		<div className="mt-4">

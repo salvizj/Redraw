@@ -1,12 +1,20 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { UserContextType } from '../types';
+import React, { createContext, useContext, useState, ReactNode } from 'react'
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+export type UserContextType = {
+	username: string | null
+	sessionId: string | null
+	role: string | null
+	setSessionId: (sessionId: string | null) => void
+	setUsername: (username: string | null) => void
+	setRole: (role: string | null) => void
+}
+
+const UserContext = createContext<UserContextType | undefined>(undefined)
 
 const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-	const [username, setUsername] = useState<string | null>(null);
-	const [role, setRole] = useState<string | null>(null);
-	const [sessionId, setSessionId] = useState<string | null>(null);
+	const [username, setUsername] = useState<string | null>(null)
+	const [role, setRole] = useState<string | null>(null)
+	const [sessionId, setSessionId] = useState<string | null>(null)
 
 	return (
 		<UserContext.Provider
@@ -21,15 +29,15 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 		>
 			{children}
 		</UserContext.Provider>
-	);
-};
+	)
+}
 
 const useUserContext = (): UserContextType => {
-	const context = useContext(UserContext);
+	const context = useContext(UserContext)
 	if (!context) {
-		throw new Error('useUserContext must be used within a UserProvider');
+		throw new Error('useUserContext must be used within a UserProvider')
 	}
-	return context;
-};
+	return context
+}
 
-export { UserProvider, useUserContext };
+export { UserProvider, useUserContext }

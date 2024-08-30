@@ -3,18 +3,15 @@ import { useLobbyContext } from '../context/lobbyContext'
 import { useUserContext } from '../context/userContext'
 import { useLobbyDetails } from '../hooks/useLobbyDetails'
 import { useUserDetails } from '../hooks/useUserDetails'
-import { useWebSocket } from '../hooks/useWebSocket'
-import { MessageType } from '../types'
 import PlayersInLobby from '../components/PlayersInLobby'
 import StartButton from '../components/StartButton'
 import HandleCopyToClipboard from '../components/HandleCopyToClipboard'
 
 const LobbyPage: React.FC = () => {
 	const { lobbyId, players, setLobbyId, setPlayers } = useLobbyContext()
-	const { username, role, sessionId, setSessionId, setUsername, setRole } =
+	const { username, role, setSessionId, setUsername, setRole } =
 		useUserContext()
 	const [fetchError, setFetchError] = useState<string | null>(null)
-	const { message, sendMessage } = useWebSocket()
 
 	const {
 		fetchDetails: fetchLobbyDetails,
@@ -48,14 +45,6 @@ const LobbyPage: React.FC = () => {
 			setRole(userDetails.role)
 			setLobbyId(lobbyDetails.lobbyId)
 			setPlayers(lobbyDetails.players)
-
-			if (lobbyDetails.lobbyId && userDetails.sessionId) {
-				sendMessage(
-					MessageType.Join,
-					lobbyDetails.lobbyId,
-					userDetails.sessionId
-				)
-			}
 		}
 	}, [
 		userDetails,
@@ -65,14 +54,9 @@ const LobbyPage: React.FC = () => {
 		setRole,
 		setLobbyId,
 		setPlayers,
-		sendMessage,
 	])
 
-	const handleStart = () => {
-		if (lobbyId && sessionId) {
-			sendMessage(MessageType.StartGame, lobbyId, sessionId)
-		}
-	}
+	const handleStart = () => {}
 
 	return (
 		<div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-6">
@@ -100,11 +84,6 @@ const LobbyPage: React.FC = () => {
 						<h2 className="text-xl font-semibold mb-2">
 							Latest Message:
 						</h2>
-						<p>
-							{message
-								? JSON.stringify(message)
-								: 'No messages yet'}
-						</p>
 					</div>
 				</div>
 			) : (

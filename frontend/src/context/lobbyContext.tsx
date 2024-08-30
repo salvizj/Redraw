@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useState } from 'react'
-import { Player } from '../types'
+
+type Player = {
+	username: string
+	role: string
+}
 
 type LobbyContextType = {
 	lobbyId: string | null

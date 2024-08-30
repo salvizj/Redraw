@@ -1,5 +1,8 @@
 import React, { useState } from 'react'
-import { HandleCopyToClipboardProps } from '../types'
+
+type HandleCopyToClipboardProps = {
+	lobbyId: string | null
+}
 
 const HandleCopyToClipboard: React.FC<HandleCopyToClipboardProps> = ({
 	lobbyId,

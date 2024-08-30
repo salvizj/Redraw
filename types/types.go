@@ -60,5 +60,5 @@ type Message struct {
 	Type      MessageType
 	SessionID string
 	LobbyID   string
-	Data      interface{}
+	Data      any
 }
