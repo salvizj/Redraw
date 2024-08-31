@@ -85,7 +85,6 @@ const LobbyPage: React.FC = () => {
 			return
 		}
 
-		console.log('Starting the game...')
 		const startMessage: Message = {
 			type: MessageType.StartGame,
 			sessionId: userDetails.sessionId,
