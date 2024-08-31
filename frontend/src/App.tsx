@@ -8,18 +8,18 @@ import { WebSocketProvider } from './context/webSocketContext'
 
 const App: React.FC = () => {
 	return (
-		<LobbyProvider>
+		<Router>
 			<UserProvider>
-				<WebSocketProvider>
-					<Router>
+				<LobbyProvider>
+					<WebSocketProvider>
 						<Routes>
 							<Route path="/" element={<IndexPage />} />
 							<Route path="/lobby" element={<LobbyPage />} />
 						</Routes>
-					</Router>
-				</WebSocketProvider>
+					</WebSocketProvider>
+				</LobbyProvider>
 			</UserProvider>
-		</LobbyProvider>
+		</Router>
 	)
 }
 

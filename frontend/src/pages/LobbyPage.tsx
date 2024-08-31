@@ -31,7 +31,8 @@ const LobbyPage: React.FC = () => {
 			try {
 				await fetchUserDetails()
 				await fetchLobbyDetails()
-			} catch {
+			} catch (error) {
+				console.error('Fetching error:', error)
 				setFetchError('Failed to fetch lobby or user details.')
 			}
 		}
@@ -56,7 +57,35 @@ const LobbyPage: React.FC = () => {
 		setPlayers,
 	])
 
-	const handleStart = () => {}
+	const handleStart = () => {
+		console.log('Starting the game...')
+		// Implement the start game logic here
+	}
+
+	const renderLoading = () => <p className="text-blue-300">Loading...</p>
+
+	const renderError = () => (
+		<p className="text-red-500">
+			Error:{' '}
+			{fetchError ||
+				errorUserDetails?.message ||
+				errorLobbyDetails?.message}
+		</p>
+	)
+
+	const renderLobby = () => (
+		<div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md">
+			<p className="text-lg mb-2">Lobby ID: {lobbyId}</p>
+			<p className="text-lg mb-2">Username: {username}</p>
+			<p className="text-lg mb-4">User Role: {role}</p>
+			<PlayersInLobby players={players} />
+			<HandleCopyToClipboard lobbyId={lobbyId} />
+			<StartButton handleStart={handleStart} role={role} />
+			<div className="mt-4">
+				<h2 className="text-xl font-semibold mb-2">Latest Message:</h2>
+			</div>
+		</div>
+	)
 
 	return (
 		<div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-6">
@@ -64,28 +93,11 @@ const LobbyPage: React.FC = () => {
 				Lobby Page
 			</h1>
 			{loadingUserDetails || loadingLobbyDetails ? (
-				<p className="text-blue-300">Loading...</p>
+				renderLoading()
 			) : fetchError || errorUserDetails || errorLobbyDetails ? (
-				<p className="text-red-500">
-					Error:{' '}
-					{fetchError ||
-						errorUserDetails?.message ||
-						errorLobbyDetails?.message}
-				</p>
+				renderError()
 			) : lobbyId ? (
-				<div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md">
-					<p className="text-lg mb-2">Lobby ID: {lobbyId}</p>
-					<p className="text-lg mb-2">Username: {username}</p>
-					<p className="text-lg mb-4">User Role: {role}</p>
-					<PlayersInLobby players={players} />
-					<HandleCopyToClipboard lobbyId={lobbyId} />
-					<StartButton handleStart={handleStart} role={role} />
-					<div className="mt-4">
-						<h2 className="text-xl font-semibold mb-2">
-							Latest Message:
-						</h2>
-					</div>
-				</div>
+				renderLobby()
 			) : (
 				<p>No lobby joined.</p>
 			)}
