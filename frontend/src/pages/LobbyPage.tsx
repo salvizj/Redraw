@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useWebSocketContext } from '../context/webSocketContext'
 import { useLobbyContext } from '../context/lobbyContext'
 import { useUserContext } from '../context/userContext'
 import { useLobbyDetails } from '../hooks/useLobbyDetails'
@@ -7,11 +8,27 @@ import PlayersInLobby from '../components/PlayersInLobby'
 import StartButton from '../components/StartButton'
 import HandleCopyToClipboard from '../components/HandleCopyToClipboard'
 
+enum MessageType {
+	Join = 'join',
+	Leave = 'leave',
+	StartGame = 'startGame',
+	Notification = 'notification',
+	GameStarted = 'gameStarted',
+}
+
+type Message = {
+	type: MessageType
+	sessionId: string
+	lobbyId: string
+	data: any
+}
+
 const LobbyPage: React.FC = () => {
 	const { lobbyId, players, setLobbyId, setPlayers } = useLobbyContext()
 	const { username, role, setSessionId, setUsername, setRole } =
 		useUserContext()
 	const [fetchError, setFetchError] = useState<string | null>(null)
+	const { connect, sendMessage } = useWebSocketContext()
 
 	const {
 		fetchDetails: fetchLobbyDetails,
@@ -46,6 +63,9 @@ const LobbyPage: React.FC = () => {
 			setRole(userDetails.role)
 			setLobbyId(lobbyDetails.lobbyId)
 			setPlayers(lobbyDetails.players)
+			if (lobbyId && userDetails.sessionId) {
+				connect(userDetails.sessionId, lobbyId)
+			}
 		}
 	}, [
 		userDetails,
@@ -55,11 +75,25 @@ const LobbyPage: React.FC = () => {
 		setRole,
 		setLobbyId,
 		setPlayers,
+		connect,
+		lobbyId,
 	])
 
 	const handleStart = () => {
+		if (!userDetails?.sessionId || !lobbyId) {
+			console.error('Cannot start game. Missing sessionId or lobbyId.')
+			return
+		}
+
 		console.log('Starting the game...')
-		// Implement the start game logic here
+		const startMessage: Message = {
+			type: MessageType.StartGame,
+			sessionId: userDetails.sessionId,
+			lobbyId: lobbyId,
+			data: null,
+		}
+
+		sendMessage(startMessage)
 	}
 
 	const renderLoading = () => <p className="text-blue-300">Loading...</p>

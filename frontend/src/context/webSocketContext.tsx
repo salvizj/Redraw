@@ -15,6 +15,7 @@ type Message = {
 	lobbyId: string
 	data: any
 }
+
 type WebSocketContextType = {
 	connect: (sessionId: string, lobbyId: string) => void
 	disconnect: () => void
@@ -45,14 +46,21 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
 			)
 			return
 		}
+
 		const VITE_WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL
+		console.log('Connecting to WebSocket:', VITE_WS_BASE_URL) // Debugging line
+
 		const socket = new WebSocket(VITE_WS_BASE_URL)
 		setWs(socket)
 
 		socket.onmessage = (event) => {
-			const data: Message = JSON.parse(event.data)
-			if (onMessageCallback) {
-				onMessageCallback(data)
+			try {
+				const data: Message = JSON.parse(event.data)
+				if (onMessageCallback) {
+					onMessageCallback(data)
+				}
+			} catch (error) {
+				console.error('Error parsing WebSocket message:', error)
 			}
 		}
 
@@ -73,7 +81,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
 				socket.close()
 			}
 		}
-	}, [onMessageCallback])
+	}, [onMessageCallback, location.pathname])
 
 	const sendMessage = (msg: Message) => {
 		if (ws && ws.readyState === WebSocket.OPEN) {
