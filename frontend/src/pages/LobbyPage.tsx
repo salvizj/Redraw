@@ -28,8 +28,8 @@ const LobbyPage: React.FC = () => {
 	const { username, role, setSessionId, setUsername, setRole } =
 		useUserContext()
 	const [fetchError, setFetchError] = useState<string | null>(null)
-	const { connect, sendMessage } = useWebSocketContext()
-
+	const { connect, sendMessage, onMessage } = useWebSocketContext()
+	const [lastMessage, setLastMessage] = useState<Message | null>(null)
 	const {
 		fetchDetails: fetchLobbyDetails,
 		lobbyDetails,
@@ -70,14 +70,23 @@ const LobbyPage: React.FC = () => {
 	}, [
 		userDetails,
 		lobbyDetails,
+		connect,
+		lobbyId,
 		setSessionId,
 		setUsername,
 		setRole,
 		setLobbyId,
 		setPlayers,
-		connect,
-		lobbyId,
 	])
+
+	useEffect(() => {
+		const handleMessage = (msg: Message) => {
+			console.log('Received message in handleMessage:', msg)
+			setLastMessage(msg)
+		}
+
+		onMessage(handleMessage)
+	}, [onMessage])
 
 	const handleStart = () => {
 		if (!userDetails?.sessionId || !lobbyId) {
@@ -116,6 +125,14 @@ const LobbyPage: React.FC = () => {
 			<StartButton handleStart={handleStart} role={role} />
 			<div className="mt-4">
 				<h2 className="text-xl font-semibold mb-2">Latest Message:</h2>
+				{lastMessage ? (
+					<p>
+						Type: {lastMessage.type}, Session ID:{' '}
+						{lastMessage.sessionId}
+					</p>
+				) : (
+					<p>No messages received yet.</p>
+				)}
 			</div>
 		</div>
 	)
