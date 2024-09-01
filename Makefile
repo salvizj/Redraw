@@ -17,9 +17,13 @@ frontend-build:
 	@echo "Building the frontend application..."
 	@cd frontend && npm install && npm run build || (echo "Frontend build failed" && exit 1)
 
-run: frontend-build build
+run: format-frontend frontend-build build
 	@echo "Running the Go application..."
 	./$(BINARY_NAME)
+
+format-frontend:
+	@echo "Formatting frontend code..."
+	@cd frontend && npx prettier --write "**/*.tsx" "**/*.ts" 
 
 clean:
 	@echo "Cleaning up..."
@@ -34,4 +38,4 @@ deps:
 	@echo "Installing dependencies..."
 	go mod tidy
 
-.PHONY: default all format build frontend-build run clean test deps
+.PHONY: default all format build frontend-build run clean test deps format-frontend
