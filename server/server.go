@@ -3,6 +3,9 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"os"
+
+	"github.com/joho/godotenv"
 
 	"github.com/salvizj/Redraw/api/routes"
 	"github.com/salvizj/Redraw/db"
@@ -17,8 +20,13 @@ func corsMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		if err := godotenv.Load(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error loading .env file: %v", err)
+			os.Exit(1)
+		}
+
 		// Set CORS headers for HTTP requests
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		w.Header().Set("Access-Control-Allow-Origin", os.Getenv("VITE_FRONT_BASE_URL"))
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
