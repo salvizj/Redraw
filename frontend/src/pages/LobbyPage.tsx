@@ -7,29 +7,28 @@ import { useUserDetails } from "../hooks/useUserDetails";
 import PlayersInLobby from "../components/PlayersInLobby";
 import HandleCopyToClipboard from "../components/HandleCopyToClipboard";
 
-enum MessageType {
-  Join = "join",
-  Leave = "leave",
-  StartGame = "startGame",
-  Notification = "notification",
-  GameStarted = "gameStarted",
-}
+// enum MessageType {
+// 	Join = 'join',
+// 	Leave = 'leave',
+// 	StartGame = 'startGame',
+// 	Notification = 'notification',
+// 	GameStarted = 'gameStarted',
+// }
 
-type Message = {
-  type: MessageType;
-  sessionId: string;
-  lobbyId: string;
-  data: any;
-};
+// type Message = {
+// 	type: MessageType
+// 	sessionId: string
+// 	lobbyId: string
+// 	data: any
+// }
 
 const LobbyPage: React.FC = () => {
   const { lobbyId, players, setLobbyId, setPlayers } = useLobbyContext();
-  const { username, role, setSessionId, setUsername, setRole } =
+  const { username, role, sessionId, setSessionId, setUsername, setRole } =
     useUserContext();
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const { connect, sendMessage, closeConnection, readMessages } =
+  const { setSessionID, setLobbyID, messages, isConnected } =
     useWebSocketContext();
-
   const {
     fetchDetails: fetchLobbyDetails,
     lobbyDetails,
@@ -74,32 +73,25 @@ const LobbyPage: React.FC = () => {
   ]);
 
   useEffect(() => {
-    connect();
+    if (!sessionId || !lobbyId) return;
 
-    return () => {
-      closeConnection();
-    };
-  }, [connect, closeConnection]);
+    setSessionID(sessionId);
+    setLobbyID(lobbyId);
+  }, [sessionId, setSessionID, lobbyId, setLobbyID]);
 
   useEffect(() => {
-    // Define a callback to handle incoming messages
-    const handleMessage = (message: Message) => {
-      console.log("Received message:", message);
-    };
+    if (isConnected) {
+      console.log("WebSocket connected.");
+    }
+  }, [isConnected]);
 
-    readMessages(handleMessage);
-  }, [readMessages]);
-
-  const handleSendMessage = () => {
-    sendMessage({
-      type: MessageType.Notification,
-      sessionId: "1234",
-      lobbyId: "abcd",
-      data: { some: "data" },
-    });
-  };
-
-  const renderLoading = () => <p className="text-blue-300">Loading...</p>;
+  const renderLoading = () => (
+    <div className="text-center text-lg animate-pulse">
+      <p className="mb-2">Connecting to the lobby...</p>
+      <p className="mb-2">Gathering user details...</p>
+      <p className="mb-2">Almost there...</p>
+    </div>
+  );
 
   const renderError = () => (
     <p className="text-red-500">
@@ -113,15 +105,31 @@ const LobbyPage: React.FC = () => {
       <p className="text-lg mb-2">Lobby ID: {lobbyId}</p>
       <p className="text-lg mb-2">Username: {username}</p>
       <p className="text-lg mb-4">User Role: {role}</p>
-      <button onClick={handleSendMessage}>Send Message</button>
       <PlayersInLobby players={players} />
       <HandleCopyToClipboard lobbyId={lobbyId} />
+    </div>
+  );
+
+  const renderWsMessages = () => (
+    <div>
+      <h2>Received Messages</h2>
+      <ul>
+        {messages.map((msg, index) => (
+          <li key={index}>
+            <strong>Type:</strong> {msg.type} <br />
+            <strong>Session ID:</strong> {msg.sessionId} <br />
+            <strong>Lobby ID:</strong> {msg.lobbyId} <br />
+            <strong>Data:</strong> {msg.data} <br />
+          </li>
+        ))}
+      </ul>
     </div>
   );
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-6">
       <h1 className="text-4xl font-bold mb-6 text-blue-400">Lobby Page</h1>
+      {renderWsMessages()}
       {loadingUserDetails || loadingLobbyDetails ? (
         renderLoading()
       ) : fetchError || errorUserDetails || errorLobbyDetails ? (

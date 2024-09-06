@@ -4,7 +4,6 @@ import React, {
   useEffect,
   useState,
   ReactNode,
-  useCallback,
 } from "react";
 
 export enum MessageType {
@@ -23,10 +22,12 @@ export type Message = {
 };
 
 interface WebSocketContextType {
-  connect: () => void;
+  socket: WebSocket | null;
+  setSessionID: (sessionID: string) => void;
+  setLobbyID: (lobbyID: string) => void;
   sendMessage: (message: Message) => void;
-  closeConnection: () => void;
-  readMessages: (callback: (message: Message) => void) => void;
+  messages: Message[];
+  isConnected: boolean;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(
@@ -37,67 +38,89 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
-  const [messageCallback, setMessageCallback] = useState<
-    (message: Message) => void
-  >(() => () => {});
+  const [sessionID, setSessionID] = useState<string | null>(null);
+  const [lobbyID, setLobbyID] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isConnected, setIsConnected] = useState<boolean>(false);
 
-  const connect = useCallback(() => {
-    const ws = new WebSocket(import.meta.env.VITE_WS_BASE_URL);
-    setSocket(ws);
+  useEffect(() => {
+    if (!sessionID || !lobbyID) return;
+
+    const wsUrl = `ws://localhost:8080/ws?sessionID=${sessionID}&lobbyID=${lobbyID}`;
+    const ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      console.log(
+        `WebSocket connection opened for sessionID: ${sessionID} and lobbyID: ${lobbyID}`,
+      );
+      setIsConnected(true);
+
+      const message: Message = {
+        type: MessageType.Join,
+        sessionId: sessionID,
+        lobbyId: lobbyID,
+        data: "Joined",
+      };
+      console.log("Sending join message:", message);
+      ws.send(JSON.stringify(message));
+    };
 
     ws.onmessage = (event) => {
-      try {
-        const parsedMessage: Message = JSON.parse(event.data);
-        if (messageCallback) {
-          messageCallback(parsedMessage);
-        }
-      } catch (error) {
-        console.error("Failed to parse message:", error);
-      }
+      const message: Message = JSON.parse(event.data);
+      console.log("Message received:", message);
+      setMessages((prevMessages) => [...prevMessages, message]);
     };
+
+    ws.onclose = () => {
+      console.log("WebSocket connection closed");
+      setIsConnected(false);
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+      setIsConnected(false);
+    };
+
+    setSocket(ws);
 
     return () => {
       ws.close();
+      setSocket(null);
+      setIsConnected(false);
     };
-  }, [messageCallback]);
+  }, [sessionID, lobbyID]);
 
   const sendMessage = (message: Message) => {
-    if (socket) {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      console.log("Sending message:", message);
       socket.send(JSON.stringify(message));
+    } else {
+      console.warn("WebSocket is not open. Unable to send message.");
     }
   };
-
-  const closeConnection = () => {
-    if (socket) {
-      socket.close();
-    }
-  };
-
-  const readMessages = (callback: (message: Message) => void) => {
-    setMessageCallback(() => callback);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (socket) {
-        socket.close();
-      }
-    };
-  }, [socket]);
 
   return (
     <WebSocketContext.Provider
-      value={{ connect, sendMessage, closeConnection, readMessages }}
+      value={{
+        socket,
+        setSessionID,
+        setLobbyID,
+        sendMessage,
+        messages,
+        isConnected,
+      }}
     >
       {children}
     </WebSocketContext.Provider>
   );
 };
 
-export const useWebSocketContext = (): WebSocketContextType => {
+export const useWebSocketContext = () => {
   const context = useContext(WebSocketContext);
-  if (context === undefined) {
-    throw new Error("useWebSocket must be used within a WebSocketProvider");
+  if (!context) {
+    throw new Error(
+      "useWebSocketContext must be used within a WebSocketProvider",
+    );
   }
   return context;
 };

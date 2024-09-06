@@ -7,9 +7,12 @@ require (
 	github.com/tursodatabase/libsql-client-go v0.0.0-20240723183952-b944339d7e70
 )
 
+require github.com/felixge/httpsnoop v1.0.3 // indirect
+
 require (
 	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
 	github.com/google/uuid v1.6.0
+	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.3
 	golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8 // indirect
