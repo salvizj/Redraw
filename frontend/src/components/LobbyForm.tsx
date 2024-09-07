@@ -1,22 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { createLobby, joinLobby } from '../api/submitLobbyFormApi'
 import { checkUsernameExist } from '../api/checkUsernameExist'
 
-type FormData = {
-	username: string
-	lobbyId?: string
-}
-
-type LobbyFormProps = {
-	onSubmit: (data: FormData) => void
-}
-
-const LobbyForm: React.FC<LobbyFormProps> = ({ onSubmit }) => {
+const LobbyForm: React.FC = () => {
 	const [username, setUsername] = useState('')
 	const [lobbyId, setLobbyId] = useState<string | null>(null)
 	const [error, setError] = useState<string | null>(null)
 	const [loading, setLoading] = useState(false)
 	const location = useLocation()
+	const navigate = useNavigate()
 
 	useEffect(() => {
 		const queryParams = new URLSearchParams(location.search)
@@ -39,24 +32,35 @@ const LobbyForm: React.FC<LobbyFormProps> = ({ onSubmit }) => {
 			return
 		}
 
-		if (lobbyId) {
-			try {
-				setLoading(true)
-				const response = await checkUsernameExist({ username, lobbyId })
+		setLoading(true)
+		setError(null)
 
-				if (!response.exists) {
+		try {
+			if (lobbyId) {
+				const checkResponse = await checkUsernameExist({
+					username,
+					lobbyId,
+				})
+
+				if (checkResponse.exists) {
+					setError(
+						'Player with this sername already exists in this lobby.'
+					)
 					setLoading(false)
 					return
 				}
-			} catch (error) {
-				setError('Failed to check username existence.')
-				setLoading(false)
-				return
-			}
-		}
 
-		onSubmit({ username, lobbyId: lobbyId || undefined })
-		setLoading(false)
+				await joinLobby({ username, lobbyId })
+			} else {
+				await createLobby({ username })
+			}
+
+			navigate('/lobby')
+		} catch (error) {
+			setError('Failed to submit the form or check username.')
+		} finally {
+			setLoading(false)
+		}
 	}
 
 	return (

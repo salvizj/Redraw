@@ -22,3 +22,7 @@ export enum MessageType {
 	Notification = 'notification',
 	GameStarted = 'gameStarted',
 }
+export type FormData = {
+	username: string
+	lobbyId?: string
+}
