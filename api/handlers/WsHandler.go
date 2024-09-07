@@ -12,7 +12,6 @@ import (
 
 var upgrader = websocket.Upgrader{}
 
-// Global ConnMap instance and mutex for synchronization
 var (
 	connMap      = NewConnMap()
 	connMapMutex sync.Mutex
@@ -50,7 +49,6 @@ func (cm *ConnMap) AddClient(client *Client) {
 	connMapMutex.Lock()
 	defer connMapMutex.Unlock()
 
-	// If a client with the same sessionID already exists, do not add the new client
 	if _, exists := cm.sessionMap[client.sessionID]; exists {
 		log.Printf("Client with sessionID %s is already connected. Not adding again.", client.sessionID)
 		return
@@ -105,19 +103,16 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Lock the mutex to check if a client with the same sessionID already exists
 	connMapMutex.Lock()
 	_, exists := connMap.sessionMap[sessionID]
 	connMapMutex.Unlock()
 
 	if exists {
-		// If an existing client is found, reject the new connection
 		log.Printf("Client with sessionID %s already has an active connection. Rejecting new connection.", sessionID)
 		http.Error(w, "Client already connected", http.StatusForbidden)
 		return
 	}
 
-	// Upgrade the connection if no existing connection is found
 	wsConn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Printf("Error during connection upgrade: %v", err)
@@ -126,7 +121,6 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 
 	client := NewClient(wsConn, sessionID, lobbyID)
 
-	// Add the new client to the ConnMap
 	connMap.AddClient(client)
 
 	log.Printf("WebSocket connection opened for sessionID: %s", sessionID)
@@ -159,6 +153,14 @@ func ReadMessages(client *Client) {
 		case types.Join:
 			log.Printf("Join message received: %v", msg)
 			connMap.AddClient(client)
+			broadcastMessage := []byte(`{"type": "join", "sessionId": "` + client.sessionID + `", "lobbyId": "` + client.lobbyID + `"}`)
+			connMap.Broadcast(broadcastMessage, client.lobbyID)
+
+		case types.GameStarted:
+			log.Printf("Game start message received: %v", msg)
+			broadcastMessage := []byte(`{"type": "game start", "lobbyId": "` + client.lobbyID + `"}`)
+			connMap.Broadcast(broadcastMessage, client.lobbyID)
+
 		default:
 			log.Printf("Unknown message type: %s", msg.Type)
 		}

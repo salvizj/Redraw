@@ -27,8 +27,14 @@ const LobbyPage: React.FC = () => {
   const { username, role, sessionId, setSessionId, setUsername, setRole } =
     useUserContext();
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const { setSessionID, setLobbyID, messages, isConnected } =
-    useWebSocketContext();
+  const {
+    setSessionID,
+    setLobbyID,
+    messages,
+    isConnected,
+    shouldRefetchLobby,
+    setShouldRefetchLobby,
+  } = useWebSocketContext();
   const {
     fetchDetails: fetchLobbyDetails,
     lobbyDetails,
@@ -51,8 +57,24 @@ const LobbyPage: React.FC = () => {
         setFetchError("Failed to fetch lobby or user details.");
       }
     };
+
     fetchData();
   }, [fetchUserDetails, fetchLobbyDetails]);
+
+  useEffect(() => {
+    if (shouldRefetchLobby) {
+      const refetchData = async () => {
+        try {
+          await fetchLobbyDetails();
+          setShouldRefetchLobby(false);
+        } catch (error) {
+          setFetchError("Failed to refetch lobby details.");
+        }
+      };
+
+      refetchData();
+    }
+  }, [shouldRefetchLobby, fetchLobbyDetails, setShouldRefetchLobby]);
 
   useEffect(() => {
     if (userDetails && lobbyDetails) {

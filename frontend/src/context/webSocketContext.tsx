@@ -28,6 +28,8 @@ interface WebSocketContextType {
   sendMessage: (message: Message) => void;
   messages: Message[];
   isConnected: boolean;
+  shouldRefetchLobby: boolean;
+  setShouldRefetchLobby: (value: boolean) => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(
@@ -42,6 +44,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
   const [lobbyID, setLobbyID] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [shouldRefetchLobby, setShouldRefetchLobby] = useState<boolean>(false);
 
   useEffect(() => {
     if (!sessionID || !lobbyID) return;
@@ -69,6 +72,13 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
       const message: Message = JSON.parse(event.data);
       console.log("Message received:", message);
       setMessages((prevMessages) => [...prevMessages, message]);
+
+      if (
+        message.type === MessageType.Join ||
+        message.type === MessageType.GameStarted
+      ) {
+        setShouldRefetchLobby(true);
+      }
     };
 
     ws.onclose = () => {
@@ -108,6 +118,8 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
         sendMessage,
         messages,
         isConnected,
+        shouldRefetchLobby,
+        setShouldRefetchLobby,
       }}
     >
       {children}
