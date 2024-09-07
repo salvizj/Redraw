@@ -28,6 +28,7 @@ Gopkg.toml
 .env
 .env.local
 
+!.env.example
 # Ignore all files that are generated during builds and local setups
 *.log
 *.tmp
@@ -56,4 +57,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+!.README.md
 
