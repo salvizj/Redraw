@@ -27,18 +27,39 @@ In this drawing game, players each write a prompt and then randomly draw a promp
 
 ### Usage
 
-#### Running the Application
+#### Environment Setup
 
--   To build and run the application without formatting:
+1. **Create and Configure `.env` File**
+
+    You need to set up environment variables for the application to work. Copy the `.env.example` file to `.env` and configure the necessary variables:
 
     ```bash
-    make run
+    cp .env.example .env
     ```
 
--   To build, format code, and run:
-    ```bash
-    make run-with-format
+    Then, edit the `.env` file to include your database URL and authentication token:
+
+    ```env
+    TURSO_DATABASE_URL=your_database_url_here
+    TURSO_AUTH_TOKEN=your_auth_token_here
+    VITE_BASE_URL=http://localhost:8080
     ```
+
+    You need to create a Turso database and obtain the URL and authentication token from your [Turso account](https://turso.tech/).
+
+2. **Running the Application**
+
+    - To build and run the application without formatting:
+
+        ```bash
+        make run
+        ```
+
+    - To build, format code, and run:
+
+        ```bash
+        make run-with-format
+        ```
 
 ## Game Instructions
 
