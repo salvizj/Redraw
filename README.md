@@ -16,8 +16,8 @@ In this drawing game, players each write a prompt and then randomly draw a promp
 1. **Clone the Repository**
 
     ```bash
-    git clone https://github.com/yourusername/drawing-game.git
-    cd drawing-game
+    git clone https://github.com/salvizj/Redraw
+    cd Redraw
     ```
 
 2. **Install Dependencies**
