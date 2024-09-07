@@ -53,9 +53,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
-      console.log(
-        `WebSocket connection opened for sessionID: ${sessionID} and lobbyID: ${lobbyID}`,
-      );
       setIsConnected(true);
 
       const message: Message = {
@@ -70,7 +67,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
 
     ws.onmessage = (event) => {
       const message: Message = JSON.parse(event.data);
-      console.log("Message received:", message);
       setMessages((prevMessages) => [...prevMessages, message]);
 
       if (
@@ -82,7 +78,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
     };
 
     ws.onclose = () => {
-      console.log("WebSocket connection closed");
       setIsConnected(false);
     };
 

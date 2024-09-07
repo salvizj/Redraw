@@ -75,7 +75,6 @@ const LobbyPage: React.FC = () => {
       refetchData();
     }
   }, [shouldRefetchLobby, fetchLobbyDetails, setShouldRefetchLobby]);
-
   useEffect(() => {
     if (userDetails && lobbyDetails) {
       setSessionId(userDetails.sessionId);

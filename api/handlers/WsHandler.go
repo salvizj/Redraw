@@ -50,7 +50,6 @@ func (cm *ConnMap) AddClient(client *Client) {
 	defer connMapMutex.Unlock()
 
 	if _, exists := cm.sessionMap[client.sessionID]; exists {
-		log.Printf("Client with sessionID %s is already connected. Not adding again.", client.sessionID)
 		return
 	}
 

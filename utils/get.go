@@ -88,3 +88,13 @@ func GetPlayersInLobby(lobbyId string) ([]types.PlayerDetails, error) {
 
 	return players, nil
 }
+func CheckUsernameExist(username, lobbyId string) (bool, error) {
+	var count int
+	query := `SELECT COUNT(*) FROM Session WHERE Username = ? AND LobbyId = ?`
+	err := db.DB.QueryRow(query, username, lobbyId).Scan(&count)
+	if err != nil {
+		return false, fmt.Errorf("failed to check username existence: %w", err)
+	}
+
+	return count > 0, nil
+}

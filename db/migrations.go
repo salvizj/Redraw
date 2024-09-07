@@ -28,7 +28,7 @@ func CreateTables() {
 	createSessionTable := `
 	CREATE TABLE IF NOT EXISTS Session (
 		SessionId TEXT PRIMARY KEY,
-		Username TEXT,
+		Username TEXT UNIQUE,
 		LobbyId TEXT,
 		Role TEXT,                 
 		SubmittedPrompt TEXT,       
