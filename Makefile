@@ -18,6 +18,8 @@ frontend-build:
 	@cd frontend && npm install && npm run build || (echo "Frontend build failed" && exit 1)
 
 run:
+	@echo "Building the frontend application..."
+	@cd frontend && npm install && npm run build || (echo "Frontend build failed" && exit 1)
 	@echo "Building the Go application..."
 	go build -o $(BINARY_NAME) cmd/main.go
 	@echo "Running the Go application..."
@@ -27,6 +29,8 @@ run-with-format:
 	@echo "Formatting code..."
 	npx prettier --write "**/*.tsx" "**/*.ts"
 	go fmt ./...
+	@echo "Building the frontend application..."
+	@cd frontend && npm install && npm run build || (echo "Frontend build failed" && exit 1)
 	@echo "Building the Go application..."
 	go build -o $(BINARY_NAME) cmd/main.go
 	@echo "Running the Go application..."

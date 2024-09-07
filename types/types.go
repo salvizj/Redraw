@@ -17,33 +17,34 @@ const (
 )
 
 type Lobby struct {
-	LobbyId         string
-	LobbySettingsId string
-	Status          Status
-	CreatedAt       time.Time
+	LobbyId         string    `json:"lobbyId"`
+	LobbySettingsId string    `json:"lobbySettingsId"`
+	Status          Status    `json:"status"`
+	CreatedAt       time.Time `json:"createdAt"`
 }
 
 type LobbySettings struct {
-	LobbySettingsId string
-	PlayerCount     int
-	MaxPlayerCount  int
-	Status          Status
-	CreatedAt       time.Time
+	LobbySettingsId string    `json:"lobbySettingsId"`
+	PlayerCount     int       `json:"playerCount"`
+	MaxPlayerCount  int       `json:"maxPlayerCount"`
+	Status          Status    `json:"status"`
+	CreatedAt       time.Time `json:"createdAt"`
 }
 
 type Session struct {
-	SessionId          string
-	Username           string
-	LobbyId            string
-	Role               Role
-	SubmittedPrompt    string
-	ReceivedPrompt     string
-	HasSubmittedPrompt bool
-	CreatedAt          time.Time
+	SessionId          string    `json:"sessionId"`
+	Username           string    `json:"username"`
+	LobbyId            string    `json:"lobbyId"`
+	Role               Role      `json:"role"`
+	SubmittedPrompt    string    `json:"submittedPrompt"`
+	ReceivedPrompt     string    `json:"receivedPrompt"`
+	HasSubmittedPrompt bool      `json:"hasSubmittedPrompt"`
+	CreatedAt          time.Time `json:"createdAt"`
 }
+
 type PlayerDetails struct {
-	Username string
-	Role     string
+	Username string `json:"username"`
+	Role     string `json:"role"`
 }
 
 type MessageType string
@@ -57,8 +58,8 @@ const (
 )
 
 type Message struct {
-	Type      MessageType
-	SessionID string
-	LobbyID   string
-	Data      any
+	Type      MessageType `json:"type"`
+	SessionID string      `json:"sessionId"`
+	LobbyID   string      `json:"lobbyId"`
+	Data      any         `json:"data"`
 }

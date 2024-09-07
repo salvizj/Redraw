@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/salvizj/Redraw/utils"
 	"net/http"
+
+	"github.com/salvizj/Redraw/utils"
 )
 
 func CheckUsernameExistHandler(w http.ResponseWriter, r *http.Request) {
+	// Only allow POST requests
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
@@ -22,24 +24,23 @@ func CheckUsernameExistHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username := requestData.Username
-	lobbyId := requestData.LobbyId
-
-	if username == "" || lobbyId == "" {
+	if requestData.Username == "" || requestData.LobbyId == "" {
 		http.Error(w, "Username and LobbyId are required", http.StatusBadRequest)
 		return
 	}
 
-	exists, err := utils.CheckUsernameExist(username, lobbyId)
+	exists, err := utils.CheckUsernameExist(requestData.Username, requestData.LobbyId)
 	if err != nil {
 		http.Error(w, "Failed to check username", http.StatusInternalServerError)
 		return
 	}
 
 	response := struct {
-		Exists bool `json:"exists"`
+		Exists    bool `json:"exists"`
+		Available bool `json:"available"`
 	}{
-		Exists: exists,
+		Exists:    exists,
+		Available: !exists,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
