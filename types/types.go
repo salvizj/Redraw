@@ -50,11 +50,11 @@ type PlayerDetails struct {
 type MessageType string
 
 const (
-	Join         MessageType = "join"
-	Leave        MessageType = "leave"
-	StartGame    MessageType = "startGame"
-	Notification MessageType = "notification"
-	GameStarted  MessageType = "gameStarted"
+	Join           MessageType = "join"
+	Leave          MessageType = "leave"
+	StartGame      MessageType = "startGame"
+	Notification   MessageType = "notification"
+	NavigateToGame MessageType = "navigateTOGame"
 )
 
 type Message struct {

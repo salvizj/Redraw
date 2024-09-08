@@ -19,8 +19,8 @@ export enum MessageType {
 	Join = 'join',
 	Leave = 'leave',
 	StartGame = 'startGame',
+	NavigateToGame = 'navigateToGame',
 	Notification = 'notification',
-	GameStarted = 'gameStarted',
 }
 export type FormData = {
 	username: string

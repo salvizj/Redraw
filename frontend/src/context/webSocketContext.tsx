@@ -56,7 +56,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
 
 			if (
 				message.type === MessageType.Join ||
-				message.type === MessageType.GameStarted
+				message.type === MessageType.NavigateToGame
 			) {
 				setShouldRefetchLobby(true)
 			}

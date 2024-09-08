@@ -155,9 +155,9 @@ func ReadMessages(client *Client) {
 			broadcastMessage := []byte(`{"type": "join", "sessionId": "` + client.sessionID + `", "lobbyId": "` + client.lobbyID + `"}`)
 			connMap.Broadcast(broadcastMessage, client.lobbyID)
 
-		case types.GameStarted:
+		case types.StartGame:
 			log.Printf("Game start message received: %v", msg)
-			broadcastMessage := []byte(`{"type": "game start", "lobbyId": "` + client.lobbyID + `"}`)
+			broadcastMessage := []byte(`{"type": "navigateToGame", "sessionId": "` + client.sessionID + `", "lobbyId": "` + client.lobbyID + `"}`)
 			connMap.Broadcast(broadcastMessage, client.lobbyID)
 
 		default:

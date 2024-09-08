@@ -1,26 +1,30 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useLobbyContext } from '../context/lobbyContext'
 import { useUserContext } from '../context/userContext'
 import { useWebSocketContext } from '../context/webSocketContext'
 import { useLobbyDetails } from '../hooks/useLobbyDetails'
 import { useUserDetails } from '../hooks/useUserDetails'
-import PlayersInLobby from '../components/PlayersInLobby'
-import HandleCopyToClipboard from '../components/HandleCopyToClipboard'
-import WsMessages from '../components/WsMessages'
+import LobbyDetails from '../components/LobbyDetails'
+import DisplayWsMessages from '../components/DisplayWsMessages'
+import ErrorDisplay from '../components/ErrorDisplay'
+import Loading from '../components/Loading'
+import { MessageType, Message } from '../types'
 
 const LobbyPage: React.FC = () => {
+	const navigate = useNavigate()
 	const { lobbyId, players, setLobbyId, setPlayers } = useLobbyContext()
 	const { username, role, sessionId, setSessionId, setUsername, setRole } =
 		useUserContext()
-	const [fetchError, setFetchError] = useState<string | null>(null)
+	const [fetchError, setFetchError] = React.useState<string | null>(null)
 	const {
 		setSessionID,
 		setLobbyID,
+		sendMessage,
 		messages,
 		shouldRefetchLobby,
 		setShouldRefetchLobby,
 	} = useWebSocketContext()
-
 	const {
 		fetchDetails: fetchLobbyDetails,
 		lobbyDetails,
@@ -43,7 +47,6 @@ const LobbyPage: React.FC = () => {
 				setFetchError('Failed to fetch lobby or user details.')
 			}
 		}
-
 		fetchData()
 	}, [fetchUserDetails, fetchLobbyDetails])
 
@@ -57,7 +60,6 @@ const LobbyPage: React.FC = () => {
 					setFetchError('Failed to refetch lobby details.')
 				}
 			}
-
 			refetchData()
 		}
 	}, [shouldRefetchLobby, fetchLobbyDetails, setShouldRefetchLobby])
@@ -87,51 +89,57 @@ const LobbyPage: React.FC = () => {
 		}
 	}, [sessionId, setSessionID, lobbyId, setLobbyID])
 
-	const renderLoading = useCallback(
-		() => (
-			<div className="text-center text-lg animate-pulse">
-				<p className="mb-2">Connecting to the lobby...</p>
-				<p className="mb-2">Gathering user details...</p>
-				<p className="mb-2">Almost there...</p>
-			</div>
-		),
-		[]
-	)
+	useEffect(() => {
+		const handleNavigation = () => {
+			const gameStartedMessage = messages.find(
+				(msg) => msg.type === MessageType.NavigateToGame
+			)
+			if (gameStartedMessage) {
+				navigate('/game')
+			}
+		}
 
-	const renderError = useCallback(
-		() => (
-			<p className="text-red-500">
-				Error:{' '}
-				{fetchError ||
-					errorUserDetails?.message ||
-					errorLobbyDetails?.message}
-			</p>
-		),
-		[fetchError, errorUserDetails, errorLobbyDetails]
-	)
+		handleNavigation()
+	}, [messages, navigate])
 
-	const renderLobby = () => (
-		<div className="bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-md">
-			<p className="text-lg mb-2">Lobby ID: {lobbyId}</p>
-			<p className="text-lg mb-2">Username: {username}</p>
-			<p className="text-lg mb-4">User Role: {role}</p>
-			<PlayersInLobby players={players} />
-			<HandleCopyToClipboard lobbyId={lobbyId} />
-		</div>
-	)
+	const handleStartGame = () => {
+		if (!sessionId || !lobbyId) {
+			return
+		}
+		const startGameMessage: Message = {
+			type: MessageType.StartGame,
+			sessionId: sessionId!,
+			lobbyId: lobbyId!,
+			data: {},
+		}
+		sendMessage(startGameMessage)
+	}
+
+	const displayError =
+		fetchError || errorUserDetails?.message || errorLobbyDetails?.message
 
 	return (
 		<div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-6">
 			<h1 className="text-4xl font-bold mb-6 text-blue-400">
 				Lobby Page
 			</h1>
-			<WsMessages messages={messages} />
-			{loadingUserDetails || loadingLobbyDetails
-				? renderLoading()
-				: fetchError || errorUserDetails || errorLobbyDetails
-				? renderError()
-				: null}
-			{lobbyId ? renderLobby() : <p>No lobby joined.</p>}
+			<DisplayWsMessages messages={messages} />
+			{loadingUserDetails || loadingLobbyDetails ? (
+				<Loading />
+			) : displayError ? (
+				<ErrorDisplay message={displayError} />
+			) : lobbyId && username && role ? (
+				<LobbyDetails
+					lobbyId={lobbyId}
+					username={username}
+					role={role}
+					players={players}
+					handleStartGame={handleStartGame}
+					loading={false}
+				/>
+			) : (
+				<p>No lobby joined.</p>
+			)}
 		</div>
 	)
 }
