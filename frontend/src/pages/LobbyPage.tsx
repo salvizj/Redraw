@@ -13,7 +13,8 @@ import { MessageType, Message } from '../types'
 
 const LobbyPage: React.FC = () => {
 	const navigate = useNavigate()
-	const { lobbyId, players, setLobbyId, setPlayers } = useLobbyContext()
+	const { lobbyId, players, setPlayerCount, setLobbyId, setPlayers } =
+		useLobbyContext()
 	const { username, role, sessionId, setSessionId, setUsername, setRole } =
 		useUserContext()
 	const [fetchError, setFetchError] = React.useState<string | null>(null)
@@ -71,6 +72,8 @@ const LobbyPage: React.FC = () => {
 			setRole(userDetails.role)
 			setLobbyId(lobbyDetails.lobbyId)
 			setPlayers(lobbyDetails.players)
+			let playerCount = players.length
+			setPlayerCount(playerCount)
 		}
 	}, [
 		userDetails,

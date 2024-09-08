@@ -21,7 +21,12 @@ export enum MessageType {
 	StartGame = 'startGame',
 	NavigateToGame = 'navigateToGame',
 	Notification = 'notification',
+	SyncPlayers = 'syncPlayers',
+	AllPlayersSynced = 'allPlayersSynced',
+	StartCountdown = 'startCountdown',
+	SubmitPrompt = 'submitPrompt',
 }
+
 export type FormData = {
 	username: string
 	lobbyId?: string
