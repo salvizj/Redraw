@@ -67,3 +67,10 @@ type Message struct {
 	LobbyID   string      `json:"lobbyId"`
 	Data      any         `json:"data"`
 }
+type Prompt struct {
+	PromptId  string `json:"promptId"`
+	Prompt    string `json:"prompt"`
+	SessionId string `json:"sessionId"`
+	LobbyId   string `json:"lobbyId"`
+	Username  string `json:"username"`
+}

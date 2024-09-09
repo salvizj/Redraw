@@ -80,3 +80,23 @@ func CreateSession(LobbyId, Username string, Role types.Role) (string, error) {
 
 	return Session.SessionId, nil
 }
+
+func CreatePrompt(prompt types.Prompt) error {
+	prompt.PromptId = GenerateUUID()
+
+	query := `INSERT INTO Prompt (PromptId, Prompt, SessionId, LobbyId, Username)
+	          VALUES (?, ?, ?, ?, ?)`
+
+	_, err := db.DB.Exec(query,
+		prompt.PromptId,
+		prompt.Prompt,
+		prompt.SessionId,
+		prompt.LobbyId,
+		prompt.Username,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to create prompt: %w", err)
+	}
+
+	return nil
+}

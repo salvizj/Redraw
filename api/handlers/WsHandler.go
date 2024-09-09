@@ -163,23 +163,17 @@ func ReadMessages(client *Client) {
 		case types.SyncPlayers:
 			log.Printf("SyncPlayers message received: %v", msg)
 
-			dataMap, ok := msg.Data.(map[string]interface{})
+			message, ok := msg.Data.(string)
 			if !ok {
-				log.Printf("Error: msg.Data is not a map[string]interface{}")
-				continue
-			}
-
-			message, ok := dataMap["message"].(string)
-			if !ok {
-				log.Printf("Error: message field is missing or not a string")
+				log.Printf("Error: msg.Data is not a string")
 				continue
 			}
 
 			broadcastMessage := []byte(`{
-				"type": "SyncPlayers",
+				"type": "` + string(types.SyncPlayers) + `",
 				"sessionId": "` + client.sessionID + `",
 				"lobbyId": "` + client.lobbyID + `",
-				"data": { "message": "` + message + `" }
+				"data": "` + message + `"
 			}`)
 
 			connMap.Broadcast(broadcastMessage, client.lobbyID)

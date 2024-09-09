@@ -37,7 +37,25 @@ func CreateTables() {
 		CreatedAt DATETIME
 	);
 	`
-
+	createPromtTable := `
+	CREATE TABLE IF NOT EXISTS Prompt (
+		PromptId TEXT PRIMARY KEY,
+		Prompt TEXT,
+		SessionId TEXT,
+		LobbyId TEXT,
+		Username TEXT,
+		CreatedAt DATETIME
+	);
+	`
+	createCanvasTable := `
+	CREATE TABLE IF NOT EXISTS Canvas (
+    CanvasId TEXT PRIMARY KEY,
+    PromptId TEXT,
+    CanvasData TEXT,  -- Base64 encoded data
+    CreatedAt DATETIME,
+    FOREIGN KEY (PromptId) REFERENCES Prompt(PromptId)
+	);
+`
 	if _, err := DB.Exec(createLobbyTable); err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating Lobby table: %v\n", err)
 	}
@@ -47,5 +65,10 @@ func CreateTables() {
 	if _, err := DB.Exec(createSessionTable); err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating Session table: %v\n", err)
 	}
-
+	if _, err := DB.Exec(createPromtTable); err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating Promt table: %v\n", err)
+	}
+	if _, err := DB.Exec(createCanvasTable); err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating Canavs table: %v\n", err)
+	}
 }
