@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { useWebSocketContext } from '../context/webSocketContext'
 import { useUserContext } from '../context/userContext'
 import { useLobbyContext } from '../context/lobbyContext'
 import Canvas from '../components/Canvas'
 import { Message, MessageType } from '../types'
-import { PromtCountdown } from '../components/PromtCountdown'
+import { Countdown } from '../components/utils/Countdown'
 import { PromptInput } from '../components/PromtInput'
 
 const GamePage: React.FC = () => {
@@ -13,8 +14,9 @@ const GamePage: React.FC = () => {
 	const { lobbyId, players } = useLobbyContext()
 	const [syncComplete, setSyncComplete] = useState(false)
 	const [promptSent, setPromptSent] = useState(false)
-	const [syncPlayerCount, setSyncPlayerCount] = useState(0)
 	const [hasSentSyncMessage, setHasSentSyncMessage] = useState(false)
+	const [drawingComplete, setDrawingComplete] = useState(false)
+
 	useEffect(() => {
 		if (sessionId && lobbyId && !hasSentSyncMessage) {
 			const syncMessage: Message = {
@@ -37,16 +39,14 @@ const GamePage: React.FC = () => {
 			(msg) => msg.data.split(' ')[0]
 		)
 
-		usernamesInMessages.forEach((msgUsername) => {
-			if (players.some((player) => player.username === msgUsername)) {
-				setSyncPlayerCount((prevCount) => prevCount + 1)
-			}
-		})
+		const syncedPlayers = usernamesInMessages.filter((msgUsername) =>
+			players.some((player) => player.username === msgUsername)
+		)
 
-		if (syncPlayerCount >= players.length) {
+		if (syncedPlayers.length >= players.length) {
 			setSyncComplete(true)
 		}
-	}, [messages, players, syncPlayerCount, username])
+	}, [messages, players, username])
 
 	return (
 		<div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-6">
@@ -55,10 +55,26 @@ const GamePage: React.FC = () => {
 			{syncComplete ? (
 				<>
 					{promptSent ? (
-						<Canvas />
+						<>
+							{drawingComplete ? (
+								<Navigate to="/showcase" />
+							) : (
+								<>
+									<Countdown
+										text={'Seconds left to draw'}
+										initialCounter={10}
+										onCountdownComplete={() =>
+											setDrawingComplete(true)
+										}
+									/>
+									<Canvas />
+								</>
+							)}
+						</>
 					) : (
 						<>
-							<PromtCountdown
+							<Countdown
+								text={'Seconds left to enter the promt'}
 								initialCounter={10}
 								onCountdownComplete={() => setPromptSent(true)}
 							/>

@@ -98,3 +98,27 @@ func CheckUsernameExist(username, lobbyId string) (bool, error) {
 
 	return count > 0, nil
 }
+func GetLobbySettings(LobbyId string) (types.LobbySettings, error) {
+	LobbySettingsId, err := GetLobbySettingsIdByLobbyId(LobbyId)
+	if err != nil {
+		return types.LobbySettings{}, fmt.Errorf("failed to get lobby settings ID: %w", err)
+	}
+
+	var lobbySettings types.LobbySettings
+	query := `SELECT LobbySettingsId,  MaxPlayerCount, Status 
+              FROM LobbySettings WHERE LobbySettingsId = ?`
+
+	err = db.DB.QueryRow(query, LobbySettingsId).Scan(
+		&lobbySettings.LobbySettingsId,
+		&lobbySettings.MaxPlayerCount,
+		&lobbySettings.Status,
+	)
+
+	if err == sql.ErrNoRows {
+		return types.LobbySettings{}, fmt.Errorf("no lobby settings found for LobbySettingsId: %s", LobbySettingsId)
+	} else if err != nil {
+		return types.LobbySettings{}, fmt.Errorf("failed to get lobby settings: %w", err)
+	}
+
+	return lobbySettings, nil
+}

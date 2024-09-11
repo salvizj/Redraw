@@ -6,6 +6,7 @@ import IndexPage from './pages/IndexPage'
 import LobbyPage from './pages/LobbyPage'
 import { WebSocketProvider } from './context/webSocketContext'
 import GamePage from './pages/GamePage'
+import ShowcasePage from './pages/ShowcasePage'
 
 const App: React.FC = () => {
 	return (
@@ -17,6 +18,10 @@ const App: React.FC = () => {
 							<Route path="/" element={<IndexPage />} />
 							<Route path="/lobby" element={<LobbyPage />} />
 							<Route path="/game" element={<GamePage />} />
+							<Route
+								path="/showcase"
+								element={<ShowcasePage />}
+							/>
 						</Routes>
 					</WebSocketProvider>
 				</LobbyProvider>

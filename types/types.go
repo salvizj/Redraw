@@ -25,7 +25,6 @@ type Lobby struct {
 
 type LobbySettings struct {
 	LobbySettingsId string    `json:"lobbySettingsId"`
-	PlayerCount     int       `json:"playerCount"`
 	MaxPlayerCount  int       `json:"maxPlayerCount"`
 	Status          Status    `json:"status"`
 	CreatedAt       time.Time `json:"createdAt"`

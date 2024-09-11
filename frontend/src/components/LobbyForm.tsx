@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { createLobby, joinLobby } from '../api/submitLobbyFormApi'
-import { checkUsernameExist } from '../api/checkUsernameExist'
+import { checkUsernameExist } from '../api/checkUsernameExistApi'
 
 const LobbyForm: React.FC = () => {
 	const [username, setUsername] = useState('')

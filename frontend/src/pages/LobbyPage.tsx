@@ -7,9 +7,9 @@ import { useLobbyDetails } from '../hooks/useLobbyDetails'
 import { useUserDetails } from '../hooks/useUserDetails'
 import LobbyDetails from '../components/LobbyDetails'
 import DisplayWsMessages from '../components/DisplayWsMessages'
-import ErrorDisplay from '../components/ErrorDisplay'
-import Loading from '../components/Loading'
+import ErrorDisplay from '../components/utils/ErrorDisplay'
 import { MessageType, Message } from '../types'
+import LoadingLobby from '../components/LoadingLobby'
 
 const LobbyPage: React.FC = () => {
 	const navigate = useNavigate()
@@ -128,7 +128,7 @@ const LobbyPage: React.FC = () => {
 			</h1>
 			<DisplayWsMessages messages={messages} />
 			{loadingUserDetails || loadingLobbyDetails ? (
-				<Loading />
+				<LoadingLobby />
 			) : displayError ? (
 				<ErrorDisplay message={displayError} />
 			) : lobbyId && username && role ? (

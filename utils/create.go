@@ -33,15 +33,14 @@ func CreateLobbySettings() (string, error) {
 	Status := types.StatusWaiting
 	LobbySettings := types.LobbySettings{
 		LobbySettingsId: LobbySettingsId,
-		PlayerCount:     0,
 		MaxPlayerCount:  10,
 		Status:          Status,
 		CreatedAt:       time.Now(),
 	}
 
-	query := `INSERT INTO LobbySettings (LobbySettingsId, PlayerCount, MaxPlayerCount, Status, CreatedAt)
-              VALUES (?, ?, ?, ?, ?)`
-	_, err := db.DB.Exec(query, LobbySettings.LobbySettingsId, LobbySettings.PlayerCount, LobbySettings.MaxPlayerCount, LobbySettings.Status, LobbySettings.CreatedAt)
+	query := `INSERT INTO LobbySettings (LobbySettingsId, MaxPlayerCount, Status, CreatedAt)
+              VALUES (?, ?, ?, ?)`
+	_, err := db.DB.Exec(query, LobbySettings.LobbySettingsId, LobbySettings.MaxPlayerCount, LobbySettings.Status, LobbySettings.CreatedAt)
 	if err != nil {
 		return "", fmt.Errorf("failed to create lobby settings: %w", err)
 	}

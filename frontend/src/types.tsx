@@ -9,6 +9,18 @@ export type LobbyDetails = {
 	role: string
 	username: string
 }
+export enum LobbyStatus {
+	StatusWaiting = 'waiting',
+	StatusActive = 'active',
+}
+
+export type LobbySettings = {
+	lobbySettingsId: string
+	playerCount: number
+	maxPlayerCount: number
+	status: LobbyStatus
+	createdAt: string
+}
 export type Message = {
 	type: string
 	sessionId: string

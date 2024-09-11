@@ -1,7 +1,7 @@
 import React from 'react'
-import PlayersInLobby from './PlayersInLobby'
+import PlayersInLobby from './PlayersInLobbyDisplay'
 import HandleCopyToClipboard from './HandleCopyToClipboard'
-import StartButton from './StartButton'
+import StartButton from './LobbyStartButton'
 import { Player } from '../types'
 
 type LobbyDetailsProps = {

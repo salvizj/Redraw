@@ -49,7 +49,6 @@ export const PromptInput: React.FC<{
 				Submit
 			</button>
 			{error && <p className="text-red-500 mt-2">{error}</p>}{' '}
-			{/* Display error message */}
 		</div>
 	)
 }
