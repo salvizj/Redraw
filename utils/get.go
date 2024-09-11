@@ -14,7 +14,6 @@ func GetSessionById(sessionId string) (*types.Session, error) {
               FROM Session WHERE SessionId = ?`
 	err := db.DB.QueryRow(query, sessionId).Scan(
 		&session.SessionId, &session.Username, &session.LobbyId, &session.Role,
-		&session.SubmittedPrompt, &session.ReceivedPrompt, &session.HasSubmittedPrompt, &session.CreatedAt,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -105,13 +104,15 @@ func GetLobbySettings(LobbyId string) (types.LobbySettings, error) {
 	}
 
 	var lobbySettings types.LobbySettings
-	query := `SELECT LobbySettingsId,  MaxPlayerCount, Status 
+	query := `SELECT LobbySettingsId, MaxPlayerCount, LobbyStatus, DrawingTime, PromtInputTime 
               FROM LobbySettings WHERE LobbySettingsId = ?`
 
 	err = db.DB.QueryRow(query, LobbySettingsId).Scan(
 		&lobbySettings.LobbySettingsId,
 		&lobbySettings.MaxPlayerCount,
-		&lobbySettings.Status,
+		&lobbySettings.LobbyStatus,
+		&lobbySettings.DrawingTime,
+		&lobbySettings.PromtInputTime,
 	)
 
 	if err == sql.ErrNoRows {

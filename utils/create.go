@@ -2,25 +2,21 @@ package utils
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/salvizj/Redraw/db"
 	"github.com/salvizj/Redraw/types"
 )
 
 func CreateLobby(LobbySettingsId string) (string, error) {
-	Status := types.StatusWaiting
 	LobbyId := GenerateUUID()
 	Lobby := types.Lobby{
 		LobbyId:         LobbyId,
 		LobbySettingsId: LobbySettingsId,
-		Status:          Status,
-		CreatedAt:       time.Now(),
 	}
 
-	query := `INSERT INTO Lobby (LobbyId, LobbySettingsId, Status, CreatedAt)
-              VALUES (?, ?, ?, ?)`
-	_, err := db.DB.Exec(query, Lobby.LobbyId, Lobby.LobbySettingsId, Lobby.Status, Lobby.CreatedAt)
+	query := `INSERT INTO Lobby (LobbyId, LobbySettingsId
+              VALUES (?, ?, )`
+	_, err := db.DB.Exec(query, Lobby.LobbyId, Lobby.LobbySettingsId)
 	if err != nil {
 		return "", fmt.Errorf("failed to create lobby: %w", err)
 	}
@@ -30,17 +26,18 @@ func CreateLobby(LobbySettingsId string) (string, error) {
 
 func CreateLobbySettings() (string, error) {
 	LobbySettingsId := GenerateUUID()
-	Status := types.StatusWaiting
+	LobbyStatus := types.StatusWaiting
 	LobbySettings := types.LobbySettings{
 		LobbySettingsId: LobbySettingsId,
 		MaxPlayerCount:  10,
-		Status:          Status,
-		CreatedAt:       time.Now(),
+		LobbyStatus:     LobbyStatus,
+		DrawingTime:     30,
+		PromtInputTime:  20,
 	}
 
-	query := `INSERT INTO LobbySettings (LobbySettingsId, MaxPlayerCount, Status, CreatedAt)
-              VALUES (?, ?, ?, ?)`
-	_, err := db.DB.Exec(query, LobbySettings.LobbySettingsId, LobbySettings.MaxPlayerCount, LobbySettings.Status, LobbySettings.CreatedAt)
+	query := `INSERT INTO LobbySettings (LobbySettingsId, MaxPlayerCount, LobbyStatus, DrawingTIme, PromtInputTime)
+              VALUES (?, ?, ?, ?, ?)`
+	_, err := db.DB.Exec(query, LobbySettings.LobbySettingsId, LobbySettings.MaxPlayerCount, LobbySettings.LobbyStatus, LobbySettings.DrawingTime, LobbySettings.PromtInputTime)
 	if err != nil {
 		return "", fmt.Errorf("failed to create lobby settings: %w", err)
 	}
@@ -51,28 +48,21 @@ func CreateLobbySettings() (string, error) {
 func CreateSession(LobbyId, Username string, Role types.Role) (string, error) {
 	SessionId := GenerateUUID()
 	Session := types.Session{
-		SessionId:          SessionId,
-		Username:           Username,
-		LobbyId:            LobbyId,
-		Role:               Role,
-		SubmittedPrompt:    "",
-		ReceivedPrompt:     "",
-		HasSubmittedPrompt: false,
-		CreatedAt:          time.Now(),
+		SessionId: SessionId,
+		Username:  Username,
+		LobbyId:   LobbyId,
+		Role:      Role,
 	}
 
-	query := `INSERT INTO Session (SessionId, Username, LobbyId, Role, SubmittedPrompt, ReceivedPrompt, HasSubmittedPrompt, CreatedAt)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO Session (SessionId, Username, LobbyId, Role, CreatedAt)
+              VALUES (?, ?, ?, ?, ?)`
 
 	_, err := db.DB.Exec(query,
 		Session.SessionId,
 		Session.Username,
 		Session.LobbyId,
 		Session.Role,
-		Session.SubmittedPrompt,
-		Session.ReceivedPrompt,
-		Session.HasSubmittedPrompt,
-		Session.CreatedAt)
+	)
 	if err != nil {
 		return "", fmt.Errorf("failed to create session: %w", err)
 	}

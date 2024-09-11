@@ -33,17 +33,24 @@ func GetLobbyDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to retrieve players", http.StatusInternalServerError)
 		return
 	}
+	lobbySettings, err := utils.GetLobbySettings(lobbyId)
+	if err != nil {
+		http.Error(w, "Failed to retrieve players", http.StatusInternalServerError)
+		return
 
+	}
 	response := struct {
-		LobbyId  string                `json:"lobbyId"`
-		Players  []types.PlayerDetails `json:"players"`
-		Role     string                `json:"role"`
-		Username string                `json:"username"`
+		LobbyId      string                `json:"lobbyId"`
+		Players      []types.PlayerDetails `json:"players"`
+		Role         string                `json:"role"`
+		Username     string                `json:"username"`
+		LobbySetings types.LobbySettings   `json:"lobbySettings"`
 	}{
-		LobbyId:  lobbyId,
-		Players:  players,
-		Role:     role,
-		Username: username,
+		LobbyId:      lobbyId,
+		Players:      players,
+		Role:         role,
+		Username:     username,
+		LobbySetings: lobbySettings,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

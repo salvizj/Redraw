@@ -10,7 +10,6 @@ func CreateTables() {
 	CREATE TABLE IF NOT EXISTS Lobby (
 		LobbyId TEXT PRIMARY KEY,
 		LobbySettingsId TEXT,
-		Status TEXT,
 		CreatedAt DATETIME
 	);
 	`
@@ -20,7 +19,7 @@ func CreateTables() {
 		LobbySettingsId TEXT PRIMARY KEY,
 		PlayerCount INT,
 		MaxPlayerCount INT,
-		Status TEXT,
+		LobbyStatus TEXT,
 		CreatedAt DATETIME
 	);
 	`

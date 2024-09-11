@@ -13,8 +13,17 @@ import LoadingLobby from '../components/LoadingLobby'
 
 const LobbyPage: React.FC = () => {
 	const navigate = useNavigate()
-	const { lobbyId, players, setPlayerCount, setLobbyId, setPlayers } =
-		useLobbyContext()
+	const {
+		lobbyId,
+		players,
+		playerCount,
+		lobbySettings,
+		setPlayerCount,
+		setLobbyId,
+		setPlayers,
+		setLobbySettings,
+	} = useLobbyContext()
+
 	const { username, role, sessionId, setSessionId, setUsername, setRole } =
 		useUserContext()
 	const [fetchError, setFetchError] = React.useState<string | null>(null)
@@ -74,6 +83,7 @@ const LobbyPage: React.FC = () => {
 			setPlayers(lobbyDetails.players)
 			let playerCount = players.length
 			setPlayerCount(playerCount)
+			setLobbySettings(lobbyDetails.lobbySettings)
 		}
 	}, [
 		userDetails,
@@ -83,6 +93,7 @@ const LobbyPage: React.FC = () => {
 		setRole,
 		setLobbyId,
 		setPlayers,
+		lobbySettings,
 	])
 
 	useEffect(() => {
@@ -131,7 +142,7 @@ const LobbyPage: React.FC = () => {
 				<LoadingLobby />
 			) : displayError ? (
 				<ErrorDisplay message={displayError} />
-			) : lobbyId && username && role ? (
+			) : lobbyId && username && lobbySettings && playerCount && role ? (
 				<LobbyDetails
 					lobbyId={lobbyId}
 					username={username}
@@ -139,6 +150,8 @@ const LobbyPage: React.FC = () => {
 					players={players}
 					handleStartGame={handleStartGame}
 					loading={false}
+					lobbySettings={lobbySettings}
+					playerCount={playerCount}
 				/>
 			) : (
 				<p>No lobby joined.</p>

@@ -1,12 +1,10 @@
 package types
 
-import "time"
-
-type Status string
+type LobbyStatus string
 
 const (
-	StatusWaiting Status = "waiting"
-	StatusActive  Status = "active"
+	StatusWaiting LobbyStatus = "waiting"
+	StatusActive  LobbyStatus = "active"
 )
 
 type Role string
@@ -17,28 +15,23 @@ const (
 )
 
 type Lobby struct {
-	LobbyId         string    `json:"lobbyId"`
-	LobbySettingsId string    `json:"lobbySettingsId"`
-	Status          Status    `json:"status"`
-	CreatedAt       time.Time `json:"createdAt"`
+	LobbyId         string `json:"lobbyId"`
+	LobbySettingsId string `json:"lobbySettingsId"`
 }
 
 type LobbySettings struct {
-	LobbySettingsId string    `json:"lobbySettingsId"`
-	MaxPlayerCount  int       `json:"maxPlayerCount"`
-	Status          Status    `json:"status"`
-	CreatedAt       time.Time `json:"createdAt"`
+	LobbySettingsId string      `json:"lobbySettingsId"`
+	MaxPlayerCount  int         `json:"maxPlayerCount"`
+	PromtInputTime  int         `json:"promtInputTime"`
+	DrawingTime     int         `json:"drawingTime"`
+	LobbyStatus     LobbyStatus `json:"lobbyStatus"`
 }
 
 type Session struct {
-	SessionId          string    `json:"sessionId"`
-	Username           string    `json:"username"`
-	LobbyId            string    `json:"lobbyId"`
-	Role               Role      `json:"role"`
-	SubmittedPrompt    string    `json:"submittedPrompt"`
-	ReceivedPrompt     string    `json:"receivedPrompt"`
-	HasSubmittedPrompt bool      `json:"hasSubmittedPrompt"`
-	CreatedAt          time.Time `json:"createdAt"`
+	SessionId string `json:"sessionId"`
+	Username  string `json:"username"`
+	LobbyId   string `json:"lobbyId"`
+	Role      Role   `json:"role"`
 }
 
 type PlayerDetails struct {

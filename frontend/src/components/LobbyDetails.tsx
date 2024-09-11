@@ -2,7 +2,7 @@ import React from 'react'
 import PlayersInLobby from './PlayersInLobbyDisplay'
 import HandleCopyToClipboard from './HandleCopyToClipboard'
 import StartButton from './LobbyStartButton'
-import { Player } from '../types'
+import { Player, LobbySettings } from '../types'
 
 type LobbyDetailsProps = {
 	lobbyId: string
@@ -11,6 +11,8 @@ type LobbyDetailsProps = {
 	players: Player[]
 	handleStartGame: () => void
 	loading: boolean
+	lobbySettings: LobbySettings
+	playerCount: number
 }
 
 const LobbyDetails: React.FC<LobbyDetailsProps> = ({
@@ -20,6 +22,8 @@ const LobbyDetails: React.FC<LobbyDetailsProps> = ({
 	players,
 	handleStartGame,
 	loading,
+	lobbySettings,
+	playerCount,
 }) => {
 	if (loading) {
 		return (
@@ -36,6 +40,18 @@ const LobbyDetails: React.FC<LobbyDetailsProps> = ({
 			<p className="text-lg mb-2">Lobby ID: {lobbyId}</p>
 			<p className="text-lg mb-2">Username: {username}</p>
 			<p className="text-lg mb-4">User Role: {role}</p>
+
+			<p className="text-lg mb-2">
+				<strong>Lobby Status:</strong> {lobbySettings.LobbyStatus}
+			</p>
+			<p className="text-lg mb-2">
+				<strong>Max Player Count:</strong>{' '}
+				{lobbySettings.MaxPlayerCount}
+			</p>
+			<p className="text-lg mb-4">
+				<strong>Current Player Count:</strong> {playerCount}
+			</p>
+
 			<PlayersInLobby players={players} />
 			<HandleCopyToClipboard lobbyId={lobbyId} />
 			<StartButton handleStart={handleStartGame} role={role} />
