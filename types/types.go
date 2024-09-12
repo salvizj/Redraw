@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 type LobbyStatus string
 
 const (
@@ -28,10 +30,11 @@ type LobbySettings struct {
 }
 
 type Session struct {
-	SessionId string `json:"sessionId"`
-	Username  string `json:"username"`
-	LobbyId   string `json:"lobbyId"`
-	Role      Role   `json:"role"`
+	SessionId string    `json:"sessionId"`
+	Username  string    `json:"username"`
+	LobbyId   string    `json:"lobbyId"`
+	Role      Role      `json:"role"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 type PlayerDetails struct {

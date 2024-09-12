@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/salvizj/Redraw/types"
@@ -26,6 +27,7 @@ func CreateLobbyHandler(w http.ResponseWriter, r *http.Request) {
 	LobbySettingsId, err := utils.CreateLobbySettings()
 	if err != nil {
 		http.Error(w, "Failed to create lobby settings", http.StatusInternalServerError)
+		log.Printf("CreateLobbySettings error: %v", err)
 		return
 	}
 

@@ -162,20 +162,17 @@ func ReadMessages(client *Client) {
 
 		case types.SyncPlayers:
 			log.Printf("SyncPlayers message received: %v", msg)
-
 			message, ok := msg.Data.(string)
 			if !ok {
 				log.Printf("Error: msg.Data is not a string")
 				continue
 			}
-
 			broadcastMessage := []byte(`{
-				"type": "` + string(types.SyncPlayers) + `",
-				"sessionId": "` + client.sessionID + `",
-				"lobbyId": "` + client.lobbyID + `",
-				"data": "` + message + `"
-			}`)
-
+                "type": "` + string(types.SyncPlayers) + `",
+                "sessionId": "` + client.sessionID + `",
+                "lobbyId": "` + client.lobbyID + `",
+                "data": "` + message + `"
+            }`)
 			connMap.Broadcast(broadcastMessage, client.lobbyID)
 
 		default:

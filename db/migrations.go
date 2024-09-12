@@ -9,18 +9,17 @@ func CreateTables() {
 	createLobbyTable := `
 	CREATE TABLE IF NOT EXISTS Lobby (
 		LobbyId TEXT PRIMARY KEY,
-		LobbySettingsId TEXT,
-		CreatedAt DATETIME
+		LobbySettingsId TEXT
 	);
 	`
 
 	createLobbySettingsTable := `
 	CREATE TABLE IF NOT EXISTS LobbySettings (
 		LobbySettingsId TEXT PRIMARY KEY,
-		PlayerCount INT,
 		MaxPlayerCount INT,
 		LobbyStatus TEXT,
-		CreatedAt DATETIME
+		DrawingTime INT,
+		PromtInputTime INT
 	);
 	`
 
@@ -30,9 +29,6 @@ func CreateTables() {
 		Username TEXT UNIQUE,
 		LobbyId TEXT,
 		Role TEXT,
-		SubmittedPrompt TEXT,
-		ReceivedPrompt TEXT,
-		HasSubmittedPrompt BOOLEAN DEFAULT FALSE,
 		CreatedAt DATETIME
 	);
 	`

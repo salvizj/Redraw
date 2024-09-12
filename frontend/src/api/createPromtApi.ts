@@ -1,17 +1,17 @@
-import axios from 'axios'
+import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const createPrompt = async (data: {
-	prompt: string
-	sessionId: string
-	lobbyId: string
-	username: string
+  prompt: string;
+  sessionId: string;
+  lobbyId: string;
+  username: string;
 }) => {
-	try {
-		const response = await axios.post(`${BASE_URL}/create-prompt`, data)
-		return response.data
-	} catch (error) {
-		throw error
-	}
-}
+  try {
+    const response = await axios.post(`${BASE_URL}/create-prompt`, data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

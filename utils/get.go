@@ -10,10 +10,14 @@ import (
 
 func GetSessionById(sessionId string) (*types.Session, error) {
 	var session types.Session
-	query := `SELECT SessionId, Username, LobbyId, Role, SubmittedPrompt, ReceivedPrompt, HasSubmittedPrompt, CreatedAt
+	query := `SELECT SessionId, Username, LobbyId, Role, CreatedAt
               FROM Session WHERE SessionId = ?`
 	err := db.DB.QueryRow(query, sessionId).Scan(
-		&session.SessionId, &session.Username, &session.LobbyId, &session.Role,
+		&session.SessionId,
+		&session.Username,
+		&session.LobbyId,
+		&session.Role,
+		&session.CreatedAt,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {

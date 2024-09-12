@@ -1,49 +1,38 @@
-import React, { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useLobbyContext } from '../context/lobbyContext'
-import { useUserContext } from '../context/userContext'
-import { useWebSocketContext } from '../context/webSocketContext'
-import { useLobbyDetails } from '../hooks/useLobbyDetails'
-import { useUserDetails } from '../hooks/useUserDetails'
-import LobbyDetails from '../components/LobbyDetails'
-import DisplayWsMessages from '../components/DisplayWsMessages'
-import ErrorDisplay from '../components/utils/ErrorDisplay'
-import { MessageType, Message } from '../types'
-import LoadingLobby from '../components/LoadingLobby'
+import React, { useEffect, useState, useRef } from "react"
+import { useNavigate } from "react-router-dom"
+import { useLobbyContext } from "../context/lobbyContext"
+import { useUserContext } from "../context/userContext"
+import { useWebSocketContext } from "../context/webSocketContext"
+import { useLobbyDetails } from "../hooks/useLobbyDetails"
+import { useUserDetails } from "../hooks/useUserDetails"
+import LobbyDetails from "../components/LobbyDetails"
+import DisplayWsMessages from "../components/DisplayWsMessages"
+import ErrorDisplay from "../components/utils/ErrorDisplay"
+import LoadingLobby from "../components/LoadingLobby"
+import { handleStartGame } from "../utils/handleStartGame"
 
 const LobbyPage: React.FC = () => {
 	const navigate = useNavigate()
+	const connectionAttemptedRef = useRef(false)
+	const { lobbyId, players, playerCount, lobbySettings } = useLobbyContext()
+	const { username, role, sessionId } = useUserContext()
+	const [fetchError, setFetchError] = useState<string | null>(null)
 	const {
-		lobbyId,
-		players,
-		playerCount,
-		lobbySettings,
-		setPlayerCount,
-		setLobbyId,
-		setPlayers,
-		setLobbySettings,
-	} = useLobbyContext()
-
-	const { username, role, sessionId, setSessionId, setUsername, setRole } =
-		useUserContext()
-	const [fetchError, setFetchError] = React.useState<string | null>(null)
-	const {
-		setSessionID,
-		setLobbyID,
 		sendMessage,
 		messages,
 		shouldRefetchLobby,
 		setShouldRefetchLobby,
+		connectWebSocket,
+		gameStarted,
+		isConnected,
 	} = useWebSocketContext()
 	const {
 		fetchDetails: fetchLobbyDetails,
-		lobbyDetails,
 		loading: loadingLobbyDetails,
 		error: errorLobbyDetails,
 	} = useLobbyDetails()
 	const {
 		fetchDetails: fetchUserDetails,
-		userDetails,
 		loading: loadingUserDetails,
 		error: errorUserDetails,
 	} = useUserDetails()
@@ -54,7 +43,7 @@ const LobbyPage: React.FC = () => {
 				await fetchUserDetails()
 				await fetchLobbyDetails()
 			} catch (error) {
-				setFetchError('Failed to fetch lobby or user details.')
+				setFetchError("Failed to fetch lobby or user details.")
 			}
 		}
 		fetchData()
@@ -67,7 +56,7 @@ const LobbyPage: React.FC = () => {
 					await fetchLobbyDetails()
 					setShouldRefetchLobby(false)
 				} catch (error) {
-					setFetchError('Failed to refetch lobby details.')
+					setFetchError("Failed to refetch lobby details.")
 				}
 			}
 			refetchData()
@@ -75,63 +64,29 @@ const LobbyPage: React.FC = () => {
 	}, [shouldRefetchLobby, fetchLobbyDetails, setShouldRefetchLobby])
 
 	useEffect(() => {
-		if (userDetails && lobbyDetails) {
-			setSessionId(userDetails.sessionId)
-			setUsername(userDetails.username)
-			setRole(userDetails.role)
-			setLobbyId(lobbyDetails.lobbyId)
-			setPlayers(lobbyDetails.players)
-			let playerCount = players.length
-			setPlayerCount(playerCount)
-			setLobbySettings(lobbyDetails.lobbySettings)
+		if (
+			sessionId &&
+			lobbyId &&
+			!isConnected &&
+			!connectionAttemptedRef.current
+		) {
+			connectWebSocket(sessionId, lobbyId)
+			connectionAttemptedRef.current = true
 		}
-	}, [
-		userDetails,
-		lobbyDetails,
-		setSessionId,
-		setUsername,
-		setRole,
-		setLobbyId,
-		setPlayers,
-		lobbySettings,
-	])
+	}, [sessionId, lobbyId, isConnected, connectWebSocket])
 
 	useEffect(() => {
-		if (sessionId && lobbyId) {
-			setSessionID(sessionId)
-			setLobbyID(lobbyId)
+		if (gameStarted) {
+			navigate("/game")
 		}
-	}, [sessionId, setSessionID, lobbyId, setLobbyID])
+	}, [gameStarted, navigate])
 
-	useEffect(() => {
-		const handleNavigation = () => {
-			const gameStartedMessage = messages.find(
-				(msg) => msg.type === MessageType.NavigateToGame
-			)
-			if (gameStartedMessage) {
-				navigate('/game')
-			}
-		}
-
-		handleNavigation()
-	}, [messages, navigate])
-
-	const handleStartGame = () => {
-		if (!sessionId || !lobbyId) {
-			return
-		}
-		const startGameMessage: Message = {
-			type: MessageType.StartGame,
-			sessionId: sessionId!,
-			lobbyId: lobbyId!,
-			data: {},
-		}
-		sendMessage(startGameMessage)
+	const onStartGame = () => {
+		handleStartGame(sessionId, lobbyId, sendMessage)
 	}
 
 	const displayError =
 		fetchError || errorUserDetails?.message || errorLobbyDetails?.message
-
 	return (
 		<div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-6">
 			<h1 className="text-4xl font-bold mb-6 text-blue-400">
@@ -142,16 +97,16 @@ const LobbyPage: React.FC = () => {
 				<LoadingLobby />
 			) : displayError ? (
 				<ErrorDisplay message={displayError} />
-			) : lobbyId && username && lobbySettings && playerCount && role ? (
+			) : lobbyId && username && lobbySettings && role ? (
 				<LobbyDetails
 					lobbyId={lobbyId}
 					username={username}
 					role={role}
 					players={players}
-					handleStartGame={handleStartGame}
+					handleStartGame={onStartGame}
 					loading={false}
 					lobbySettings={lobbySettings}
-					playerCount={playerCount}
+					playerCount={players?.length || 0}
 				/>
 			) : (
 				<p>No lobby joined.</p>

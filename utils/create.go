@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/salvizj/Redraw/db"
 	"github.com/salvizj/Redraw/types"
@@ -14,14 +15,14 @@ func CreateLobby(LobbySettingsId string) (string, error) {
 		LobbySettingsId: LobbySettingsId,
 	}
 
-	query := `INSERT INTO Lobby (LobbyId, LobbySettingsId
-              VALUES (?, ?, )`
+	query := `INSERT INTO Lobby (LobbyId, LobbySettingsId)
+              VALUES (?, ?)`
 	_, err := db.DB.Exec(query, Lobby.LobbyId, Lobby.LobbySettingsId)
 	if err != nil {
 		return "", fmt.Errorf("failed to create lobby: %w", err)
 	}
 
-	return Lobby.LobbyId, nil
+	return LobbyId, nil
 }
 
 func CreateLobbySettings() (string, error) {
@@ -35,7 +36,7 @@ func CreateLobbySettings() (string, error) {
 		PromtInputTime:  20,
 	}
 
-	query := `INSERT INTO LobbySettings (LobbySettingsId, MaxPlayerCount, LobbyStatus, DrawingTIme, PromtInputTime)
+	query := `INSERT INTO LobbySettings (LobbySettingsId, MaxPlayerCount, LobbyStatus, DrawingTime, PromtInputTime)
               VALUES (?, ?, ?, ?, ?)`
 	_, err := db.DB.Exec(query, LobbySettings.LobbySettingsId, LobbySettings.MaxPlayerCount, LobbySettings.LobbyStatus, LobbySettings.DrawingTime, LobbySettings.PromtInputTime)
 	if err != nil {
@@ -47,11 +48,13 @@ func CreateLobbySettings() (string, error) {
 
 func CreateSession(LobbyId, Username string, Role types.Role) (string, error) {
 	SessionId := GenerateUUID()
+	CreatedAt := time.Now()
 	Session := types.Session{
 		SessionId: SessionId,
 		Username:  Username,
 		LobbyId:   LobbyId,
 		Role:      Role,
+		CreatedAt: CreatedAt,
 	}
 
 	query := `INSERT INTO Session (SessionId, Username, LobbyId, Role, CreatedAt)
@@ -62,6 +65,7 @@ func CreateSession(LobbyId, Username string, Role types.Role) (string, error) {
 		Session.Username,
 		Session.LobbyId,
 		Session.Role,
+		Session.CreatedAt,
 	)
 	if err != nil {
 		return "", fmt.Errorf("failed to create session: %w", err)
