@@ -14,7 +14,7 @@ import { handleStartGame } from "../utils/handleStartGame"
 const LobbyPage: React.FC = () => {
 	const navigate = useNavigate()
 	const connectionAttemptedRef = useRef(false)
-	const { lobbyId, players, playerCount, lobbySettings } = useLobbyContext()
+	const { lobbyId, players, lobbySettings } = useLobbyContext()
 	const { username, role, sessionId } = useUserContext()
 	const [fetchError, setFetchError] = useState<string | null>(null)
 	const {

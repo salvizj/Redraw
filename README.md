@@ -8,7 +8,7 @@ In this drawing game, players each write a prompt and then randomly draw a promp
 
 ### Prerequisites
 
--   **Node.js** (for frontend)
+-   **Node.js (NPM)** (for frontend)
 -   **Go** (for backend)
 
 ### Installation
