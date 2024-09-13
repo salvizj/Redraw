@@ -9,16 +9,23 @@ const CanvasColorPicker: React.FC<CanvasColorPickerProps> = ({
 	lineColor,
 	setLineColor,
 }) => {
-	const colors = ["Green", "Red", "Blue", "Yellow", "Purple", "Black"]
+	const colors = ["green", "red", "blue", "yellow", "purple", "black"]
 
 	return (
-		<div>
-			<p>Selected Color: {lineColor}</p>
-			{colors.map((clr) => (
-				<button key={clr} onClick={() => setLineColor(clr)}>
-					{clr}
-				</button>
-			))}
+		<div className="color-picker">
+			<p className="color-display">
+				Selected Color: <span className="capitalize">{lineColor}</span>
+			</p>
+			<div className="color-options">
+				{colors.map((clr) => (
+					<button
+						key={clr}
+						className="color-button"
+						style={{ backgroundColor: clr }}
+						onClick={() => setLineColor(clr)}
+					/>
+				))}
+			</div>
 		</div>
 	)
 }

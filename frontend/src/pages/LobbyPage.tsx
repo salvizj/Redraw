@@ -88,10 +88,8 @@ const LobbyPage: React.FC = () => {
 	const displayError =
 		fetchError || errorUserDetails?.message || errorLobbyDetails?.message
 	return (
-		<div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-6">
-			<h1 className="text-4xl font-bold mb-6 text-blue-400">
-				Lobby Page
-			</h1>
+		<div className="page-container">
+			<h1 className="page-title">Lobby Page</h1>
 			<DisplayWsMessages messages={messages} />
 			{loadingUserDetails || loadingLobbyDetails ? (
 				<LoadingLobby />
@@ -109,7 +107,7 @@ const LobbyPage: React.FC = () => {
 					playerCount={players?.length || 0}
 				/>
 			) : (
-				<p>No lobby joined.</p>
+				<p className="text-lg">No lobby joined.</p>
 			)}
 		</div>
 	)

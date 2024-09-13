@@ -8,7 +8,12 @@ type ClearCanvasProps = {
 const ClearCanvas: React.FC<ClearCanvasProps> = ({ setClearCanvas }) => {
 	return (
 		<div>
-			<button onClick={() => setClearCanvas(true)}>Clear Canvas</button>
+			<button
+				className="canvas-button"
+				onClick={() => setClearCanvas(true)}
+			>
+				Clear Canvas
+			</button>
 		</div>
 	)
 }

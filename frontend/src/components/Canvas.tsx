@@ -2,13 +2,24 @@ import React, { useRef, useState, useEffect } from "react"
 import CanvasColorPicker from "./CanvasColorPicker"
 import ClearCanvas from "./ClearCanvas"
 import CanvasLineWidthAdjuster from "./CanvasLineWidthAdjuster"
+import CanvasEraser from "./CanvasEraser"
+import { createCanvas } from "../api/createCanvasApi"
 
-const Canvas: React.FC = () => {
+type CanvasProps = {
+	setSavingCanvasStatus: (savingCanvasStatus: boolean) => void
+	drawingComplete: boolean
+}
+
+const Canvas: React.FC<CanvasProps> = ({
+	setSavingCanvasStatus,
+	drawingComplete,
+}) => {
 	const [lineColor, setLineColor] = useState<string>("black")
 	const [lineWidth, setLineWidth] = useState<number>(2)
 	const [clearCanvas, setClearCanvas] = useState<boolean>(false)
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const [isDrawing, setIsDrawing] = useState(false)
+	const bgColor = "white"
 
 	useEffect(() => {
 		const canvas = canvasRef.current
@@ -17,7 +28,7 @@ const Canvas: React.FC = () => {
 		if (canvas && context) {
 			canvas.width = 800
 			canvas.height = 800
-			context.fillStyle = "white"
+			context.fillStyle = bgColor
 			context.fillRect(0, 0, canvas.width, canvas.height)
 		}
 	}, [clearCanvas])
@@ -28,7 +39,7 @@ const Canvas: React.FC = () => {
 			const context = canvas?.getContext("2d")
 			if (context && canvas) {
 				context.clearRect(0, 0, canvas.width, canvas.height)
-				context.fillStyle = "white"
+				context.fillStyle = bgColor
 				context.fillRect(0, 0, canvas.width, canvas.height)
 			}
 			setClearCanvas(false)
@@ -57,6 +68,31 @@ const Canvas: React.FC = () => {
 		}
 	}
 
+	const getCanvasDataUrl = () => {
+		const canvas = canvasRef.current
+		return canvas?.toDataURL("image/png") || ""
+	}
+
+	const saveCanvas = async () => {
+		setSavingCanvasStatus(true)
+		const dataUrl = getCanvasDataUrl()
+
+		try {
+			await createCanvas(dataUrl)
+			console.log("Canvas saved successfully")
+		} catch (error) {
+			console.error("Error saving canvas:", error)
+		} finally {
+			setSavingCanvasStatus(false)
+		}
+	}
+
+	useEffect(() => {
+		if (drawingComplete) {
+			saveCanvas()
+		}
+	}, [drawingComplete])
+
 	const stopDrawing = () => {
 		const context = canvasRef.current?.getContext("2d")
 
@@ -67,26 +103,32 @@ const Canvas: React.FC = () => {
 	}
 
 	return (
-		<div>
-			<CanvasColorPicker
-				lineColor={lineColor}
-				setLineColor={setLineColor}
-			/>
-			<CanvasLineWidthAdjuster
-				lineWidth={lineWidth}
-				setLineWidth={setLineWidth}
-			/>
-			<ClearCanvas
-				clearCanvas={clearCanvas}
-				setClearCanvas={setClearCanvas}
-			/>
+		<div className="canvas-container">
+			<div className="canvas-controls">
+				<CanvasColorPicker
+					lineColor={lineColor}
+					setLineColor={setLineColor}
+				/>
+				<CanvasLineWidthAdjuster
+					lineWidth={lineWidth}
+					setLineWidth={setLineWidth}
+				/>
+				<ClearCanvas
+					clearCanvas={clearCanvas}
+					setClearCanvas={setClearCanvas}
+				/>
+				<CanvasEraser
+					setLineColor={setLineColor}
+					canvasBgColor={bgColor}
+				/>
+			</div>
 			<canvas
 				ref={canvasRef}
 				onMouseDown={startDrawing}
 				onMouseMove={draw}
 				onMouseUp={stopDrawing}
 				onMouseLeave={stopDrawing}
-				style={{ border: "1px solid black" }}
+				className="canvas"
 			/>
 		</div>
 	)

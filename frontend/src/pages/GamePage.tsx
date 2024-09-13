@@ -6,7 +6,7 @@ import { useLobbyContext } from "../context/lobbyContext"
 import Canvas from "../components/Canvas"
 import { Message, MessageType } from "../types"
 import { Countdown } from "../components/utils/Countdown"
-import { PromptInput } from "../components/PromtInput"
+import PromptInput from "../components/PromtInput"
 const GamePage: React.FC = () => {
 	const { sendMessage, messages } = useWebSocketContext()
 	const { sessionId, username } = useUserContext()
@@ -15,6 +15,8 @@ const GamePage: React.FC = () => {
 	const [promptSent, setPromptSent] = useState(false)
 	const [hasSentSyncMessage, setHasSentSyncMessage] = useState(false)
 	const [drawingComplete, setDrawingComplete] = useState(false)
+	const [savingCanvasStatus, setSavingCanvasStatus] = useState(false)
+
 	useEffect(() => {
 		if (sessionId && lobbyId && !hasSentSyncMessage) {
 			const syncMessage: Message = {
@@ -47,33 +49,36 @@ const GamePage: React.FC = () => {
 	}, [messages, players, username])
 
 	return (
-		<div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-6">
-			<h1 className="text-4xl font-bold mb-6 text-blue-400">Game Page</h1>
-
+		<div className="game-container">
+			<h1 className="game-title">Game Page</h1>
 			{syncComplete ? (
 				<>
 					{promptSent ? (
 						<>
-							{drawingComplete ? (
+							{drawingComplete && savingCanvasStatus ? (
 								<Navigate to="/showcase" />
 							) : (
 								<>
 									<Countdown
-										text={"Seconds left to draw"}
+										text="Seconds left to draw"
 										initialCounter={10}
 										onCountdownComplete={() =>
 											setDrawingComplete(true)
 										}
 									/>
-
-									<Canvas />
+									<Canvas
+										setSavingCanvasStatus={
+											setSavingCanvasStatus
+										}
+										drawingComplete={drawingComplete}
+									/>
 								</>
 							)}
 						</>
 					) : (
 						<>
 							<Countdown
-								text={"Seconds left to enter the promt"}
+								text="Seconds left to enter the prompt"
 								initialCounter={10}
 								onCountdownComplete={() => setPromptSent(true)}
 							/>
@@ -87,7 +92,9 @@ const GamePage: React.FC = () => {
 					)}
 				</>
 			) : (
-				<p className="text-xl">Waiting for all players to sync...</p>
+				<p className="waiting-text">
+					Waiting for all players to sync...
+				</p>
 			)}
 		</div>
 	)

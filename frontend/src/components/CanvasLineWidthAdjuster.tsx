@@ -10,14 +10,17 @@ const CanvasLineWidthAdjuster: React.FC<CanvasLineWidthAdjusterProps> = ({
 	setLineWidth,
 }) => {
 	return (
-		<div>
-			<label>Line Width: {lineWidth}</label>
+		<div className="line-width-control">
+			<label className="line-width-label">
+				Line Width: <span>{lineWidth}</span>
+			</label>
 			<input
 				type="range"
 				min="1"
-				max="10"
+				max="50"
 				value={lineWidth}
 				onChange={(e) => setLineWidth(Number(e.target.value))}
+				className="line-width-input"
 			/>
 		</div>
 	)
