@@ -48,8 +48,7 @@ func CreateTables() {
 		CanvasId TEXT PRIMARY KEY,
 		PromptId TEXT,
 		CanvasData TEXT,
-		CreatedAt DATETIME,
-		FOREIGN KEY (PromptId) REFERENCES Prompt(PromptId)
+		CreatedAt DATETIME
 	);
 	`
 

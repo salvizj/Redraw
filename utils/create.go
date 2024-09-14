@@ -80,6 +80,8 @@ func CreatePrompt(prompt types.Prompt) error {
 	query := `INSERT INTO Prompt (PromptId, Prompt, SessionId, LobbyId, Username)
 	          VALUES (?, ?, ?, ?, ?)`
 
+	fmt.Printf("Inserting into Prompt table: %v\n", prompt)
+
 	_, err := db.DB.Exec(query,
 		prompt.PromptId,
 		prompt.Prompt,
@@ -87,7 +89,9 @@ func CreatePrompt(prompt types.Prompt) error {
 		prompt.LobbyId,
 		prompt.Username,
 	)
+
 	if err != nil {
+		fmt.Printf("Failed to execute query: %v\n", err)
 		return fmt.Errorf("failed to create prompt: %w", err)
 	}
 

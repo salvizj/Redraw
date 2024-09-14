@@ -2,9 +2,9 @@ import React, { useState } from "react"
 import { createPrompt } from "../api/createPromtApi"
 
 const PromptInput: React.FC<{
-	sessionId: string | null
-	lobbyId: string | null
-	username: string | null
+	sessionId: string
+	lobbyId: string
+	username: string
 	onPromptSent: () => void
 }> = ({ sessionId, lobbyId, username, onPromptSent }) => {
 	const [inputValue, setInputValue] = useState("")
@@ -34,6 +34,7 @@ const PromptInput: React.FC<{
 			setInputValue("")
 			onPromptSent()
 		} catch (error) {
+			console.log(error)
 			setError("Failed to submit prompt. Please try again.")
 		} finally {
 			setLoading(false)

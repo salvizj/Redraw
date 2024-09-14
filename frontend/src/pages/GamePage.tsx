@@ -82,12 +82,14 @@ const GamePage: React.FC = () => {
 								initialCounter={10}
 								onCountdownComplete={() => setPromptSent(true)}
 							/>
-							<PromptInput
-								sessionId={sessionId}
-								username={username}
-								lobbyId={lobbyId}
-								onPromptSent={() => setPromptSent(true)}
-							/>
+							{sessionId && username && lobbyId && (
+								<PromptInput
+									sessionId={sessionId}
+									username={username}
+									lobbyId={lobbyId}
+									onPromptSent={() => setPromptSent(true)}
+								/>
+							)}
 						</>
 					)}
 				</>
