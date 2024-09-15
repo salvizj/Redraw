@@ -14,6 +14,7 @@ func RegisterAPIRoutes(r *mux.Router) {
 	r.HandleFunc("/get-user-details", handlers.GetUserDetailsHandler).Methods(http.MethodGet)
 	r.HandleFunc("/check-username-exist", handlers.CheckUsernameExistHandler).Methods(http.MethodPost)
 	r.HandleFunc("/create-prompt", handlers.CreatePromptHandler).Methods(http.MethodPost)
-	r.HandleFunc("/create-prompt", handlers.CreatePromptHandler).Methods(http.MethodPost)
+	r.HandleFunc("/get-prompt", handlers.GetPromptHandler).Methods(http.MethodPost)
+	r.HandleFunc("/edit-lobby-settings", handlers.EditLobbySettingsHandler).Methods(http.MethodPatch)
 	r.HandleFunc("/ws", handlers.WsHandler).Methods(http.MethodGet)
 }

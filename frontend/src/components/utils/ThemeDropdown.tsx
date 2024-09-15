@@ -3,15 +3,17 @@ import { useTheme } from "../../context/themeContext"
 
 const ThemeDropdown: React.FC = () => {
 	const { theme, setTheme } = useTheme()
+
 	const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		setTheme(event.target.value as "light" | "dark")
 	}
+
 	return (
-		<div className="theme-dropdown">
+		<div className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark p-4 rounded shadow-md">
 			<select
 				value={theme}
 				onChange={handleChange}
-				className="theme-select"
+				className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark border border-primary-light dark:border-primary-dark rounded p-2"
 			>
 				<option value="light">Light</option>
 				<option value="dark">Dark</option>

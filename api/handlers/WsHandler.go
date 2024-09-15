@@ -59,7 +59,6 @@ func (cm *ConnMap) AddClient(client *Client) {
 
 	cm.connections[client.lobbyID][client] = true
 	cm.sessionMap[client.sessionID] = client
-	log.Printf("Client with sessionID %s added to lobbyID %s", client.sessionID, client.lobbyID)
 }
 
 func (cm *ConnMap) RemoveClient(client *Client) {
@@ -74,7 +73,6 @@ func (cm *ConnMap) RemoveClient(client *Client) {
 	}
 	delete(cm.sessionMap, client.sessionID)
 	client.conn.Close()
-	log.Printf("Client with sessionID %s removed from lobbyID %s", client.sessionID, client.lobbyID)
 }
 
 func (cm *ConnMap) Broadcast(message []byte, lobbyID string) {
@@ -85,7 +83,6 @@ func (cm *ConnMap) Broadcast(message []byte, lobbyID string) {
 		for client := range clients {
 			select {
 			case client.send <- message:
-				log.Printf("Message sent to client with sessionID %s in lobbyID %s", client.sessionID, lobbyID)
 			default:
 				log.Println("Failed to send message to client, removing it")
 				cm.RemoveClient(client)
@@ -107,7 +104,6 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 	connMapMutex.Unlock()
 
 	if exists {
-		log.Printf("Client with sessionID %s already has an active connection. Rejecting new connection.", sessionID)
 		http.Error(w, "Client already connected", http.StatusForbidden)
 		return
 	}
@@ -122,15 +118,12 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 
 	connMap.AddClient(client)
 
-	log.Printf("WebSocket connection opened for sessionID: %s", sessionID)
-
 	go ReadMessages(client)
 	go SendMessages(client)
 }
 
 func ReadMessages(client *Client) {
 	defer func() {
-		log.Printf("Removing client and closing connection for sessionID: %s", client.sessionID)
 		connMap.RemoveClient(client)
 	}()
 
@@ -150,28 +143,61 @@ func ReadMessages(client *Client) {
 
 		switch msg.Type {
 		case types.Join:
-			log.Printf("Join message received: %v", msg)
 			connMap.AddClient(client)
 			broadcastMessage := []byte(`{"type": "join", "sessionId": "` + client.sessionID + `", "lobbyId": "` + client.lobbyID + `"}`)
 			connMap.Broadcast(broadcastMessage, client.lobbyID)
 
 		case types.StartGame:
-			log.Printf("Game start message received: %v", msg)
 			broadcastMessage := []byte(`{"type": "navigateToGame", "sessionId": "` + client.sessionID + `", "lobbyId": "` + client.lobbyID + `"}`)
 			connMap.Broadcast(broadcastMessage, client.lobbyID)
 
-		case types.SyncPlayers:
-			log.Printf("SyncPlayers message received: %v", msg)
+		case types.EnteredGame:
 			message, ok := msg.Data.(string)
 			if !ok {
 				log.Printf("Error: msg.Data is not a string")
 				continue
 			}
 			broadcastMessage := []byte(`{
-                "type": "` + string(types.SyncPlayers) + `",
+                "type": "` + string(types.EnteredGame) + `",
                 "sessionId": "` + client.sessionID + `",
                 "lobbyId": "` + client.lobbyID + `",
                 "data": "` + message + `"
+            }`)
+			connMap.Broadcast(broadcastMessage, client.lobbyID)
+
+		case types.GotPrompt:
+			message, ok := msg.Data.(string)
+			if !ok {
+				log.Printf("Error: msg.Data is not a string")
+				continue
+			}
+			broadcastMessage := []byte(`{
+                "type": "` + string(types.GotPrompt) + `",
+                "sessionId": "` + client.sessionID + `",
+                "lobbyId": "` + client.lobbyID + `",
+                "data": "` + message + `"
+            }`)
+			connMap.Broadcast(broadcastMessage, client.lobbyID)
+
+		case types.SubmitedPrompt:
+			message, ok := msg.Data.(string)
+			if !ok {
+				log.Printf("Error: msg.Data is not a string")
+				continue
+			}
+			broadcastMessage := []byte(`{
+                "type": "` + string(types.SubmitedPrompt) + `",
+                "sessionId": "` + client.sessionID + `",
+                "lobbyId": "` + client.lobbyID + `",
+                "data": "` + message + `"
+            }`)
+			connMap.Broadcast(broadcastMessage, client.lobbyID)
+
+		case types.RefetchLobbyDetails:
+			broadcastMessage := []byte(`{
+                "type": "` + string(types.RefetchLobbyDetails) + `",
+                "sessionId": "` + client.sessionID + `",
+                "lobbyId": "` + client.lobbyID + `"
             }`)
 			connMap.Broadcast(broadcastMessage, client.lobbyID)
 
@@ -185,13 +211,11 @@ func SendMessages(client *Client) {
 	for {
 		msg, ok := <-client.send
 		if !ok {
-			log.Println("Send channel closed for sessionID:", client.sessionID)
 			return
 		}
 
 		err := client.conn.WriteMessage(websocket.TextMessage, msg)
 		if err != nil {
-			log.Println("Error sending message for sessionID:", client.sessionID, ":", err)
 			return
 		}
 	}

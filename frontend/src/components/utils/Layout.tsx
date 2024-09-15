@@ -5,12 +5,13 @@ import { Outlet } from "react-router-dom"
 
 const Layout: React.FC = () => {
 	const { theme } = useTheme()
+
 	return (
 		<div className={`layout ${theme === "dark" ? "dark" : ""}`}>
-			<header className="layout-header">
+			<header className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark font-sans p-4">
 				<ThemeDropdown />
 			</header>
-			<main className="layout-main">
+			<main className="min-h-screen w-full bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
 				<Outlet />
 			</main>
 		</div>

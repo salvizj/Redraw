@@ -5,32 +5,31 @@ module.exports = {
 	theme: {
 		extend: {
 			colors: {
-				"primary": {
-					DEFAULT: "#3b82f6", // blue-500
-					hover: "#2563eb", // blue-600
-					disabled: "#93c5fd", // blue-300
-					dark: "#1d4ed8", // blue-700
+				primary: {
+					light: "#4f8d8c",
+					dark: "#2d6a4f",
 				},
-				"background": {
-					light: "#ffffff",
-					dark: "#1f2937", // gray-800
+				secondary: {
+					light: "#d4eddd",
+					dark: "#7a9a5b",
 				},
-				"text": {
-					light: "#1f2937", // gray-800
-					dark: "#f3f4f6", // gray-100
+				third: {
+					light: "#a9c9a3",
+					dark: "#5a7a4d",
 				},
-				"label": {
-					light: "#4b5563", // gray-600
-					dark: "#d1d5db", // gray-300
+				background: {
+					light: "#f9f9f9",
+					dark: "#2d2d2d",
 				},
-				"error": "#ef4444", // red-500
-				"light-border": "#e5e7eb", // gray-200
-				"card-bg": {
-					light: "#f3f4f6", // gray-100
-					dark: "#374151", // gray-700
+				text: {
+					light: "#333333",
+					dark: "#f9f9f9",
 				},
-				"canvas-border": "#000000",
-				"form-focus": "#3b82f6",
+			},
+			fontFamily: {
+				sans: ["'Comic Sans MS'", "sans-serif"],
+				serif: ["Georgia", "serif"],
+				mono: ["Menlo", "monospace"],
 			},
 		},
 	},

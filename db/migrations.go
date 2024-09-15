@@ -42,7 +42,13 @@ func CreateTables() {
 		Username TEXT
 	);
 	`
-
+	createPromptAssignmentTable := `
+	CREATE TABLE IF NOT EXISTS PromptAssignments (
+		PromptId TEXT PRIMARY KEY,
+		SessionId TEXT,
+		FOREIGN KEY (PromptId) REFERENCES Prompt(PromptId)
+	);
+	`
 	createCanvasTable := `
 	CREATE TABLE IF NOT EXISTS Canvas (
 		CanvasId TEXT PRIMARY KEY,
@@ -66,5 +72,8 @@ func CreateTables() {
 	}
 	if _, err := DB.Exec(createCanvasTable); err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating Canvas table: %v\n", err)
+	}
+	if _, err := DB.Exec(createPromptAssignmentTable); err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating PromtAssignmentTable table: %v\n", err)
 	}
 }

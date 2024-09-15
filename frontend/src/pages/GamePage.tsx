@@ -3,101 +3,169 @@ import { Navigate } from "react-router-dom"
 import { useWebSocketContext } from "../context/webSocketContext"
 import { useUserContext } from "../context/userContext"
 import { useLobbyContext } from "../context/lobbyContext"
-import Canvas from "../components/Canvas"
-import { Message, MessageType } from "../types"
+import Canvas from "../components/canvas/Canvas"
+import { MessageType } from "../types"
 import { Countdown } from "../components/utils/Countdown"
-import PromptInput from "../components/PromtInput"
+import CanvasPromptForm from "../components/canvas/CanvasPromptForm"
+import { getPrompt } from "../api/getPromt"
+import {
+	handleEnteredGameMessage,
+	handleSubmittedPromptMessage,
+	handleGotPromptMessage,
+} from "../utils/messageHandler"
+
 const GamePage: React.FC = () => {
 	const { sendMessage, messages } = useWebSocketContext()
 	const { sessionId, username } = useUserContext()
 	const { lobbyId, players } = useLobbyContext()
-	const [syncComplete, setSyncComplete] = useState(false)
-	const [promptSent, setPromptSent] = useState(false)
-	const [hasSentSyncMessage, setHasSentSyncMessage] = useState(false)
+
+	const [enteredGameSyncComplete, setEnteredGameSyncComplete] =
+		useState(false)
+	const [submitedPromptSyncComplete, setSubmitedPromptSyncComplete] =
+		useState(false)
+	const [gotPromptSyncComplete, setGotPromptSyncComplete] = useState(false)
+
+	const [hasSentEnteredGameMessage, setHasSentEnteredGameMessage] =
+		useState(false)
+	const [hasSentSubmitedPromptMessage, setHasSentSubmitedPromptMessage] =
+		useState(false)
+	const [hasSentGotPromptMessage, setHasSentGotPromptMessage] =
+		useState(false)
+
 	const [drawingComplete, setDrawingComplete] = useState(false)
 	const [savingCanvasStatus, setSavingCanvasStatus] = useState(false)
 
 	useEffect(() => {
-		if (sessionId && lobbyId && !hasSentSyncMessage) {
-			const syncMessage: Message = {
-				type: MessageType.SyncPlayers,
-				sessionId: sessionId,
-				lobbyId: lobbyId,
-				data: `${username} has entered the game`,
-			}
-			sendMessage(syncMessage)
-			setHasSentSyncMessage(true)
+		if (sessionId && lobbyId && username && !hasSentEnteredGameMessage) {
+			handleEnteredGameMessage(sessionId, lobbyId, username, sendMessage)
+			setHasSentEnteredGameMessage(true)
 		}
-	}, [sendMessage, sessionId, lobbyId, username, hasSentSyncMessage])
+	}, [sendMessage, sessionId, lobbyId, username, hasSentEnteredGameMessage])
 
 	useEffect(() => {
-		const syncPlayerMessages = messages.filter(
-			(msg) => msg.type === MessageType.SyncPlayers
+		const syncEnteredGameMessages = messages.filter(
+			(msg) => msg.type === MessageType.EnteredGame
+		)
+		const syncSubmitedPromptMessages = messages.filter(
+			(msg) => msg.type === MessageType.SubmitedPrompt
+		)
+		const syncGotPromptMessages = messages.filter(
+			(msg) => msg.type === MessageType.GotPrompt
 		)
 
-		const usernamesInMessages = syncPlayerMessages.map(
+		const enteredPlayers = syncEnteredGameMessages.map(
+			(msg) => msg.data.split(" ")[0]
+		)
+		const submittedPrompts = syncSubmitedPromptMessages.map(
+			(msg) => msg.data.split(" ")[0]
+		)
+		const gotPrompts = syncGotPromptMessages.map(
 			(msg) => msg.data.split(" ")[0]
 		)
 
-		const syncedPlayers = usernamesInMessages.filter((msgUsername) =>
-			players.some((player) => player.username === msgUsername)
-		)
-
-		if (syncedPlayers.length >= players.length) {
-			setSyncComplete(true)
+		if (enteredPlayers.length >= players.length) {
+			setEnteredGameSyncComplete(true)
 		}
-	}, [messages, players, username])
+
+		if (submittedPrompts.length >= players.length) {
+			setSubmitedPromptSyncComplete(true)
+		}
+
+		if (gotPrompts.length >= players.length) {
+			setGotPromptSyncComplete(true)
+		}
+	}, [messages, players])
+
+	const handlePromptSubmit = () => {
+		if (sessionId && lobbyId && username && !hasSentSubmitedPromptMessage) {
+			handleSubmittedPromptMessage(
+				sessionId,
+				lobbyId,
+				username,
+				sendMessage
+			)
+			setHasSentSubmitedPromptMessage(true)
+		}
+	}
+
+	useEffect(() => {
+		if (
+			submitedPromptSyncComplete &&
+			!hasSentGotPromptMessage &&
+			sessionId &&
+			username &&
+			lobbyId
+		) {
+			getPrompt({ sessionId, lobbyId })
+				.then(() => {
+					handleGotPromptMessage(
+						sessionId,
+						lobbyId,
+						username,
+						sendMessage
+					)
+					setHasSentGotPromptMessage(true)
+				})
+				.catch((error) => console.error("Error getting prompt:", error))
+		}
+	}, [
+		submitedPromptSyncComplete,
+		sessionId,
+		lobbyId,
+		sendMessage,
+		hasSentGotPromptMessage,
+	])
+
+	const renderGameStage = () => {
+		if (!enteredGameSyncComplete) {
+			return <p>Waiting for all players to enter the game...</p>
+		}
+
+		if (!submitedPromptSyncComplete && sessionId && username && lobbyId) {
+			return (
+				<>
+					<CanvasPromptForm
+						sessionId={sessionId}
+						username={username}
+						lobbyId={lobbyId}
+						onPromptSent={handlePromptSubmit}
+					/>
+					<Countdown
+						text="Seconds left to submit your prompt"
+						initialCounter={10}
+						onCountdownComplete={handlePromptSubmit}
+					/>
+				</>
+			)
+		}
+
+		if (!gotPromptSyncComplete) {
+			return <p>Waiting for all players to receive their prompts...</p>
+		}
+
+		if (drawingComplete && savingCanvasStatus) {
+			return <Navigate to="/showcase" />
+		}
+
+		return (
+			<>
+				<Countdown
+					text="Seconds left to draw"
+					initialCounter={60}
+					onCountdownComplete={() => setDrawingComplete(true)}
+				/>
+				<Canvas
+					setSavingCanvasStatus={setSavingCanvasStatus}
+					drawingComplete={drawingComplete}
+				/>
+			</>
+		)
+	}
 
 	return (
-		<div className="game-container">
-			<h1 className="game-title">Game Page</h1>
-			{syncComplete ? (
-				<>
-					{promptSent ? (
-						<>
-							{drawingComplete && savingCanvasStatus ? (
-								<Navigate to="/showcase" />
-							) : (
-								<>
-									<Countdown
-										text="Seconds left to draw"
-										initialCounter={10}
-										onCountdownComplete={() =>
-											setDrawingComplete(true)
-										}
-									/>
-									<Canvas
-										setSavingCanvasStatus={
-											setSavingCanvasStatus
-										}
-										drawingComplete={drawingComplete}
-									/>
-								</>
-							)}
-						</>
-					) : (
-						<>
-							<Countdown
-								text="Seconds left to enter the prompt"
-								initialCounter={10}
-								onCountdownComplete={() => setPromptSent(true)}
-							/>
-							{sessionId && username && lobbyId && (
-								<PromptInput
-									sessionId={sessionId}
-									username={username}
-									lobbyId={lobbyId}
-									onPromptSent={() => setPromptSent(true)}
-								/>
-							)}
-						</>
-					)}
-				</>
-			) : (
-				<p className="waiting-text">
-					Waiting for all players to sync...
-				</p>
-			)}
+		<div className="page-container">
+			<h1 className="heading-primary">Game Page</h1>
+			{renderGameStage()}
 		</div>
 	)
 }

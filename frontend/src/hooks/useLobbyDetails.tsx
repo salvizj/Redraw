@@ -2,6 +2,7 @@ import { useCallback, useState } from "react"
 import { fetchLobbyDetails } from "../api/getLobbyDetailsApi"
 import { useLobbyContext } from "../context/lobbyContext"
 import { LobbyDetails } from "../types"
+import { transformLobbySettings } from "../utils/transformLobbySettings"
 
 export const useLobbyDetails = () => {
 	const { setLobbyId, setPlayers, setLobbySettings } = useLobbyContext()
@@ -14,7 +15,10 @@ export const useLobbyDetails = () => {
 			const lobbydetails: LobbyDetails = await fetchLobbyDetails()
 			setLobbyId(lobbydetails.lobbyId)
 			setPlayers(lobbydetails.players)
-			setLobbySettings(lobbydetails.lobbySettings)
+			const transformedSettings = transformLobbySettings(
+				lobbydetails.lobbySettings
+			)
+			setLobbySettings(transformedSettings)
 		} catch (err) {
 			setError(err as Error)
 		} finally {

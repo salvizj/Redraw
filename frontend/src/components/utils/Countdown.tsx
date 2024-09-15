@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 
 type CountdownProps = {
 	text: string
@@ -12,24 +12,31 @@ export const Countdown: React.FC<CountdownProps> = ({
 	onCountdownComplete,
 }) => {
 	const [counter, setCounter] = useState(initialCounter)
+	const counterRef = useRef(initialCounter)
+	const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
 	useEffect(() => {
-		const countdownInterval = setInterval(() => {
-			setCounter((prevCounter) => {
-				if (prevCounter <= 1) {
-					clearInterval(countdownInterval)
-					onCountdownComplete()
-					return 0
-				}
-				return prevCounter - 1
-			})
-		}, 1000)
+		const startCountdown = () => {
+			intervalRef.current = setInterval(() => {
+				counterRef.current -= 1
+				setCounter(counterRef.current)
 
-		return () => clearInterval(countdownInterval)
+				if (counterRef.current <= 0) {
+					if (intervalRef.current) clearInterval(intervalRef.current)
+					onCountdownComplete()
+				}
+			}, 1000)
+		}
+
+		startCountdown()
+
+		return () => {
+			if (intervalRef.current) clearInterval(intervalRef.current)
+		}
 	}, [onCountdownComplete])
 
 	return (
-		<h2 className="countdown">
+		<h2>
 			{text} {counter} seconds left
 		</h2>
 	)
