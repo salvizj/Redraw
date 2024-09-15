@@ -7,20 +7,25 @@ type LobbyPlayersProps = {
 
 const LobbyPlayers: React.FC<LobbyPlayersProps> = ({ players }) => {
 	return (
-		<div className="bg-background-light dark:bg-background-dark p-6 rounded-full text-center">
-			<h3 className="text-primary-light dark:text-primary-dark text-xl font-bold mb-4">
+		<div className="flex flex-col items-center bg-background-light dark:bg-background-dark p-6 rounded-lg">
+			<h3 className="text-primary-light dark:text-primary-dark text-4xl font-bold mb-4">
 				Players in Lobby
 			</h3>
 			{players.length > 0 ? (
-				<ul className="list-disc pl-5 text-left">
+				<ul className="flex flex-wrap justify-center gap-4">
 					{players.map((player, index) => (
-						<li key={index} className="mb-3">
-							<p className="text-text-light dark:text-text-dark">
-								<strong>Username:</strong> {player.username}
+						<li
+							key={index}
+							className="p-4 border-2 border-primary-light dark:border-primary-dark rounded-xl text-center"
+						>
+							<p className="text-text-light dark:text-text-dark text-2xl font-semibold">
+								Username {player.username}
 							</p>
-							<p className="text-text-light dark:text-text-dark">
-								<strong>Role:</strong> {player.role}
-							</p>
+							{player.role === "leader" && (
+								<p className="text-text-light dark:text-text-dark">
+									<strong>Role:</strong> Leader
+								</p>
+							)}
 						</li>
 					))}
 				</ul>

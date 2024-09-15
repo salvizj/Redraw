@@ -14,6 +14,7 @@ const LobbyStartButton: React.FC<LobbyStartButtonProps> = ({
 	const isLeader = role === "leader"
 	const moreThanOnePlayer = playerCount > 1
 	const isDisabled = !isLeader || !moreThanOnePlayer
+
 	const buttonText = isLeader
 		? moreThanOnePlayer
 			? "Start"
@@ -21,17 +22,19 @@ const LobbyStartButton: React.FC<LobbyStartButtonProps> = ({
 		: "Waiting for leader"
 
 	return (
-		<button
-			onClick={handleStart}
-			disabled={isDisabled}
-			className={`btn btn-primary ${
-				isLeader && moreThanOnePlayer
-					? "bg-primary btn"
-					: "bg-disabled btn "
-			}`}
-		>
-			{buttonText}
-		</button>
+		<div className="flex justify-center items-center">
+			<button
+				onClick={handleStart}
+				disabled={isDisabled}
+				className={`flex justify-center bg-primary-light dark:bg-primary-dark text-white px-6 py-4 rounded-full font-bold text-xl transition-colors duration-300 ${
+					isDisabled
+						? "cursor-not-allowed opacity-50"
+						: "hover:bg-primary-dark dark:hover:bg-primary-light"
+				}`}
+			>
+				{buttonText}
+			</button>
+		</div>
 	)
 }
 

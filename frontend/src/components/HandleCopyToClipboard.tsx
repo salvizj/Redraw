@@ -31,7 +31,7 @@ const HandleCopyToClipboard: React.FC<HandleCopyToClipboardProps> = ({
 	}
 
 	return (
-		<div className="bg-background-light dark:bg-background-dark p-4 rounded-lg shadow-lg text-center">
+		<div className="bg-background-light dark:bg-background-dark p-4 rounded-lg  text-center">
 			<button
 				onClick={handleCopy}
 				className="bg-primary-light dark:bg-primary-dark text-white px-4 py-2 rounded-full font-bold transition-colors duration-300 hover:bg-primary-dark dark:hover:bg-primary-light"

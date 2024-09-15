@@ -6,12 +6,9 @@ interface LobbyIdSectionProps {
 }
 
 const LobbyIdSection: React.FC<LobbyIdSectionProps> = ({ lobbyId }) => (
-	<div className="mb-4">
+	<div className="flex flex-col items-center justify-center mb-4">
 		<p className="font-semibold text-text-light dark:text-text-dark text-xl">
-			Lobby ID:
-		</p>
-		<p className="ml-2 text-text-light dark:text-text-dark text-xl">
-			{lobbyId}
+			Lobby ID: {lobbyId}
 		</p>
 		<HandleCopyToClipboard lobbyId={lobbyId} />
 	</div>

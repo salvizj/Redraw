@@ -9,11 +9,11 @@ const ThemeDropdown: React.FC = () => {
 	}
 
 	return (
-		<div className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark p-4 rounded shadow-md">
+		<div className="flex justify-end bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark p-4 rounded">
 			<select
 				value={theme}
 				onChange={handleChange}
-				className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark border border-primary-light dark:border-primary-dark rounded p-2"
+				className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark border border-primary-light dark:border-primary-dark rounded p-2 font-sans"
 			>
 				<option value="light">Light</option>
 				<option value="dark">Dark</option>

@@ -10,7 +10,6 @@ import Loading from "../components/utils/Loading"
 import { handleStartGame } from "../utils/messageHandler"
 import LobbyPlayers from "../components/lobby/LobbyPlayers"
 import LobbyIdSection from "../components/lobby/LobbyIdSection"
-import LobbyUserSection from "../components/lobby/LobbyUserSection"
 import LobbyStartButton from "../components/lobby/LobbyStartButton"
 import LobbySettings from "../components/lobby/LobbySettings"
 
@@ -56,15 +55,15 @@ const LobbyPage: React.FC = () => {
 			const refetchData = async () => {
 				try {
 					await fetchLobbyDetails()
-					setShouldRefetchLobby(false)
 				} catch (error) {
 					setFetchError("Failed to refetch lobby details.")
+				} finally {
+					setShouldRefetchLobby(false)
 				}
 			}
 			refetchData()
 		}
 	}, [shouldRefetchLobby, fetchLobbyDetails, setShouldRefetchLobby])
-
 	useEffect(() => {
 		if (
 			sessionId &&
@@ -104,20 +103,26 @@ const LobbyPage: React.FC = () => {
 			) : lobbyId && username && sessionId && lobbySettings && role ? (
 				<>
 					<LobbyIdSection lobbyId={lobbyId} />
-					<LobbyUserSection username={username} />
-					<LobbyPlayers players={players} />
+					<div className="flex flex-row justify-between items-start gap-4">
+						<div className="w-1/2">
+							<LobbyPlayers players={players} />
+						</div>
+						<div className="w-1/2">
+							<LobbySettings
+								playerCount={players.length}
+								lobbyId={lobbyId}
+								username={username}
+								role={role}
+								lobbySettings={lobbySettings}
+								sessionId={sessionId}
+							/>
+						</div>
+					</div>
+
 					<LobbyStartButton
 						role={role}
 						playerCount={players.length}
 						handleStart={onStartGame}
-					/>
-					<LobbySettings
-						playerCount={players.length}
-						lobbyId={lobbyId}
-						username={username}
-						role={role}
-						lobbySettings={lobbySettings}
-						sessionId={sessionId}
 					/>
 				</>
 			) : (

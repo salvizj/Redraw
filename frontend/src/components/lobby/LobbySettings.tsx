@@ -25,7 +25,7 @@ const LobbySettings: React.FC<LobbySettingsProps> = ({
 	lobbySettings,
 	playerCount,
 }) => {
-	const { sendMessage, messages, setShouldRefetchLobby } =
+	const { sendMessage, messages, setShouldRefetchLobby, shouldRefetchLobby } =
 		useWebSocketContext()
 	const [maxPlayerCount, setMaxPlayerCount] = useState(
 		lobbySettings.MaxPlayerCount
@@ -45,8 +45,7 @@ const LobbySettings: React.FC<LobbySettingsProps> = ({
 		const hasRefetchMessage = messages.some(
 			(msg) => msg.type === MessageType.RefetchLobbyDetails
 		)
-
-		if (hasRefetchMessage) {
+		if (hasRefetchMessage && !shouldRefetchLobby) {
 			setShouldRefetchLobby(true)
 		}
 	}, [messages, setShouldRefetchLobby])

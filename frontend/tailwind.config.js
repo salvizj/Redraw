@@ -28,8 +28,6 @@ module.exports = {
 			},
 			fontFamily: {
 				sans: ["'Comic Sans MS'", "sans-serif"],
-				serif: ["Georgia", "serif"],
-				mono: ["Menlo", "monospace"],
 			},
 		},
 	},
