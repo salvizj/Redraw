@@ -6,7 +6,10 @@ interface LobbyIdSectionProps {
 }
 
 const LobbyIdSection: React.FC<LobbyIdSectionProps> = ({ lobbyId }) => (
-	<div className="flex flex-col items-center justify-center mb-4">
+	<div className="flex flex-col items-center justify-center pt-10">
+		<h1 className="text-primary-light dark:text-primary-dark text-4xl font-bold mb-4">
+			Invite Friends by Sharing Your Lobby Link!
+		</h1>
 		<p className="font-semibold text-text-light dark:text-text-dark text-xl">
 			Lobby ID: {lobbyId}
 		</p>

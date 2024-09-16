@@ -89,7 +89,7 @@ const LobbyPage: React.FC = () => {
 	const displayError =
 		fetchError || errorUserDetails?.message || errorLobbyDetails?.message
 	return (
-		<div>
+		<div className="min-h-screen justify-center items-center">
 			{loadingUserDetails || loadingLobbyDetails ? (
 				<Loading
 					messages={[

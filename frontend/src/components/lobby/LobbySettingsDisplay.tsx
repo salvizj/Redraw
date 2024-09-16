@@ -30,10 +30,15 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
 	error,
 	lobbySettings,
 }) => {
+	const selectClassName = `
+		p-2 bg-background-light dark:bg-background-dark border-2 border-primary-light dark:border-primary-dark 
+		rounded-lg text-text-light dark:text-text-dark text-xl w-32 appearance-none cursor-pointer
+	`
+
 	const renderLobbySettingsDefault = () => (
-		<div className="flex flex-col items-centerborder-2 border-primary-light  rounded-x  p-6 border-2 dark:border-primary-dark rounded-x">
-			<div className="flex justify-between w-full max-w-lg">
-				<p className="text-xl font-semibold text-text-light dark:text-text-dark">
+		<div className="flex flex-col items-center p-6 border-2 border-primary-light dark:border-primary-dark rounded-lg">
+			<div className="flex justify-between w-full max-w-lg mb-4">
+				<p className="text-xl font-semibold text-text-light dark:text-text-dark pr-4">
 					Max Player Count:
 				</p>
 				<p className="text-text-light dark:text-text-dark">
@@ -41,8 +46,8 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
 				</p>
 			</div>
 
-			<div className="flex justify-between w-full max-w-lg">
-				<p className="text-xl font-semibold text-text-light dark:text-text-dark">
+			<div className="flex justify-between w-full max-w-lg mb-4">
+				<p className="text-xl font-semibold text-text-light dark:text-text-dark pr-4">
 					Prompt Input Time:
 				</p>
 				<p className="text-text-light dark:text-text-dark">
@@ -51,7 +56,7 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
 			</div>
 
 			<div className="flex justify-between w-full max-w-lg">
-				<p className="text-xl font-semibold text-text-light dark:text-text-dark">
+				<p className="text-xl font-semibold text-text-light dark:text-text-dark pr-4">
 					Drawing Time:
 				</p>
 				<p className="text-text-light dark:text-text-dark">
@@ -62,92 +67,145 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
 	)
 
 	const renderLobbySettingsEdit = () => (
-		<div className="flex flex-col items-center p-6 border-2 border-primary-light dark:border-primary-dark rounded-x">
-			<div className="flex justify-between w-full max-w-lg">
-				<p className="text-xl font-semibold text-text-light dark:text-text-dark">
+		<div className="flex flex-col items-center p-6 border-2 border-primary-light dark:border-primary-dark rounded-lg">
+			<div className="flex justify-between w-full max-w-lg mb-4">
+				<p className="text-xl font-semibold text-text-light dark:text-text-dark pr-4">
 					Max Player Count:
 				</p>
-				<select
-					value={maxPlayerCount}
-					onChange={(e) => setMaxPlayerCount(Number(e.target.value))}
-					className="p-2 border border-gray-300 rounded text-black text-lg"
-				>
-					{Array.from({ length: 10 }, (_, i) => (
-						<option key={i + 1} value={i + 1}>
-							{i + 1}
-						</option>
-					))}
-				</select>
+				<div className="relative">
+					<select
+						value={maxPlayerCount}
+						onChange={(e) =>
+							setMaxPlayerCount(Number(e.target.value))
+						}
+						className={selectClassName}
+					>
+						{Array.from({ length: 10 }, (_, i) => (
+							<option
+								key={i + 1}
+								value={i + 1}
+								className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark"
+							>
+								{i + 1}
+							</option>
+						))}
+					</select>
+					<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-text-light dark:text-text-dark">
+						<svg
+							className="fill-current h-4 w-4"
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 20 20"
+						>
+							<path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+						</svg>
+					</div>
+				</div>
 			</div>
 
-			<div className="flex justify-between w-full max-w-lg">
-				<p className="text-xl font-semibold text-text-light dark:text-text-dark">
+			<div className="flex justify-between w-full max-w-lg mb-4">
+				<p className="text-xl font-semibold text-text-light dark:text-text-dark pr-4">
 					Prompt Input Time:
 				</p>
-				<select
-					value={promptInputTime}
-					onChange={(e) => setPromptInputTime(Number(e.target.value))}
-					className="p-2 border border-gray-300 rounded text-black text-lg"
-				>
-					{Array.from({ length: 12 }, (_, i) => (
-						<option key={(i + 1) * 10} value={(i + 1) * 10}>
-							{(i + 1) * 10}
-						</option>
-					))}
-				</select>
+				<div className="relative">
+					<select
+						value={promptInputTime}
+						onChange={(e) =>
+							setPromptInputTime(Number(e.target.value))
+						}
+						className={selectClassName}
+					>
+						{Array.from({ length: 12 }, (_, i) => (
+							<option
+								key={(i + 1) * 10}
+								value={(i + 1) * 10}
+								className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark"
+							>
+								{(i + 1) * 10}
+							</option>
+						))}
+					</select>
+					<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-text-light dark:text-text-dark">
+						<svg
+							className="fill-current h-4 w-4"
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 20 20"
+						>
+							<path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+						</svg>
+					</div>
+				</div>
 			</div>
 
 			<div className="flex justify-between w-full max-w-lg">
-				<p className="text-xl font-semibold text-text-light dark:text-text-dark">
+				<p className="text-xl font-semibold text-text-light dark:text-text-dark pr-4">
 					Drawing Time:
 				</p>
-				<select
-					value={drawingTime}
-					onChange={(e) => setDrawingTime(Number(e.target.value))}
-					className="p-2 border border-gray-300 rounded text-black text-lg"
-				>
-					{Array.from({ length: 12 }, (_, i) => (
-						<option key={(i + 1) * 10} value={(i + 1) * 10}>
-							{(i + 1) * 10}
-						</option>
-					))}
-				</select>
+				<div className="relative">
+					<select
+						value={drawingTime}
+						onChange={(e) => setDrawingTime(Number(e.target.value))}
+						className={selectClassName}
+					>
+						{Array.from({ length: 12 }, (_, i) => (
+							<option
+								key={(i + 1) * 10}
+								value={(i + 1) * 10}
+								className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark"
+							>
+								{(i + 1) * 10}
+							</option>
+						))}
+					</select>
+					<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-text-light dark:text-text-dark">
+						<svg
+							className="fill-current h-4 w-4"
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 20 20"
+						>
+							<path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+						</svg>
+					</div>
+				</div>
 			</div>
 
 			{error && <p className="text-red-500 mb-4 text-lg">{error}</p>}
-
-			<div className="flex gap-4">
-				<button
-					onClick={handleUpdateClick}
-					className="mt-4 bg-primary-light dark:bg-primary-dark text-white px-4 py-2 rounded-full transition duration-200 hover:bg-primary-dark dark:hover:bg-primary-light text-lg"
-				>
-					Save Changes
-				</button>
-				<button
-					onClick={() => setIsEditing(false)}
-					className="mt-4 bg-secondary-light dark:bg-secondary-dark text-black px-4 py-2 rounded-full transition duration-200 hover:bg-secondary-dark dark:hover:bg-secondary-light text-lg"
-				>
-					Cancel
-				</button>
-			</div>
 		</div>
 	)
 
 	return (
-		<div className="flex flex-col items-center bg-background-light dark:bg-background-dark l">
+		<div className="flex flex-col items-center bg-background-light dark:bg-background-dark">
 			<h3 className="text-primary-light dark:text-primary-dark text-4xl font-bold mb-4">
 				Lobby Settings
 			</h3>
 			{isEditing
 				? renderLobbySettingsEdit()
 				: renderLobbySettingsDefault()}
-			{role === "leader" && !isEditing && (
-				<button
-					onClick={() => setIsEditing(true)}
-					className="mt-4 bg-primary-light dark:bg-primary-dark text-white px-4 py-2 rounded-full font-bold transition-colors duration-300 hover:bg-primary-dark dark:hover:bg-primary-light"
-				>
-					Edit Lobby Settings
-				</button>
+			{role === "leader" && (
+				<div className="flex justify-center gap-4 mt-4">
+					{isEditing ? (
+						<>
+							<button
+								onClick={handleUpdateClick}
+								className="bg-primary-light dark:bg-primary-dark text-white px-4 py-2 rounded-full transition duration-200 hover:bg-primary-dark dark:hover:bg-primary-light text-lg"
+							>
+								Save Changes
+							</button>
+							<button
+								onClick={() => setIsEditing(false)}
+								className="bg-primary-light dark:bg-primary-dark text-white px-4 py-2 rounded-full transition duration-200 hover:bg-primary-dark dark:hover:bg-primary-light text-lg"
+							>
+								Cancel
+							</button>
+						</>
+					) : (
+						<button
+							onClick={() => setIsEditing(true)}
+							className="bg-primary-light dark:bg-primary-dark text-white px-4 py-2 rounded-full font-bold transition-colors duration-300 hover:bg-primary-dark dark:hover:bg-primary-light"
+						>
+							Edit Lobby Settings
+						</button>
+					)}
+				</div>
 			)}
 		</div>
 	)

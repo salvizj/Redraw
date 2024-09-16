@@ -28,6 +28,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
 	children,
 }) => {
 	const socketRef = useRef<WebSocket | null>(null)
+	const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 	const [messages, setMessages] = useState<Message[]>([])
 	const [isConnected, setIsConnected] = useState(false)
 	const [shouldRefetchLobby, setShouldRefetchLobby] = useState(false)
@@ -42,8 +43,10 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
 				console.warn("WebSocket connection already open.")
 				return
 			}
+
 			const wsUrl = `ws://localhost:8080/ws?sessionID=${sessionID}&lobbyID=${lobbyID}`
 			const ws = new WebSocket(wsUrl)
+
 			ws.addEventListener("open", () => {
 				console.log("WebSocket connection opened.")
 				setIsConnected(true)
@@ -55,6 +58,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
 				}
 				ws.send(JSON.stringify(message))
 			})
+
 			ws.addEventListener("message", (event) => {
 				try {
 					const message: Message = JSON.parse(event.data)
@@ -70,6 +74,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
 					console.error("Error parsing message:", error)
 				}
 			})
+
 			ws.addEventListener("close", (event) => {
 				setIsConnected(false)
 				console.warn(
@@ -77,13 +82,18 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
 				)
 				if (event.code !== 1000) {
 					console.warn("Attempting to reconnect...")
-					setTimeout(() => connectWebSocket(sessionID, lobbyID), 5000)
+					reconnectTimeoutRef.current = setTimeout(
+						() => connectWebSocket(sessionID, lobbyID),
+						5000
+					)
 				}
 			})
+
 			ws.addEventListener("error", (error) => {
 				console.error("WebSocket error:", error)
 				setIsConnected(false)
 			})
+
 			socketRef.current = ws
 		},
 		[]
@@ -105,6 +115,9 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
 			if (socketRef.current) {
 				socketRef.current.close()
 				console.log("WebSocket connection closed on component unmount.")
+			}
+			if (reconnectTimeoutRef.current) {
+				clearTimeout(reconnectTimeoutRef.current)
 			}
 		}
 	}, [])
