@@ -45,14 +45,14 @@ type PlayerDetails struct {
 type MessageType string
 
 const (
-	Join                MessageType = "join"
-	Leave               MessageType = "leave"
-	StartGame           MessageType = "startGame"
-	NavigateToGame      MessageType = "navigateToGame"
-	EnteredGame         MessageType = "enteredGame"
-	GotPrompt           MessageType = "gotPrompt"
-	SubmitedPrompt      MessageType = "submitedPrompt"
-	RefetchLobbyDetails MessageType = "refetchLobbyDetails"
+	Join              MessageType = "join"
+	Leave             MessageType = "leave"
+	StartGame         MessageType = "startGame"
+	NavigateToGame    MessageType = "navigateToGame"
+	EnteredGame       MessageType = "enteredGame"
+	GotPrompt         MessageType = "gotPrompt"
+	SubmitedPrompt    MessageType = "submitedPrompt"
+	EditLobbySettings MessageType = "editLobbySettings"
 )
 
 type Message struct {

@@ -10,7 +10,11 @@ import (
 	"github.com/salvizj/Redraw/types"
 )
 
-var upgrader = websocket.Upgrader{}
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
 
 var (
 	connMap      = NewConnMap()
@@ -100,13 +104,17 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	connMapMutex.Lock()
-	_, exists := connMap.sessionMap[sessionID]
-	connMapMutex.Unlock()
-
+	client, exists := connMap.sessionMap[sessionID]
 	if exists {
-		http.Error(w, "Client already connected", http.StatusForbidden)
-		return
+		if client.conn != nil && client.conn.WriteMessage(websocket.PingMessage, nil) == nil {
+			connMapMutex.Unlock()
+			http.Error(w, "Client already connected", http.StatusForbidden)
+			return
+		} else {
+			connMap.RemoveClient(client)
+		}
 	}
+	connMapMutex.Unlock()
 
 	wsConn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -114,8 +122,7 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := NewClient(wsConn, sessionID, lobbyID)
-
+	client = NewClient(wsConn, sessionID, lobbyID)
 	connMap.AddClient(client)
 
 	go ReadMessages(client)
@@ -193,9 +200,9 @@ func ReadMessages(client *Client) {
             }`)
 			connMap.Broadcast(broadcastMessage, client.lobbyID)
 
-		case types.RefetchLobbyDetails:
+		case types.EditLobbySettings:
 			broadcastMessage := []byte(`{
-                "type": "` + string(types.RefetchLobbyDetails) + `",
+                "type": "` + string(types.EditLobbySettings) + `",
                 "sessionId": "` + client.sessionID + `",
                 "lobbyId": "` + client.lobbyID + `"
             }`)

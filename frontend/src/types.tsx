@@ -39,7 +39,7 @@ export enum MessageType {
 	EnteredGame = "enteredGame",
 	GotPrompt = "gotPrompt",
 	SubmitedPrompt = "submitedPrompt",
-	RefetchLobbyDetails = "refetchLobbyDetails",
+	EditLobbySettings = "editLobbySettings",
 }
 
 export type FormData = {

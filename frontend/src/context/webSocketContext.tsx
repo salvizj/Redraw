@@ -70,6 +70,9 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
 						setShouldRefetchLobby(true)
 						setGameStarted(true)
 					}
+					if (message.type === MessageType.EditLobbySettings) {
+						setShouldRefetchLobby(true)
+					}
 				} catch (error) {
 					console.error("Error parsing message:", error)
 				}

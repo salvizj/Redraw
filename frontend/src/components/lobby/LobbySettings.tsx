@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from "react"
-import {
-	LobbySettings as LobbySettingsType,
-	Message,
-	MessageType,
-} from "../../types"
+import React, { useState } from "react"
+import { LobbySettings as LobbySettingsType } from "../../types"
 import { editLobbySettings } from "../../api/editLobbySettingsApi"
 import { useWebSocketContext } from "../../context/webSocketContext"
 import LobbySettingsDisplay from "./LobbySettingsDisplay"
+import { handleEditLobbySettings } from "../../utils/messageHandler"
 
 type LobbySettingsProps = {
 	sessionId: string
@@ -25,8 +22,7 @@ const LobbySettings: React.FC<LobbySettingsProps> = ({
 	lobbySettings,
 	playerCount,
 }) => {
-	const { sendMessage, messages, setShouldRefetchLobby, shouldRefetchLobby } =
-		useWebSocketContext()
+	const { sendMessage } = useWebSocketContext()
 	const [maxPlayerCount, setMaxPlayerCount] = useState(
 		lobbySettings.MaxPlayerCount
 	)
@@ -40,15 +36,6 @@ const LobbySettings: React.FC<LobbySettingsProps> = ({
 		hasSentRefetchLobbyDetailsMessage,
 		setHasSentRefetchLobbyDetailsMessage,
 	] = useState(false)
-
-	useEffect(() => {
-		const hasRefetchMessage = messages.some(
-			(msg) => msg.type === MessageType.RefetchLobbyDetails
-		)
-		if (hasRefetchMessage && !shouldRefetchLobby) {
-			setShouldRefetchLobby(true)
-		}
-	}, [messages, setShouldRefetchLobby])
 
 	const handleUpdateClick = async () => {
 		if (playerCount > maxPlayerCount) {
@@ -68,14 +55,13 @@ const LobbySettings: React.FC<LobbySettingsProps> = ({
 			})
 
 			if (!hasSentRefetchLobbyDetailsMessage) {
-				const refetchLobbyDetails: Message = {
-					type: MessageType.RefetchLobbyDetails,
-					sessionId: sessionId,
-					lobbyId: lobbyId,
-					data: username,
-				}
+				handleEditLobbySettings(
+					sessionId,
+					lobbyId,
+					username,
+					sendMessage
+				)
 				setHasSentRefetchLobbyDetailsMessage(true)
-				sendMessage(refetchLobbyDetails)
 			}
 
 			setError(null)

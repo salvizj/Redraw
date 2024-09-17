@@ -77,3 +77,22 @@ export const handleStartGame = (
 
 	sendMessage(startGameMessage)
 }
+export const handleEditLobbySettings = (
+	sessionId: string | null,
+	lobbyId: string | null,
+	username: string,
+	sendMessage: (message: Message) => void
+) => {
+	if (!sessionId || !lobbyId) {
+		return
+	}
+
+	const editLobbySettingsMessage: Message = {
+		type: MessageType.EditLobbySettings,
+		sessionId: sessionId!,
+		lobbyId: lobbyId!,
+		data: username,
+	}
+
+	sendMessage(editLobbySettingsMessage)
+}
