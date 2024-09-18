@@ -55,4 +55,10 @@ install:
 	@echo "Installing Go dependencies..."
 	go mod tidy
 
-.PHONY: default all format build frontend-build run run-with-format clean test format-frontend install
+build-without-format:
+	@echo "Building the frontend application without formatting..."
+	@cd frontend && npm install && npm run build || (echo "Frontend build failed" && exit 1)
+	@echo "Building the Go application..."
+	go build -o $(BINARY_NAME) cmd/main.go
+
+.PHONY: default all format build frontend-build run run-with-format format-frontend clean test install build-without-format
