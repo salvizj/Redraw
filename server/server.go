@@ -48,11 +48,10 @@ func StartServer() {
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)(r)
 
-	baseURL := getenv("VITE_BASE_URL", "http://localhost:8080")
-	host, port := parseURL(baseURL)
+	port := getenv("PORT", "10000")
+	fmt.Printf("Server is running on http://0.0.0.0:%s\n", port)
 
-	fmt.Printf("Server is running on http://%s:%s\n", host, port)
-	if err := http.ListenAndServe(fmt.Sprintf("%s:%s", host, port), corsHandler); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", port), corsHandler); err != nil {
 		fmt.Printf("Server failed to start: %s\n", err)
 	}
 }
