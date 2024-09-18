@@ -5,31 +5,30 @@ default: all
 all: format frontend-build build
 
 format:
-	@echo "Formatting the code..."
+	@echo "Formatting code..."
 	npx prettier --write "**/*.tsx" "**/*.ts"
 	go fmt ./...
-
-build:
-	@echo "Building the Go application..."
-	go build -o $(BINARY_NAME) cmd/main.go
 
 frontend-build:
 	@echo "Building the frontend application..."
 	@cd frontend && npm install && npm run build || (echo "Frontend build failed" && exit 1)
 
-run:
-	@echo "Building the frontend application..."
-	@cd frontend && npm install && npm run build || (echo "Frontend build failed" && exit 1)
+build:
 	@echo "Building the Go application..."
 	go build -o $(BINARY_NAME) cmd/main.go
-	@echo "Running the Go application..."
-	./$(BINARY_NAME)
 
-run-with-format:
-	@echo "Formatting code..."
-	npx prettier --write "**/*.tsx" "**/*.ts"
-	go fmt ./...
-	@echo "Building the frontend application..."
+run:
+	@echo "Running the application..."
+	@make run-prod
+
+run-dev:
+	@echo "Running the frontend application in development mode..."
+	@cd frontend && npm install && npm run dev || (echo "Frontend development failed" && exit 1)
+	@echo "Running the Go application in development mode..."
+	go run cmd/main.go
+
+run-prod:
+	@echo "Building and running the Go application in production mode..."
 	@cd frontend && npm install && npm run build || (echo "Frontend build failed" && exit 1)
 	@echo "Building the Go application..."
 	go build -o $(BINARY_NAME) cmd/main.go
@@ -50,15 +49,9 @@ test:
 	go test ./...
 
 install:
-	@echo "Installing frontend dependencies..."
+	@echo "Installing all dependencies..."
 	@cd frontend && npm install
 	@echo "Installing Go dependencies..."
 	go mod tidy
 
-build-without-format:
-	@echo "Building the frontend application without formatting..."
-	@cd frontend && npm install && npm run build || (echo "Frontend build failed" && exit 1)
-	@echo "Building the Go application..."
-	go build -o $(BINARY_NAME) cmd/main.go
-
-.PHONY: default all format build frontend-build run run-with-format format-frontend clean test install build-without-format
+.PHONY: default all format build frontend-build run run-dev run-prod format-frontend clean test install build-without-format
