@@ -1,16 +1,16 @@
 services:
-    - type: static_site
+    - type: web
       name: vite-frontend
-      env: static
+      runtime: node
       buildCommand: npm install && npm run build
-      publishDir: dist
+      startCommand: npx http-server ./dist -p 8080
       envVars:
           - key: VITE_BASE_URL
             value: https://redraw.onrender.com
 
-    - type: web_service
+    - type: web
       name: go-backend
-      env: go
+      runtime: go
       buildCommand: go build -o myapp
       startCommand: ./myapp
       envVars:
