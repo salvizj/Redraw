@@ -14,7 +14,10 @@ import (
 func init() {
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("Error loading .env file, continuing with default environment variables")
+	} else {
+		fmt.Println("Loaded .env file")
 	}
+	fmt.Println("PORT:", getenv("PORT", "8080"))
 }
 
 func StartServer() {
