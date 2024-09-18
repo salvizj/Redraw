@@ -12,10 +12,14 @@ import (
 )
 
 func init() {
-	if err := godotenv.Load(); err != nil {
-		fmt.Println("Error loading .env file, continuing with default environment variables")
+	if os.Getenv("TURSO_AUTH_TOKEN") != "" {
+		fmt.Println("Critical environment variable found, skipping .env file loading")
 	} else {
-		fmt.Println("Loaded .env file")
+		if err := godotenv.Load(); err != nil {
+			fmt.Println("Error loading .env file, continuing with default environment variables")
+		} else {
+			fmt.Println("Loaded .env file")
+		}
 	}
 	fmt.Println("PORT:", getenv("PORT", "8080"))
 }
@@ -34,7 +38,7 @@ func StartServer() {
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)(r)
 
-	port := os.Getenv("PORT")
+	port := getenv("PORT", "8080")
 	fmt.Printf("Server is running on http://localhost:%s\n", port)
 	if err := http.ListenAndServe(":"+port, corsHandler); err != nil {
 		fmt.Printf("Server failed to start: %s\n", err)
