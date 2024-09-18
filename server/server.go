@@ -3,11 +3,19 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/handlers"
+	"github.com/joho/godotenv"
 	"github.com/salvizj/Redraw/api/routes"
 	"github.com/salvizj/Redraw/db"
 )
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("Error loading .env file")
+	}
+}
 
 func StartServer() {
 	db.Initialize()
@@ -23,8 +31,16 @@ func StartServer() {
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)(r)
 
-	fmt.Println("Server is running on http://localhost:8080")
-	if err := http.ListenAndServe(":8080", corsHandler); err != nil {
+	port := getenv("PORT", "8080")
+	fmt.Printf("Server is running on http://localhost:%s\n", port)
+	if err := http.ListenAndServe(":"+port, corsHandler); err != nil {
 		fmt.Printf("Server failed to start: %s\n", err)
 	}
+}
+
+func getenv(key, defaultValue string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return defaultValue
 }
