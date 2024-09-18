@@ -16,6 +16,9 @@ frontend-build:
 build:
 	@echo "Building the Go application..."
 	go build -o $(BINARY_NAME) cmd/main.go
+	@echo "Ensuring executable permissions..."
+	@chmod +x $(BINARY_NAME)
+	@ls -l $(BINARY_NAME)  # Verify that permissions are set
 
 run:
 	@echo "Running the application..."
@@ -32,7 +35,9 @@ run-prod:
 	@cd frontend && npm install && npm run build || (echo "Frontend build failed" && exit 1)
 	@echo "Building the Go application..."
 	go build -o $(BINARY_NAME) cmd/main.go
+	@echo "Ensuring executable permissions..."
 	@chmod +x $(BINARY_NAME)
+	@ls -l $(BINARY_NAME)  # Verify that permissions are set
 	@echo "Running the Go application..."
 	./$(BINARY_NAME)
 
