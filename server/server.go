@@ -34,7 +34,7 @@ func StartServer() {
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 	)(r)
 
-	port := getenv("PORT", "8080")
+	port := os.Getenv("PORT")
 	fmt.Printf("Server is running on http://localhost:%s\n", port)
 	if err := http.ListenAndServe(":"+port, corsHandler); err != nil {
 		fmt.Printf("Server failed to start: %s\n", err)

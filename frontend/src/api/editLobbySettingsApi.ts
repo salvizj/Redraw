@@ -7,7 +7,12 @@ export const editLobbySettings = async (settings: LobbySettings) => {
 	try {
 		const response = await axios.patch(
 			`${BASE_URL}/edit-lobby-settings`,
-			settings
+			settings,
+			{
+				headers: {
+					"Content-Type": "application/json",
+				},
+			}
 		)
 		return response.data
 	} catch (error) {
