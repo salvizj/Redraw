@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { createLobby, joinLobby } from "../../api/submitLobbyFormApi"
 import { checkUsernameExist } from "../../api/checkUsernameExistApi"
-
+import { useLanguage } from "../../context/languageContext"
 const LobbyForm: React.FC = () => {
 	const [username, setUsername] = useState("")
 	const [lobbyId, setLobbyId] = useState<string | null>(null)
@@ -10,7 +10,7 @@ const LobbyForm: React.FC = () => {
 	const [loading, setLoading] = useState(false)
 	const location = useLocation()
 	const navigate = useNavigate()
-
+	const { language } = useLanguage()
 	useEffect(() => {
 		const queryParams = new URLSearchParams(location.search)
 		const lobbyIdFromUrl = queryParams.get("l")
@@ -28,7 +28,11 @@ const LobbyForm: React.FC = () => {
 		e.preventDefault()
 
 		if (!username) {
-			setError("Username is required")
+			setError(
+				language === "en"
+					? "Username is required"
+					: "Lietotājvārds ir obligāts"
+			)
 			return
 		}
 
@@ -44,7 +48,9 @@ const LobbyForm: React.FC = () => {
 
 				if (checkResponse.exists) {
 					setError(
-						"Player with this username already exists in this lobby."
+						language === "en"
+							? "Player with this username already exists in this lobby."
+							: "Spēlētājs ar šo lietotājvārdu jau pastāv šajā vestibilā."
 					)
 					setLoading(false)
 					return
@@ -57,7 +63,11 @@ const LobbyForm: React.FC = () => {
 
 			navigate("/lobby")
 		} catch (error) {
-			setError("Failed to submit the form or check username.")
+			setError(
+				language === "en"
+					? "Failed to submit the form or check username."
+					: "Neizdevās iesniegt veidlapu vai pārbaudīt lietotājvārdu."
+			)
 		} finally {
 			setLoading(false)
 		}
@@ -70,7 +80,7 @@ const LobbyForm: React.FC = () => {
 		>
 			<div className="mb-6">
 				<label className="block text-text-light dark:text-text-dark mb-2 text-xl font-bold">
-					Username:
+					{language === "en" ? "Username:" : "Lietotājvārds:"}
 					<input
 						type="text"
 						value={username}
@@ -92,10 +102,16 @@ const LobbyForm: React.FC = () => {
 				disabled={loading || !!error}
 			>
 				{loading
-					? "Checking..."
+					? language === "en"
+						? "Checking..."
+						: "Pārbauda..."
 					: lobbyId
-					? "Join Lobby"
-					: "Create Lobby"}
+					? language === "en"
+						? "Join Lobby"
+						: "Pievienoties Vestibilam"
+					: language === "en"
+					? "Create Lobby"
+					: "Izveidot Istabu"}
 			</button>
 		</form>
 	)

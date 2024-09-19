@@ -12,6 +12,7 @@ import LobbyPlayers from "../components/lobby/LobbyPlayers"
 import LobbyIdSection from "../components/lobby/LobbyIdSection"
 import LobbyStartButton from "../components/lobby/LobbyStartButton"
 import LobbySettings from "../components/lobby/LobbySettings"
+import { useLanguage } from "../context/languageContext"
 
 const LobbyPage: React.FC = () => {
 	const navigate = useNavigate()
@@ -38,17 +39,22 @@ const LobbyPage: React.FC = () => {
 		error: errorUserDetails,
 	} = useUserDetails()
 
+	const { language } = useLanguage()
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
 				await fetchUserDetails()
 				await fetchLobbyDetails()
 			} catch (error) {
-				setFetchError("Failed to fetch lobby or user details.")
+				setFetchError(
+					language === "en"
+						? "Failed to fetch lobby or user details."
+						: "Neizdevās iegūt istabas vai lietotāja informāciju."
+				)
 			}
 		}
 		fetchData()
-	}, [fetchUserDetails, fetchLobbyDetails])
+	}, [fetchUserDetails, fetchLobbyDetails, language])
 
 	useEffect(() => {
 		if (shouldRefetchLobby) {
@@ -56,14 +62,19 @@ const LobbyPage: React.FC = () => {
 				try {
 					await fetchLobbyDetails()
 				} catch (error) {
-					setFetchError("Failed to refetch lobby details.")
+					setFetchError(
+						language === "en"
+							? "Failed to refetch lobby details."
+							: "Neizdevās atkārtoti iegūt istabas informāciju."
+					)
 				} finally {
 					setShouldRefetchLobby(false)
 				}
 			}
 			refetchData()
 		}
-	}, [shouldRefetchLobby, fetchLobbyDetails, setShouldRefetchLobby])
+	}, [shouldRefetchLobby, fetchLobbyDetails, setShouldRefetchLobby, language])
+
 	useEffect(() => {
 		if (
 			sessionId &&
@@ -88,14 +99,24 @@ const LobbyPage: React.FC = () => {
 
 	const displayError =
 		fetchError || errorUserDetails?.message || errorLobbyDetails?.message
+
 	return (
 		<div className="min-h-screen justify-center items-center">
+			<h1 className="heading-primary">
+				{language === "en" ? "Lobby Page" : "Istabas Lapa"}
+			</h1>
 			{loadingUserDetails || loadingLobbyDetails ? (
 				<Loading
 					messages={[
-						"Connecting to the lobby...",
-						"Gathering user details...",
-						"Almost there...",
+						language === "en"
+							? "Connecting to the lobby..."
+							: "Savienojas ar istabu...",
+						language === "en"
+							? "Gathering user details..."
+							: "Vāc lietotāja informāciju...",
+						language === "en"
+							? "Almost there..."
+							: "Gandrīz pabeigts...",
 					]}
 				/>
 			) : displayError ? (
@@ -126,7 +147,11 @@ const LobbyPage: React.FC = () => {
 					/>
 				</>
 			) : (
-				<p>No lobby joined.</p>
+				<p>
+					{language === "en"
+						? "Failed to join lobby"
+						: "Neizdevās pievienoties istabai"}
+				</p>
 			)}
 		</div>
 	)

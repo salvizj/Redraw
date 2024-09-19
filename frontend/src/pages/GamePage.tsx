@@ -13,12 +13,12 @@ import {
 	handleSubmittedPromptMessage,
 	handleGotPromptMessage,
 } from "../utils/messageHandler"
-
+import { useLanguage } from "../context/languageContext"
 const GamePage: React.FC = () => {
 	const { sendMessage, messages } = useWebSocketContext()
 	const { sessionId, username } = useUserContext()
 	const { lobbyId, players } = useLobbyContext()
-
+	const { language } = useLanguage()
 	const [enteredGameSyncComplete, setEnteredGameSyncComplete] =
 		useState(false)
 	const [submitedPromptSyncComplete, setSubmitedPromptSyncComplete] =
@@ -106,7 +106,14 @@ const GamePage: React.FC = () => {
 					)
 					setHasSentGotPromptMessage(true)
 				})
-				.catch((error) => console.error("Error getting prompt:", error))
+				.catch((error) =>
+					console.error(
+						language === "en"
+							? "Error getting prompt:"
+							: "Kļūda iugūstot nosacījumu",
+						error
+					)
+				)
 		}
 	}, [
 		submitedPromptSyncComplete,
@@ -118,7 +125,14 @@ const GamePage: React.FC = () => {
 
 	const renderGameStage = () => {
 		if (!enteredGameSyncComplete) {
-			return <p>Waiting for all players to enter the game...</p>
+			return (
+				<p>
+					{" "}
+					{language === "en"
+						? "Waiting for all players to enter the game..."
+						: "Ģaidam, lai visi spēlētāji ienāk spēlē..."}
+				</p>
+			)
 		}
 
 		if (!submitedPromptSyncComplete && sessionId && username && lobbyId) {
@@ -131,7 +145,11 @@ const GamePage: React.FC = () => {
 						onPromptSent={handlePromptSubmit}
 					/>
 					<Countdown
-						text="Seconds left to submit your prompt"
+						text={
+							language === "en"
+								? "Seconds left to submit your prompt"
+								: "Sekundes, lai nosūtītu nosacījumu"
+						}
 						initialCounter={10}
 						onCountdownComplete={handlePromptSubmit}
 					/>
@@ -140,7 +158,13 @@ const GamePage: React.FC = () => {
 		}
 
 		if (!gotPromptSyncComplete) {
-			return <p>Waiting for all players to receive their prompts...</p>
+			return (
+				<p>
+					{language === "en"
+						? "Waiting for all players to receive their prompts..."
+						: "Gaidam, lai visi spēlētāji ienāk spēlē..."}
+				</p>
+			)
 		}
 
 		if (drawingComplete && savingCanvasStatus) {
@@ -164,7 +188,9 @@ const GamePage: React.FC = () => {
 
 	return (
 		<div className="page-container">
-			<h1 className="heading-primary">Game Page</h1>
+			<h1 className="heading-primary">
+				{language === "en" ? "Game Page" : "Spēles Lapa"}
+			</h1>
 			{renderGameStage()}
 		</div>
 	)

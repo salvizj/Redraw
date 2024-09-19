@@ -4,6 +4,7 @@ import { editLobbySettings } from "../../api/editLobbySettingsApi"
 import { useWebSocketContext } from "../../context/webSocketContext"
 import LobbySettingsDisplay from "./LobbySettingsDisplay"
 import { handleEditLobbySettings } from "../../utils/messageHandler"
+import { useLanguage } from "../../context/languageContext"
 
 type LobbySettingsProps = {
 	sessionId: string
@@ -23,6 +24,7 @@ const LobbySettings: React.FC<LobbySettingsProps> = ({
 	playerCount,
 }) => {
 	const { sendMessage } = useWebSocketContext()
+	const { language } = useLanguage()
 	const [maxPlayerCount, setMaxPlayerCount] = useState(
 		lobbySettings.MaxPlayerCount
 	)
@@ -40,7 +42,9 @@ const LobbySettings: React.FC<LobbySettingsProps> = ({
 	const handleUpdateClick = async () => {
 		if (playerCount > maxPlayerCount) {
 			setError(
-				"Current player count exceeds the selected maximum player count."
+				language === "en"
+					? "Current player count exceeds the selected maximum player count."
+					: "Pašreizējais spēlētāju skaits pārsniedz izvēlēto maksimālo spēlētāju skaitu."
 			)
 			return
 		}
@@ -67,7 +71,11 @@ const LobbySettings: React.FC<LobbySettingsProps> = ({
 			setError(null)
 			setIsEditing(false)
 		} catch (err) {
-			setError("Failed to edit lobby settings.")
+			setError(
+				language === "en"
+					? "Failed to edit lobby settings."
+					: "Neizdevās mainīt istabas iestatījumus."
+			)
 		}
 	}
 

@@ -1,4 +1,5 @@
 import React from "react"
+import { useLanguage } from "../../context/languageContext"
 
 export type LobbyStartButtonProps = {
 	role: string | null
@@ -11,15 +12,22 @@ const LobbyStartButton: React.FC<LobbyStartButtonProps> = ({
 	playerCount,
 	handleStart,
 }) => {
+	const { language } = useLanguage()
 	const isLeader = role === "leader"
 	const moreThanOnePlayer = playerCount > 1
 	const isDisabled = !isLeader || !moreThanOnePlayer
 
 	const buttonText = isLeader
 		? moreThanOnePlayer
-			? "Start"
-			: "Not enough players to start"
-		: "Waiting for leader"
+			? language === "en"
+				? "Start"
+				: "Sākt"
+			: language === "en"
+			? "Not enough players to start"
+			: "Nav pietiekams spēlētāju skaits"
+		: language === "en"
+		? "Waiting for leader"
+		: "Gaidiet līderi"
 
 	return (
 		<div className="flex justify-center items-center">

@@ -1,5 +1,6 @@
 import React from "react"
 import { LobbySettings } from "../../types"
+import { useLanguage } from "../../context/languageContext"
 
 type LobbySettingsDisplayProps = {
 	role: string
@@ -30,16 +31,55 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
 	error,
 	lobbySettings,
 }) => {
-	const selectClassName = `
-		p-2 bg-background-light dark:bg-background-dark border-2 border-primary-light dark:border-primary-dark 
-		rounded-lg text-text-light dark:text-text-dark text-xl w-32 appearance-none cursor-pointer
-	`
+	const selectClassName =
+		"p-2 bg-background-light dark:bg-background-dark border-2 border-primary-light dark:border-primary-dark rounded-lg text-text-light dark:text-text-dark text-xl w-32 appearance-none cursor-pointer"
+	const { language } = useLanguage()
+	const translations = {
+		maxPlayerCount: {
+			en: "Max Player Count:",
+			lv: "Maksimālais spēlētāju skaits:",
+		},
+		promptInputTime: {
+			en: "Prompt Input Time:",
+			lv: "Nosacījuma ievades laiks:",
+		},
+		drawingTime: {
+			en: "Drawing Time:",
+			lv: "Zīmēšanas laiks:",
+		},
+		saveChanges: {
+			en: "Save Changes",
+			lv: "Saglabāt izmaiņas",
+		},
+		cancel: {
+			en: "Cancel",
+			lv: "Atcelt",
+		},
+		editSettings: {
+			en: "Edit Lobby Settings",
+			lv: "Rediģēt istabas iestatījumus",
+		},
+		errorExceeded: {
+			en: "Current player count exceeds the selected maximum player count.",
+			lv: "Pašreizējais spēlētāju skaits pārsniedz izvēlēto maksimālo spēlētāju skaitu.",
+		},
+		lobbySettings: {
+			en: "Lobby Settings",
+			lv: "Lobija iestatījumi",
+		},
+	} as const
+
+	type TranslationKey = keyof typeof translations
+
+	const translate = (key: TranslationKey): string => {
+		return translations[key][language]
+	}
 
 	const renderLobbySettingsDefault = () => (
 		<div className="flex flex-col items-center p-6 border-2 border-primary-light dark:border-primary-dark rounded-lg">
 			<div className="flex justify-between w-full max-w-lg mb-4">
 				<p className="text-xl font-semibold text-text-light dark:text-text-dark pr-4">
-					Max Player Count:
+					{translate("maxPlayerCount")}
 				</p>
 				<p className="text-text-light dark:text-text-dark">
 					{lobbySettings.MaxPlayerCount}
@@ -48,7 +88,7 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
 
 			<div className="flex justify-between w-full max-w-lg mb-4">
 				<p className="text-xl font-semibold text-text-light dark:text-text-dark pr-4">
-					Prompt Input Time:
+					{translate("promptInputTime")}
 				</p>
 				<p className="text-text-light dark:text-text-dark">
 					{lobbySettings.PromtInputTime}
@@ -57,7 +97,7 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
 
 			<div className="flex justify-between w-full max-w-lg">
 				<p className="text-xl font-semibold text-text-light dark:text-text-dark pr-4">
-					Drawing Time:
+					{translate("drawingTime")}
 				</p>
 				<p className="text-text-light dark:text-text-dark">
 					{lobbySettings.DrawingTime}
@@ -70,7 +110,7 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
 		<div className="flex flex-col items-center p-6 border-2 border-primary-light dark:border-primary-dark rounded-lg">
 			<div className="flex justify-between w-full max-w-lg mb-4">
 				<p className="text-xl font-semibold text-text-light dark:text-text-dark pr-4">
-					Max Player Count:
+					{translate("maxPlayerCount")}
 				</p>
 				<div className="relative">
 					<select
@@ -104,7 +144,7 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
 
 			<div className="flex justify-between w-full max-w-lg mb-4">
 				<p className="text-xl font-semibold text-text-light dark:text-text-dark pr-4">
-					Prompt Input Time:
+					{translate("promptInputTime")}
 				</p>
 				<div className="relative">
 					<select
@@ -138,7 +178,7 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
 
 			<div className="flex justify-between w-full max-w-lg">
 				<p className="text-xl font-semibold text-text-light dark:text-text-dark pr-4">
-					Drawing Time:
+					{translate("drawingTime")}
 				</p>
 				<div className="relative">
 					<select
@@ -168,14 +208,18 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
 				</div>
 			</div>
 
-			{error && <p className="text-red-500 mb-4 text-lg">{error}</p>}
+			{error && (
+				<p className="text-red-500 mb-4 text-lg">
+					{translate("errorExceeded")}
+				</p>
+			)}
 		</div>
 	)
 
 	return (
 		<div className="flex flex-col items-center bg-background-light dark:bg-background-dark">
 			<h3 className="text-primary-light dark:text-primary-dark text-4xl font-bold mb-4">
-				Lobby Settings
+				{translate("lobbySettings")}
 			</h3>
 			{isEditing
 				? renderLobbySettingsEdit()
@@ -188,13 +232,13 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
 								onClick={handleUpdateClick}
 								className="bg-primary-light dark:bg-primary-dark text-white px-4 py-2 rounded-full transition duration-200 hover:bg-primary-dark dark:hover:bg-primary-light text-lg"
 							>
-								Save Changes
+								{translate("saveChanges")}
 							</button>
 							<button
 								onClick={() => setIsEditing(false)}
 								className="bg-primary-light dark:bg-primary-dark text-white px-4 py-2 rounded-full transition duration-200 hover:bg-primary-dark dark:hover:bg-primary-light text-lg"
 							>
-								Cancel
+								{translate("cancel")}
 							</button>
 						</>
 					) : (
@@ -202,7 +246,7 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
 							onClick={() => setIsEditing(true)}
 							className="bg-primary-light dark:bg-primary-dark text-white px-4 py-2 rounded-full font-bold transition-colors duration-300 hover:bg-primary-dark dark:hover:bg-primary-light"
 						>
-							Edit Lobby Settings
+							{translate("editSettings")}
 						</button>
 					)}
 				</div>

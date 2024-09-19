@@ -9,31 +9,37 @@ import GamePage from "./pages/GamePage"
 import ShowcasePage from "./pages/ShowcasePage"
 import { ThemeProvider } from "./context/themeContext"
 import Layout from "../src/components/utils/Layout"
+import { LanguageProvider } from "./context/languageContext"
 
 const App: React.FC = () => {
 	return (
 		<Router>
 			<ThemeProvider>
-				<UserProvider>
-					<LobbyProvider>
-						<WebSocketProvider>
-							<Routes>
-								<Route path="/" element={<Layout />}>
-									<Route index element={<IndexPage />} />
-									<Route
-										path="lobby"
-										element={<LobbyPage />}
-									/>
-									<Route path="game" element={<GamePage />} />
-									<Route
-										path="showcase"
-										element={<ShowcasePage />}
-									/>
-								</Route>
-							</Routes>
-						</WebSocketProvider>
-					</LobbyProvider>
-				</UserProvider>
+				<LanguageProvider>
+					<UserProvider>
+						<LobbyProvider>
+							<WebSocketProvider>
+								<Routes>
+									<Route path="/" element={<Layout />}>
+										<Route index element={<IndexPage />} />
+										<Route
+											path="lobby"
+											element={<LobbyPage />}
+										/>
+										<Route
+											path="game"
+											element={<GamePage />}
+										/>
+										<Route
+											path="showcase"
+											element={<ShowcasePage />}
+										/>
+									</Route>
+								</Routes>
+							</WebSocketProvider>
+						</LobbyProvider>
+					</UserProvider>
+				</LanguageProvider>
 			</ThemeProvider>
 		</Router>
 	)

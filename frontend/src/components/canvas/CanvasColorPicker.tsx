@@ -1,5 +1,5 @@
 import React from "react"
-
+import { useLanguage } from "../../context/languageContext"
 type CanvasColorPickerProps = {
 	lineColor: string
 	setLineColor: (color: string) => void
@@ -10,11 +10,12 @@ const CanvasColorPicker: React.FC<CanvasColorPickerProps> = ({
 	setLineColor,
 }) => {
 	const colors = ["green", "red", "blue", "yellow", "purple", "black"]
-
+	const { language } = useLanguage()
 	return (
 		<div>
 			<p>
-				Selected Color: <span>{lineColor}</span>
+				{language === "en" ? "Selected Color:" : "Izvēlētā Krāsa"}{" "}
+				<span>{lineColor}</span>
 			</p>
 			<div>
 				{colors.map((clr) => (

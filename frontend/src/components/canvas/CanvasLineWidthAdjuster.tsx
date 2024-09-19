@@ -1,5 +1,5 @@
 import React from "react"
-
+import { useLanguage } from "../../context/languageContext"
 type CanvasLineWidthAdjusterProps = {
 	lineWidth: number
 	setLineWidth: (lineWidth: number) => void
@@ -9,10 +9,12 @@ const CanvasLineWidthAdjuster: React.FC<CanvasLineWidthAdjusterProps> = ({
 	lineWidth,
 	setLineWidth,
 }) => {
+	const { language } = useLanguage()
 	return (
 		<div>
 			<label>
-				Line Width: <span>{lineWidth}</span>
+				{language === "en" ? "Line Width:" : "Līnijas Platums"}{" "}
+				<span>{lineWidth}</span>
 			</label>
 			<input
 				type="range"

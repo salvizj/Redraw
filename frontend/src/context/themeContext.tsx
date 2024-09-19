@@ -8,7 +8,7 @@ import React, {
 
 type Theme = "light" | "dark"
 
-interface ThemeContextType {
+type ThemeContextType = {
 	theme: Theme
 	setTheme: (theme: Theme) => void
 }
@@ -23,13 +23,11 @@ export const useTheme = () => {
 	return context
 }
 
-interface ThemeProviderProps {
-	children: ReactNode
-}
-
 const LOCAL_STORAGE_KEY = "app-theme"
 
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+export const ThemeProvider: React.FC<{ children: ReactNode }> = ({
+	children,
+}) => {
 	const [theme, setTheme] = useState<Theme>(() => {
 		const savedTheme = localStorage.getItem(LOCAL_STORAGE_KEY)
 		return (savedTheme as Theme) || "light"
