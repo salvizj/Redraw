@@ -33,6 +33,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
 	const [isConnected, setIsConnected] = useState(false)
 	const [shouldRefetchLobby, setShouldRefetchLobby] = useState(false)
 	const [gameStarted, setGameStarted] = useState(false)
+	const BASE_URL = import.meta.env.VITE_BASE_URL
 
 	const connectWebSocket = useCallback(
 		(sessionID: string, lobbyID: string) => {
@@ -44,7 +45,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
 				return
 			}
 
-			const wsUrl = `ws://localhost:8080/ws?sessionID=${sessionID}&lobbyID=${lobbyID}`
+			const wsUrl = `${BASE_URL}/ws?sessionID=${sessionID}&lobbyID=${lobbyID}`
 			const ws = new WebSocket(wsUrl)
 
 			ws.addEventListener("open", () => {
