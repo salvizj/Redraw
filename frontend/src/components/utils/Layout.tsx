@@ -9,7 +9,7 @@ const Layout: React.FC = () => {
 
 	return (
 		<div className={`layout ${theme === "dark" ? "dark" : ""}`}>
-			<header className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark font-sans absolute right-0">
+			<header className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark font-sans absolute right-0 flex items-center">
 				<ThemeDropdown />
 				<LanguageDropdown />
 			</header>
