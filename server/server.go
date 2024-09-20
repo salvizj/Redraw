@@ -48,7 +48,7 @@ func StartServer() {
 	baseURL := getenv("VITE_BASE_URL", "localhost")
 	fmt.Printf("Server is running on %s:%s\n", baseURL, port)
 
-	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), corsHandler); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", port), corsHandler); err != nil {
 		fmt.Printf("Server failed to start: %s\n", err)
 	}
 }
