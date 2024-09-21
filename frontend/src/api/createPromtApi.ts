@@ -1,7 +1,6 @@
 import axios from "axios"
 
 const BASE_URL = import.meta.env.VITE_BASE_URL
-const PORT = import.meta.env.VITE_PORT
 
 export const createPrompt = async (data: {
 	prompt: string
@@ -10,15 +9,11 @@ export const createPrompt = async (data: {
 	username: string
 }) => {
 	try {
-		const response = await axios.post(
-			`${BASE_URL}:${PORT}/create-prompt`,
-			data,
-			{
-				headers: {
-					"Content-Type": "application/json",
-				},
-			}
-		)
+		const response = await axios.post(`${BASE_URL}/create-prompt`, data, {
+			headers: {
+				"Content-Type": "application/json",
+			},
+		})
 		return response.data
 	} catch (error) {
 		throw error

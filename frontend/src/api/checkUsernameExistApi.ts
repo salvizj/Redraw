@@ -1,7 +1,6 @@
 import axios from "axios"
 
 const BASE_URL = import.meta.env.VITE_BASE_URL
-const PORT = import.meta.env.VITE_PORT
 
 export const checkUsernameExist = async (data: {
 	username: string
@@ -9,7 +8,7 @@ export const checkUsernameExist = async (data: {
 }) => {
 	try {
 		const response = await axios.post(
-			`${BASE_URL}:${PORT}/check-username-exist`,
+			`${BASE_URL}/check-username-exist`,
 
 			data,
 			{
