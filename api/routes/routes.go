@@ -4,21 +4,20 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/gorilla/mux"
 	"github.com/salvizj/Redraw/api/handlers"
 )
 
-func InitializeRoutes() *mux.Router {
-	r := mux.NewRouter()
+func InitializeRoutes() *http.ServeMux {
+	mux := http.NewServeMux()
 
-	RegisterAPIRoutes(r)
+	RegisterAPIRoutes(mux)
 
 	staticDir := "./frontend/dist/assets"
-	r.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", handlers.ServeStaticFileHandler(staticDir)))
+	mux.Handle("/assets/", http.StripPrefix("/assets/", handlers.ServeStaticFileHandler(staticDir)))
 
-	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, filepath.Join("./frontend/dist", "index.html"))
 	})
 
-	return r
+	return mux
 }

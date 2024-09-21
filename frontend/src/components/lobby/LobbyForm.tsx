@@ -65,8 +65,8 @@ const LobbyForm: React.FC = () => {
 		} catch (error) {
 			setError(
 				language === "en"
-					? "Failed to submit the form or check username."
-					: "Neizdevās iesniegt veidlapu vai pārbaudīt lietotājvārdu."
+					? "Failed to join or create a lobby."
+					: "Neizdevās pievienoties vai izveidot istabu."
 			)
 		} finally {
 			setLoading(false)

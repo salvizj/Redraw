@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/gorilla/handlers"
 	"github.com/joho/godotenv"
+	"github.com/salvizj/Redraw/api/middleware"
 	"github.com/salvizj/Redraw/api/routes"
 	"github.com/salvizj/Redraw/db"
 )
@@ -15,7 +15,7 @@ func checkEnvVars() bool {
 	authToken := os.Getenv("TURSO_AUTH_TOKEN")
 	databaseURL := os.Getenv("TURSO_DATABASE_URL")
 	baseURL := os.Getenv("VITE_BASE_URL")
-	port := os.Getenv("PORT")
+	port := os.Getenv("VITE_PORT")
 
 	return authToken != "" && databaseURL != "" && baseURL != "" && port != ""
 }
@@ -36,15 +36,11 @@ func StartServer() {
 
 	db.CreateTables()
 
-	r := routes.InitializeRoutes()
+	mux := routes.InitializeRoutes()
 
-	corsHandler := handlers.CORS(
-		handlers.AllowedOrigins([]string{"*"}),
-		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
-		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
-	)(r)
+	corsHandler := middleware.CORS(mux)
 
-	port := getenv("PORT", "10000")
+	port := getenv("VITE_PORT", "10000")
 	baseURL := getenv("VITE_BASE_URL", "localhost")
 	fmt.Printf("Server is running on %s:%s\n", baseURL, port)
 

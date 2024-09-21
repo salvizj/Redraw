@@ -2,11 +2,12 @@ import { LobbySettings } from "./../types"
 import axios from "axios"
 
 const BASE_URL = import.meta.env.VITE_BASE_URL
+const PORT = import.meta.env.VITE_PORT
 
 export const editLobbySettings = async (settings: LobbySettings) => {
 	try {
 		const response = await axios.patch(
-			`${BASE_URL}/edit-lobby-settings`,
+			`${BASE_URL}:${PORT}/edit-lobby-settings`,
 			settings,
 			{
 				headers: {

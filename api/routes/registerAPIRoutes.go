@@ -3,18 +3,18 @@ package routes
 import (
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/salvizj/Redraw/api/handlers"
+	"github.com/salvizj/Redraw/api/middleware"
 )
 
-func RegisterAPIRoutes(r *mux.Router) {
-	r.HandleFunc("/create-lobby", handlers.CreateLobbyHandler).Methods(http.MethodPost)
-	r.HandleFunc("/join-lobby", handlers.JoinLobbyHandler).Methods(http.MethodPost)
-	r.HandleFunc("/get-lobby-details", handlers.GetLobbyDetailsHandler).Methods(http.MethodGet)
-	r.HandleFunc("/get-user-details", handlers.GetUserDetailsHandler).Methods(http.MethodGet)
-	r.HandleFunc("/check-username-exist", handlers.CheckUsernameExistHandler).Methods(http.MethodPost)
-	r.HandleFunc("/create-prompt", handlers.CreatePromptHandler).Methods(http.MethodPost)
-	r.HandleFunc("/get-prompt", handlers.GetPromptHandler).Methods(http.MethodPost)
-	r.HandleFunc("/edit-lobby-settings", handlers.EditLobbySettingsHandler).Methods(http.MethodPatch)
-	r.HandleFunc("/ws", handlers.WsHandler).Methods(http.MethodGet)
+func RegisterAPIRoutes(mux *http.ServeMux) {
+	mux.Handle("/create-lobby", middleware.CORS(http.HandlerFunc(handlers.CreateLobbyHandler)))
+	mux.Handle("/join-lobby", middleware.CORS(http.HandlerFunc(handlers.JoinLobbyHandler)))
+	mux.Handle("/get-lobby-details", middleware.CORS(http.HandlerFunc(handlers.GetLobbyDetailsHandler)))
+	mux.Handle("/get-user-details", middleware.CORS(http.HandlerFunc(handlers.GetUserDetailsHandler)))
+	mux.Handle("/check-username-exist", middleware.CORS(http.HandlerFunc(handlers.CheckUsernameExistHandler)))
+	mux.Handle("/create-prompt", middleware.CORS(http.HandlerFunc(handlers.CreatePromptHandler)))
+	mux.Handle("/get-prompt", middleware.CORS(http.HandlerFunc(handlers.GetPromptHandler)))
+	mux.Handle("/edit-lobby-settings", middleware.CORS(http.HandlerFunc(handlers.EditLobbySettingsHandler)))
+	mux.Handle("/ws", middleware.CORS(http.HandlerFunc(handlers.WsHandler)))
 }
