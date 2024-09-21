@@ -3,8 +3,9 @@
 ## Overview
 
 In this drawing game, players each write a prompt and then randomly draw a prompt written by someone else. It’s a fun way to challenge your creativity and see how others interpret your prompts.
+You can set it up locally or visit my hosted site [here](https://redraw.onrender.com/).
 
-## Getting Started
+## To set up locally
 
 ### Prerequisites
 
@@ -25,8 +26,6 @@ In this drawing game, players each write a prompt and then randomly draw a promp
     make install
     ```
 
-### Usage
-
 #### Environment Setup
 
 1. **Create and Configure `.env` File**
@@ -42,23 +41,30 @@ In this drawing game, players each write a prompt and then randomly draw a promp
     ```env
     TURSO_DATABASE_URL=your_database_url_here
     TURSO_AUTH_TOKEN=your_auth_token_here
-    VITE_BASE_URL=http://localhost:8080
+    VITE_BASE_URL=http://localhost
+    VITE_PORT=5173
     ```
 
     You need to create a Turso database and obtain the URL and authentication token from your [Turso account](https://turso.tech/).
 
 2. **Running the Application**
 
-    - To build and run the application without formatting:
+    - To build application :
+
+        ```bash
+        make build
+        ```
+
+    - To run application:
 
         ```bash
         make run
         ```
 
-    - To build, format code, and run:
+    - Default for installing, building and running:
 
         ```bash
-        make run-with-format
+        make all
         ```
 
 ## Game Instructions
