@@ -42,7 +42,7 @@ You can set it up locally or visit my hosted site [here](https://redraw.onrender
     TURSO_DATABASE_URL=your_database_url_here
     TURSO_AUTH_TOKEN=your_auth_token_here
     VITE_BASE_URL=http://localhost
-    VITE_PORT=5173
+    VITE_PORT=80
     ```
 
     You need to create a Turso database and obtain the URL and authentication token from your [Turso account](https://turso.tech/).

@@ -20,7 +20,7 @@ export const joinLobby = async (data: {
 	lobbyId: string
 }) => {
 	try {
-		const response = await axios.post(`${BASE_URL}}/join-lobby`, data, {
+		const response = await axios.post(`${BASE_URL}/join-lobby`, data, {
 			headers: {
 				"Content-Type": "application/json",
 			},

@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-
+import { useLanguage } from "../context/languageContext"
 type HandleCopyToClipboardProps = {
 	lobbyId: string | null
 }
@@ -9,7 +9,7 @@ const HandleCopyToClipboard: React.FC<HandleCopyToClipboardProps> = ({
 }) => {
 	const [copied, setCopied] = useState(false)
 	const [copyError, setCopyError] = useState<string | null>(null)
-
+	const { language } = useLanguage()
 	const handleCopy = () => {
 		if (lobbyId) {
 			const BASE_URL = import.meta.env.VITE_BASE_URL
@@ -23,10 +23,16 @@ const HandleCopyToClipboard: React.FC<HandleCopyToClipboardProps> = ({
 					setCopyError(null)
 				})
 				.catch(() => {
-					setCopyError("Failed to copy the text to clipboard.")
+					setCopyError(
+						language === "en"
+							? "Failed to copy the text to clipboard."
+							: "Neizdevās kopēt tekstu starpliktuvē "
+					)
 				})
 		} else {
-			setCopyError("Lobby ID is null.")
+			setCopyError(
+				language === "en" ? "Lobby ID is null." : "Istabas ID ir null"
+			)
 		}
 	}
 
@@ -39,7 +45,11 @@ const HandleCopyToClipboard: React.FC<HandleCopyToClipboardProps> = ({
 				Copy Lobby URL
 			</button>
 			{copied && (
-				<p className="text-green-500 mt-2">Copied to clipboard!</p>
+				<p className="text-green-500 mt-2">
+					{language === "en"
+						? "Copied to clipboard!"
+						: "Kopēts starpliktuvē!"}
+				</p>
 			)}
 			{copyError && <p className="text-red-500 mt-2">{copyError}</p>}
 		</div>
