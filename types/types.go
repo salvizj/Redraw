@@ -62,27 +62,30 @@ type Message struct {
 	Data      any         `json:"data"`
 }
 type Prompt struct {
-	PromptId  string `json:"promptId"`
-	Prompt    string `json:"prompt"`
-	SessionId string `json:"sessionId"`
-	LobbyId   string `json:"lobbyId"`
-	Username  string `json:"username"`
+	PromptId            string `json:"promptId"`
+	Prompt              string `json:"prompt"`
+	SessionId           string `json:"sessionId"`
+	LobbyId             string `json:"lobbyId"`
+	Username            string `json:"username"`
+	AssignedToSessionId string `json:"assignedToSessionId"`
 }
 type Canvas struct {
-	CanvasId   string `json:"canvasId"`
-	CanvasData string `json:"canvasData"`
-	Prompt     string `json:"prompt"`
-	SessionId  string `json:"sessionId"`
-	LobbyId    string `json:"lobbyId"`
+	CanvasId            string `json:"canvasId"`
+	CanvasData          string `json:"canvasData"`
+	PromptId            string `json:"promptId"`
+	SessionId           string `json:"sessionId"`
+	LobbyId             string `json:"lobbyId"`
+	AssignedToSessionId string `json:"assignedToSessionId"`
 }
 type GetCanvasRequest struct {
-	LobbyId string `json:"lobbyId"`
+	LobbyId   string `json:"lobbyId"`
+	SessionID string `json:"sessionId"`
 }
 type GetCanvasResponse struct {
 	Canvas Canvas `json:"canvas"`
 }
 type CreateCanvasRequest struct {
-	Prompt     string `json:"prompt"`
+	PromptId   string `json:"promptId"`
 	CanvasData string `json:"canvasData"`
 	LobbyID    string `json:"lobbyId"`
 }

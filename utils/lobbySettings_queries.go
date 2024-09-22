@@ -37,7 +37,7 @@ func GetLobbySettingsIdByLobbyId(LobbyId string) (string, error) {
 	query := `SELECT LobbySettingsId FROM Lobby WHERE LobbyId = ?`
 	err := db.DB.QueryRow(query, LobbyId).Scan(&LobbySettingsId)
 	if err != nil {
-		return "", fmt.Errorf("failed to get lobby settings ID: %w", err)
+		return "", fmt.Errorf("failed to get lobby settings: %w", err)
 	}
 
 	return LobbySettingsId, nil
@@ -59,10 +59,10 @@ func GetLobbySettings(LobbyId string) (types.LobbySettings, error) {
 		&lobbySettings.DrawingTime,
 		&lobbySettings.PromptInputTime,
 	)
-
-	if err == sql.ErrNoRows {
-		return types.LobbySettings{}, fmt.Errorf("no lobby settings found for LobbySettingsId: %s", LobbySettingsId)
-	} else if err != nil {
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return types.LobbySettings{}, fmt.Errorf("no lobby settings found for LobbySettingsId: %s", LobbySettingsId)
+		}
 		return types.LobbySettings{}, fmt.Errorf("failed to get lobby settings: %w", err)
 	}
 

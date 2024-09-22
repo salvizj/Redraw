@@ -51,20 +51,9 @@ func CreateTables() {
                 SessionId TEXT,
                 LobbyId TEXT,
                 Username TEXT,
+                AssignetToSessionId TEXT,
                 FOREIGN KEY (SessionId) REFERENCES Session(SessionId),
                 FOREIGN KEY (LobbyId) REFERENCES Lobby(LobbyId)
-            );`,
-		},
-		{
-			name: "PromptAssignments",
-			query: `
-            CREATE TABLE IF NOT EXISTS PromptAssignments (
-                PromptAssignmentId TEXT PRIMARY KEY,
-                SessionId TEXT,
-                PromptId TEXT,
-                UNIQUE (PromptId, SessionId),
-                FOREIGN KEY (SessionId) REFERENCES Session(SessionId),
-                FOREIGN KEY (PromptId) REFERENCES Prompt(PromptId)
             );`,
 		},
 		{
@@ -76,22 +65,10 @@ func CreateTables() {
                 PromptId TEXT,
                 CanvasData TEXT,
                 LobbyId TEXT,
+                AssignetToSessionId TEXT,
                 FOREIGN KEY (SessionId) REFERENCES Session(SessionId),
                 FOREIGN KEY (PromptId) REFERENCES Prompt(PromptId),
                 FOREIGN KEY (LobbyId) REFERENCES Lobby(LobbyId)
-            );`,
-		},
-		{
-			name: "CanvasAssignments",
-			query: `
-            CREATE TABLE IF NOT EXISTS CanvasAssignments (
-                CanvasAssignmentId TEXT PRIMARY KEY,
-                SessionId TEXT,
-                CanvasId TEXT,
-                PromptId TEXT,
-                FOREIGN KEY (SessionId) REFERENCES Session(SessionId),
-                FOREIGN KEY (CanvasId) REFERENCES Canvas(CanvasId),
-                FOREIGN KEY (PromptId) REFERENCES Prompt(PromptId)
             );`,
 		},
 	}

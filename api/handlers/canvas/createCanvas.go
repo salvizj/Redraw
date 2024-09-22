@@ -1,4 +1,4 @@
-package handlers
+package canvas
 
 import (
 	"encoding/json"
@@ -14,8 +14,8 @@ func CreateCanvasHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data types.CreateCanvasRequest
-	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+	var req types.CreateCanvasRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Bad request: "+err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -30,10 +30,10 @@ func CreateCanvasHandler(w http.ResponseWriter, r *http.Request) {
 
 	canvas := types.Canvas{
 		CanvasId:   utils.GenerateUUID(),
-		CanvasData: data.CanvasData,
-		Prompt:     data.Prompt,
+		CanvasData: req.CanvasData,
+		PromptId:   req.PromptId,
 		SessionId:  sessionID,
-		LobbyId:    data.LobbyID,
+		LobbyId:    req.LobbyID,
 	}
 
 	if err := utils.CreateCanvas(canvas); err != nil {

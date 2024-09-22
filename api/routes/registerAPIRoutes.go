@@ -25,10 +25,12 @@ func RegisterAPIRoutes(mux *http.ServeMux) {
 	// Prompt-related routes
 	mux.Handle("/create-prompt", middleware.CORS(http.HandlerFunc(promptHandlers.CreatePromptHandler)))
 	mux.Handle("/get-prompt", middleware.CORS(http.HandlerFunc(promptHandlers.GetPromptHandler)))
+	mux.Handle("/assign-prompt", middleware.CORS(http.HandlerFunc(promptHandlers.AssignPromptandler)))
 
 	// Canvas-related routes
 	mux.Handle("/create-canvas", middleware.CORS(http.HandlerFunc(canvasHandlers.CreateCanvasHandler)))
 	mux.Handle("/get-canvas", middleware.CORS(http.HandlerFunc(canvasHandlers.GetCanvasHandler)))
+	mux.Handle("/assign-canvas", middleware.CORS(http.HandlerFunc(canvasHandlers.AssignCanvasHandler)))
 
 	// WebSocket route
 	mux.Handle("/ws", middleware.CORS(http.HandlerFunc(websocket.WsHandler)))
