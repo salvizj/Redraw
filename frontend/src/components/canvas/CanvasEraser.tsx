@@ -1,25 +1,25 @@
-import React from "react"
+import React from "react";
 
 type CanvasEraserProps = {
-	canvasBgColor: string
-	setLineColor: (lineColor: string) => void
-}
+  canvasBgColor: string;
+  setLineColor: (lineColor: string) => void;
+};
 
 const CanvasEraser: React.FC<CanvasEraserProps> = ({
-	canvasBgColor,
-	setLineColor,
+  canvasBgColor,
+  setLineColor,
 }) => {
-	return (
-		<div>
-			<button
-				onClick={() => setLineColor(canvasBgColor)}
-				title="Use Eraser"
-				className="btn btn-primary"
-			>
-				🧽
-			</button>
-		</div>
-	)
-}
+  return (
+    <div>
+      <button
+        onClick={() => setLineColor(canvasBgColor)}
+        title="Use Eraser"
+        className="btn btn-primary"
+      >
+        🧽
+      </button>
+    </div>
+  );
+};
 
-export default CanvasEraser
+export default CanvasEraser;

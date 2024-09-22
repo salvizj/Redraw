@@ -24,7 +24,7 @@ type Lobby struct {
 type LobbySettings struct {
 	LobbySettingsId string      `json:"lobbySettingsId"`
 	MaxPlayerCount  int         `json:"maxPlayerCount"`
-	PromtInputTime  int         `json:"promtInputTime"`
+	PromptInputTime int         `json:"promptInputTime"`
 	DrawingTime     int         `json:"drawingTime"`
 	LobbyStatus     LobbyStatus `json:"lobbyStatus"`
 }
@@ -67,4 +67,11 @@ type Prompt struct {
 	SessionId string `json:"sessionId"`
 	LobbyId   string `json:"lobbyId"`
 	Username  string `json:"username"`
+}
+type Canvas struct {
+	CanvasId   string `json:"canvasId"`
+	CanvasData string `json:"canvasData"`
+	Prompt     string `json:"prompt"`
+	SessionId  string `json:"sessionId"`
+	LobbyId    string `json:"lobbyId"`
 }

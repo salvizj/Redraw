@@ -30,7 +30,7 @@ func GetPromptHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	prompt, err := utils.GetPromptBySessionIdAndLobbyId(data.SessionId, data.LobbyId)
+	prompt, err := utils.GetPrompt(data.SessionId, data.LobbyId)
 	if err != nil {
 		http.Error(w, "Failed to get prompt: "+err.Error(), http.StatusInternalServerError)
 		return
