@@ -7,7 +7,7 @@ import Canvas from "../components/canvas/Canvas";
 import { MessageType } from "../types";
 import { Countdown } from "../components/utils/Countdown";
 import CanvasPromptForm from "../components/canvas/CanvasPromptForm";
-import { getPrompt } from "../api/getPromt";
+import { getPrompt } from "../api/prompt/getPrompt";
 import {
   handleEnteredGameMessage,
   handleSubmittedPromptMessage,
@@ -168,10 +168,7 @@ const GamePage: React.FC = () => {
   }, [drawingComplete, savingCanvasStatus, prompt]);
 
   return (
-    <div className="page-container">
-      <h1 className="heading-primary">
-        {language === "en" ? "Game Page" : "Spēles Lapa"}
-      </h1>
+    <div className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark min-h-screen flex flex-col items-center justify-center ">
       {renderGameStage()}
     </div>
   );

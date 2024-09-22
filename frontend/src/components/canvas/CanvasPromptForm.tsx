@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { createPrompt } from "../../api/createPromtApi";
+import { createPrompt } from "../../api/prompt/createPromptApi";
 
 const CanvasPromptForm: React.FC<{
   sessionId: string;

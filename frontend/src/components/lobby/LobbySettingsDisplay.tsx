@@ -91,7 +91,7 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
           {translate("promptInputTime")}
         </p>
         <p className="text-text-light dark:text-text-dark">
-          {lobbySettings.PromtInputTime}
+          {lobbySettings.PromptInputTime}
         </p>
       </div>
 

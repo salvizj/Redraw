@@ -44,6 +44,7 @@ const HandleCopyToClipboard: React.FC<HandleCopyToClipboardProps> = ({
       >
         {language === "en" ? "Copy lobby URL" : "Kopē istabas URL"}
       </button>
+
       {copied && (
         <p className="text-green-500 mt-2">
           {language === "en" ? "Copied to clipboard!" : "Kopēts starpliktuvē!"}

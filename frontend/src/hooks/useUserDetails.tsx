@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { fetchUserDetails } from "../api/getUserDetailsApi";
+import { fetchUserDetails } from "../api/user/getUserDetailsApi";
 import { useUserContext } from "../context/userContext";
 import { UserDetails } from "../types";
 

@@ -6,7 +6,7 @@ export type Player = {
 export type LobbySettings = {
   LobbySettingsId: string;
   MaxPlayerCount: number;
-  PromtInputTime: number;
+  PromptInputTime: number;
   DrawingTime: number;
   LobbyStatus: LobbyStatus;
 };

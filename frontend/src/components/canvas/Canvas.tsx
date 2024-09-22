@@ -4,7 +4,7 @@ import ClearCanvas from "./ClearCanvas";
 import CanvasLineWidthAdjuster from "./CanvasLineWidthAdjuster";
 import CanvasEraser from "./CanvasEraser";
 import CanvasGivenPrompt from "./CanvasGivenPrompt";
-import { createCanvas } from "../../api/createCanvasApi";
+import { createCanvas } from "../../api/canvas/createCanvasApi";
 
 type CanvasProps = {
   lobbyId: string | null;

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { LobbySettings as LobbySettingsType } from "../../types";
-import { editLobbySettings } from "../../api/editLobbySettingsApi";
+import { editLobbySettings } from "../../api/lobby/editLobbySettingsApi";
 import { useWebSocketContext } from "../../context/webSocketContext";
 import LobbySettingsDisplay from "./LobbySettingsDisplay";
 import { handleEditLobbySettings } from "../../utils/messageHandler";
@@ -29,7 +29,7 @@ const LobbySettings: React.FC<LobbySettingsProps> = ({
     lobbySettings.MaxPlayerCount,
   );
   const [promptInputTime, setPromptInputTime] = useState(
-    lobbySettings.PromtInputTime,
+    lobbySettings.PromptInputTime,
   );
   const [drawingTime, setDrawingTime] = useState(lobbySettings.DrawingTime);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +53,7 @@ const LobbySettings: React.FC<LobbySettingsProps> = ({
       await editLobbySettings({
         LobbySettingsId: lobbySettings.LobbySettingsId,
         MaxPlayerCount: maxPlayerCount,
-        PromtInputTime: promptInputTime,
+        PromptInputTime: promptInputTime,
         DrawingTime: drawingTime,
         LobbyStatus: lobbySettings.LobbyStatus,
       });

@@ -129,9 +129,6 @@ const LobbyPage: React.FC = () => {
 
   return (
     <div className="min-h-screen justify-center items-center">
-      <h1 className="heading-primary">
-        {language === "en" ? "Lobby Page" : "Istabas Lapa"}
-      </h1>
       <LobbyIdSection lobbyId={lobbyId} />
       <div className="flex flex-row justify-between items-start gap-4">
         <div className="w-1/2">

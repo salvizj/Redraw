@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getCanvas } from "../api/getCanvasApi";
+import { getCanvas } from "../api/canvas/getCanvasApi";
 import { useLobbyContext } from "../context/lobbyContext";
 
 const GuessingPage: React.FC = () => {
@@ -22,7 +22,7 @@ const GuessingPage: React.FC = () => {
   }, [lobbyId]);
 
   return (
-    <div>
+    <div className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark min-h-screen flex flex-col items-center justify-center ">
       {canvasData ? (
         <img src={`data:image/png;base64,${canvasData}`} alt="Canvas" />
       ) : (

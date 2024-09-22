@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { fetchLobbyDetails } from "../api/getLobbyDetailsApi";
+import { fetchLobbyDetails } from "../api/lobby/getLobbyDetailsApi";
 import { useLobbyContext } from "../context/lobbyContext";
 import { LobbyDetails } from "../types";
 import { transformLobbySettings } from "../utils/transformLobbySettings";

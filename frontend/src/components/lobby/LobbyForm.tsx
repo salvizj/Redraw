@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { createLobby, joinLobby } from "../../api/submitLobbyFormApi";
-import { usernameExist } from "../../api/usernameExistApi";
+import { createLobby, joinLobby } from "../../api/lobby/submitLobbyFormApi";
+import { usernameExist } from "../../api/user/usernameExistApi";
 import { useLanguage } from "../../context/languageContext";
 const LobbyForm: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -41,12 +41,12 @@ const LobbyForm: React.FC = () => {
 
     try {
       if (lobbyId) {
-        const checkResponse = await usernameExist({
+        const response = await usernameExist({
           username,
           lobbyId,
         });
 
-        if (checkResponse.exists) {
+        if (response.exists) {
           setError(
             language === "en"
               ? "Player with this username already exists in this lobby."

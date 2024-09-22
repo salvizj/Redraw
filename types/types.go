@@ -75,3 +75,50 @@ type Canvas struct {
 	SessionId  string `json:"sessionId"`
 	LobbyId    string `json:"lobbyId"`
 }
+type GetCanvasRequest struct {
+	LobbyId string `json:"lobbyId"`
+}
+type GetCanvasResponse struct {
+	Canvas Canvas `json:"canvas"`
+}
+type CreateCanvasRequest struct {
+	Prompt     string `json:"prompt"`
+	CanvasData string `json:"canvasData"`
+	LobbyID    string `json:"lobbyId"`
+}
+type CreateLobbyRequest struct {
+	Username string `json:"username"`
+}
+type LobbyDetailsResponse struct {
+	LobbyId       string          `json:"lobbyId"`
+	Players       []PlayerDetails `json:"players"`
+	Role          string          `json:"role"`
+	Username      string          `json:"username"`
+	LobbySettings LobbySettings   `json:"lobbySettings"`
+}
+type JoinLobbyRequest struct {
+	Username string `json:"username"`
+	LobbyId  string `json:"lobbyId"`
+}
+type GetPromptRequest struct {
+	SessionID string `json:"sessionId"`
+	LobbyID   string `json:"lobbyId"`
+}
+type GetPromptResponse struct {
+	Prompt Prompt `json:"prompt"`
+}
+type UserDetailsResponse struct {
+	SessionID string `json:"sessionId"`
+	LobbyID   string `json:"lobbyId"`
+	Role      string `json:"role"`
+	Username  string `json:"username"`
+}
+type UsernameExistRequest struct {
+	Username string `json:"username"`
+	LobbyID  string `json:"lobbyId"`
+}
+
+type UsernameExistResponse struct {
+	Exists    bool `json:"exists"`
+	Available bool `json:"available"`
+}
