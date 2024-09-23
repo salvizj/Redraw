@@ -125,3 +125,11 @@ type UsernameExistResponse struct {
 	Exists    bool `json:"exists"`
 	Available bool `json:"available"`
 }
+
+type AssignPromptResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
+type AssignPromptRequeststruct struct {
+	LobbyId string `json:"lobbyId"`
+}

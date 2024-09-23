@@ -4,7 +4,7 @@ import { useWebSocketContext } from "../context/webSocketContext"
 import { useUserContext } from "../context/userContext"
 import { useLobbyContext } from "../context/lobbyContext"
 import Canvas from "../components/canvas/Canvas"
-import { MessageType } from "../types"
+import { MessageType, Prompt } from "../types"
 import { Countdown } from "../components/utils/Countdown"
 import CanvasPromptForm from "../components/canvas/CanvasPromptForm"
 import { getPrompt } from "../api/prompt/getPrompt"
@@ -14,27 +14,31 @@ import {
 	handleGotPromptMessage,
 } from "../utils/messageHandler"
 import { useLanguage } from "../context/languageContext"
+import { useAssignPrompt } from "../hooks/useAssignPrompt"
+import ErrorMessage from "../components/utils/ErrorMessage"
 
 enum GameStage {
 	WaitingForPlayers,
 	AllPlayersJoined,
-	EveryoneSubmittedPrompts,
-	AssignedPromptsToPlayers,
-	EveryoneGotPrompts,
-	EveryoneStartedDrawing,
-	EveryoneFinishedDrawing,
+	TypingPrompts,
+	AllSubmittedPrompts,
+	AssigningPrompts,
+	GettingPrompts,
+	AllGotPrompts,
+	Drawing,
+	AllFinishedDrawing,
 }
 
 const GamePage: React.FC = () => {
 	const { sendMessage, messages } = useWebSocketContext()
-	const { sessionId, username } = useUserContext()
+	const { sessionId, username, role } = useUserContext()
 	const { lobbyId, players } = useLobbyContext()
 	const { language } = useLanguage()
-
+	const { executeAssignPrompt, error, response } = useAssignPrompt()
 	const [gameStage, setGameStage] = useState<GameStage>(
 		GameStage.WaitingForPlayers
 	)
-	const [prompt, setPrompt] = useState<string | null>(null)
+	const [prompt, setPrompt] = useState<Prompt | null>(null)
 	const [drawingComplete, setDrawingComplete] = useState(false)
 	const [savingCanvasStatus, setSavingCanvasStatus] = useState(false)
 
@@ -55,23 +59,44 @@ const GamePage: React.FC = () => {
 			(msg) => msg.type === MessageType.GotPrompt
 		)
 
-		if (syncEnteredGameMessages.length >= players.length) {
+		if (
+			syncEnteredGameMessages.length >= players.length &&
+			gameStage === GameStage.WaitingForPlayers
+		) {
 			setGameStage(GameStage.AllPlayersJoined)
 		}
 
-		if (syncSubmittedPromptMessages.length >= players.length) {
-			setGameStage(GameStage.EveryoneSubmittedPrompts)
+		if (
+			syncSubmittedPromptMessages.length >= players.length &&
+			gameStage === GameStage.TypingPrompts
+		) {
+			setGameStage(GameStage.AllSubmittedPrompts)
 
-			// if (role === "leader"){
-			//   //call func to assign prompts
-			// }
-			// then send some ws message to start getting promtps
+			if (role === "leader" && lobbyId) {
+				setGameStage(GameStage.AssigningPrompts)
+				executeAssignPrompt(lobbyId).then(() => {
+					if (response === "Prompt assigned successfully") {
+						setGameStage(GameStage.GettingPrompts)
+					}
+				})
+			}
 		}
 
-		if (syncGotPromptMessages.length >= players.length) {
-			setGameStage(GameStage.EveryoneGotPrompts)
+		if (
+			syncGotPromptMessages.length >= players.length &&
+			gameStage === GameStage.GettingPrompts
+		) {
+			setGameStage(GameStage.AllGotPrompts)
 		}
-	}, [messages, players])
+	}, [
+		messages,
+		players,
+		gameStage,
+		role,
+		lobbyId,
+		executeAssignPrompt,
+		response,
+	])
 
 	const handlePromptSubmit = () => {
 		if (sessionId && lobbyId && username) {
@@ -81,36 +106,41 @@ const GamePage: React.FC = () => {
 				username,
 				sendMessage
 			)
-			setGameStage(GameStage.EveryoneSubmittedPrompts)
+			setGameStage(GameStage.AllSubmittedPrompts)
 		}
 	}
 
 	useEffect(() => {
-		if (
-			gameStage === GameStage.EveryoneGotPrompts &&
-			sessionId &&
-			username &&
-			lobbyId
-		) {
-			getPrompt({ sessionId, lobbyId })
-				.then((response) => {
-					setPrompt(response.data)
+		const fetchPrompt = async () => {
+			if (
+				gameStage === GameStage.GettingPrompts &&
+				sessionId &&
+				username &&
+				lobbyId
+			) {
+				try {
+					const response: Prompt = await getPrompt({
+						sessionId,
+						lobbyId,
+					})
+					setPrompt(response)
 					handleGotPromptMessage(
 						sessionId,
 						lobbyId,
 						username,
 						sendMessage
 					)
-				})
-				.catch((error) =>
+				} catch (error) {
 					console.error(
 						language === "en"
 							? "Error getting prompt:"
-							: "Kļūda iugūstot nosacījumu",
+							: "Kļūda iegūstot nosacījumu",
 						error
 					)
-				)
+				}
+			}
 		}
+		fetchPrompt()
 	}, [gameStage, sessionId, lobbyId, username, sendMessage, language])
 
 	const renderGameStage = () => {
@@ -120,10 +150,13 @@ const GamePage: React.FC = () => {
 					<p>
 						{language === "en"
 							? "Waiting for all players to enter the game..."
-							: "Ģaidam, lai visi spēlētāji ienāk spēlē..."}
+							: "Gaidam, lai visi spēlētāji ienāk spēlē..."}
 					</p>
 				)
 			case GameStage.AllPlayersJoined:
+				setGameStage(GameStage.TypingPrompts)
+				return null
+			case GameStage.TypingPrompts:
 				return sessionId && username && lobbyId ? (
 					<>
 						<CanvasPromptForm
@@ -145,15 +178,34 @@ const GamePage: React.FC = () => {
 				) : (
 					<p>{language === "en" ? "Loading..." : "Ielādē..."}</p>
 				)
-			case GameStage.EveryoneSubmittedPrompts:
+			case GameStage.AllSubmittedPrompts:
 				return (
 					<p>
 						{language === "en"
-							? "Waiting for all players to receive their prompts..."
-							: "Gaidam, lai visi spēlētāji saņem savus nosacījumus..."}
+							? "All prompts submitted. Assigning prompts..."
+							: "Visi nosacījumi iesniegti. Piešķir nosacījumus..."}
 					</p>
 				)
-			case GameStage.EveryoneStartedDrawing:
+			case GameStage.AssigningPrompts:
+				return (
+					<p>
+						{language === "en"
+							? "Assigning prompts to players..."
+							: "Piešķir nosacījumus spēlētājiem..."}
+					</p>
+				)
+			case GameStage.GettingPrompts:
+				return (
+					<p>
+						{language === "en"
+							? "Getting your prompt..."
+							: "Iegūst tavu nosacījumu..."}
+					</p>
+				)
+			case GameStage.AllGotPrompts:
+				setGameStage(GameStage.Drawing)
+				return null
+			case GameStage.Drawing:
 				return (
 					<>
 						<Countdown
@@ -168,24 +220,34 @@ const GamePage: React.FC = () => {
 						<Canvas
 							setSavingCanvasStatus={setSavingCanvasStatus}
 							drawingComplete={drawingComplete}
-							prompt={prompt}
+							prompt={prompt?.prompt || null}
+							promptId={prompt?.promptId || null}
 							lobbyId={lobbyId}
 						/>
 					</>
 				)
-			case GameStage.EveryoneFinishedDrawing:
+			case GameStage.AllFinishedDrawing:
 				return <Navigate to="/guessing" />
+			default:
+				return (
+					<p>
+						{language === "en"
+							? "Unknown game stage"
+							: "Nezināms spēles posms"}
+					</p>
+				)
 		}
 	}
 
 	useEffect(() => {
 		if (drawingComplete && savingCanvasStatus && prompt) {
-			setGameStage(GameStage.EveryoneFinishedDrawing)
+			setGameStage(GameStage.AllFinishedDrawing)
 		}
 	}, [drawingComplete, savingCanvasStatus, prompt])
 
 	return (
-		<div className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark min-h-screen flex flex-col items-center justify-center ">
+		<div className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark min-h-screen flex flex-col items-center justify-center">
+			<ErrorMessage message={error} />
 			{renderGameStage()}
 		</div>
 	)
