@@ -65,7 +65,7 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
     },
     lobbySettings: {
       en: "Lobby Settings",
-      lv: "Lobija iestatījumi",
+      lv: "Istabas iestatījumi",
     },
   } as const;
 

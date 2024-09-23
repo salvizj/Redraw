@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { getCanvas } from "../api/canvas/getCanvasApi";
 import { useLobbyContext } from "../context/lobbyContext";
+import { useUserContext } from "../context/userContext";
 
 const GuessingPage: React.FC = () => {
   const { lobbyId } = useLobbyContext();
+  const { sessionId } = useUserContext();
   const [canvasData, setCanvasData] = useState<string | null>(null);
-
   useEffect(() => {
     const fetchCanvas = async () => {
-      if (lobbyId) {
+      if (lobbyId && sessionId) {
         try {
-          const data = await getCanvas(lobbyId);
+          const data = await getCanvas({ lobbyId, sessionId });
           setCanvasData(data.canvasData);
         } catch (error) {
           console.error("Failed to fetch canvas:", error);

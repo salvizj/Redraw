@@ -51,11 +51,13 @@ const LobbySettings: React.FC<LobbySettingsProps> = ({
 
     try {
       await editLobbySettings({
-        LobbySettingsId: lobbySettings.LobbySettingsId,
-        MaxPlayerCount: maxPlayerCount,
-        PromptInputTime: promptInputTime,
-        DrawingTime: drawingTime,
-        LobbyStatus: lobbySettings.LobbyStatus,
+        settings: {
+          LobbySettingsId: lobbySettings.LobbySettingsId,
+          MaxPlayerCount: maxPlayerCount,
+          PromptInputTime: promptInputTime,
+          DrawingTime: drawingTime,
+          LobbyStatus: lobbySettings.LobbyStatus,
+        },
       });
 
       if (!hasSentRefetchLobbyDetailsMessage) {
