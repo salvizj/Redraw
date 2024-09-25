@@ -21,7 +21,7 @@ func GetUserDetailsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	sessionID := cookie.Value
 
-	lobbyID, role, username, err := utils.GetLobbyAndUsers(sessionID)
+	lobbyID, role, username, err := utils.GetLobbyAndUser(sessionID)
 	if err != nil {
 		http.Error(w, "Failed to retrieve session information: "+err.Error(), http.StatusInternalServerError)
 		return

@@ -18,7 +18,7 @@ const CanvasPromptForm: React.FC<{
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault();
 
     if (!sessionId || !lobbyId || !username) {
       setError(
@@ -42,12 +42,12 @@ const CanvasPromptForm: React.FC<{
       setInputValue("");
       onPromptSent();
     } catch (error) {
-      console.log(error);
-      setError(
+      const errorMessage =
         language === "en"
           ? "Failed to submit prompt. Please try again."
-          : "Nezidevāš iesniegt nosacīcumu. Lūdzu mēģiniet atkārtoti.",
-      );
+          : "Nezidevāš iesniegt nosacīcumu. Lūdzu mēģiniet atkārtoti.";
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

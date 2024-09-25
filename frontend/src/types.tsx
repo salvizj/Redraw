@@ -37,6 +37,7 @@ export enum MessageType {
   StartGame = "startGame",
   NavigateToGame = "navigateToGame",
   EnteredGame = "enteredGame",
+  AssignPromptsComplete = "assignPromptsComplete",
   GotPrompt = "gotPrompt",
   SubmitedPrompt = "submitedPrompt",
   EditLobbySettings = "editLobbySettings",

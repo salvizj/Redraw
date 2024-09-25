@@ -30,7 +30,7 @@ func GetLobbyId(SessionId string) (string, error) {
 
 	return LobbyId, nil
 }
-func GetLobbyAndUsers(sessionId string) (lobbyId string, role string, username string, err error) {
+func GetLobbyAndUser(sessionId string) (lobbyId string, role string, username string, err error) {
 	session, err := GetSession(sessionId)
 
 	if err != nil {

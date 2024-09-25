@@ -78,7 +78,9 @@ func AssignPrompt(lobbyId string) error {
 	if len(sessionIds) == 0 {
 		return fmt.Errorf("no session IDs found for lobbyId %s", lobbyId)
 	}
-
+	// Create a new random source with the current time
+	src := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(src)
 	for _, sessionId := range sessionIds {
 		var prompt types.Prompt
 		promptQuery := `
@@ -114,8 +116,7 @@ func AssignPrompt(lobbyId string) error {
 			return fmt.Errorf("no available session ID to assign for prompt %s", prompt.PromptId)
 		}
 
-		rand.Seed(time.Now().UnixNano())
-		newSessionId := availableSessions[rand.Intn(len(availableSessions))]
+		newSessionId := availableSessions[r.Intn(len(availableSessions))]
 
 		updateQuery := `UPDATE Prompt SET AssignedToSessionId = ? WHERE PromptId = ?`
 		_, err = db.DB.Exec(updateQuery, newSessionId, prompt.PromptId)

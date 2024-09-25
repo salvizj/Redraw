@@ -134,6 +134,16 @@ func ReadMessages(client *Client) {
 		connMap.RemoveClient(client)
 	}()
 
+	// Helper function to construct broadcast messages
+	createBroadcastMessage := func(msgType types.MessageType, sessionID, lobbyID string, data ...string) []byte {
+		message := `{"type": "` + string(msgType) + `", "sessionId": "` + sessionID + `", "lobbyId": "` + lobbyID + `"`
+		if len(data) > 0 {
+			message += `, "data": "` + data[0] + `"`
+		}
+		message += `}`
+		return []byte(message)
+	}
+
 	for {
 		_, msgData, err := client.conn.ReadMessage()
 		if err != nil {
@@ -151,11 +161,11 @@ func ReadMessages(client *Client) {
 		switch msg.Type {
 		case types.Join:
 			connMap.AddClient(client)
-			broadcastMessage := []byte(`{"type": "join", "sessionId": "` + client.sessionID + `", "lobbyId": "` + client.lobbyID + `"}`)
+			broadcastMessage := createBroadcastMessage(types.Join, client.sessionID, client.lobbyID)
 			connMap.Broadcast(broadcastMessage, client.lobbyID)
 
 		case types.StartGame:
-			broadcastMessage := []byte(`{"type": "navigateToGame", "sessionId": "` + client.sessionID + `", "lobbyId": "` + client.lobbyID + `"}`)
+			broadcastMessage := createBroadcastMessage(types.StartGame, client.sessionID, client.lobbyID)
 			connMap.Broadcast(broadcastMessage, client.lobbyID)
 
 		case types.EnteredGame:
@@ -164,12 +174,16 @@ func ReadMessages(client *Client) {
 				log.Printf("Error: msg.Data is not a string")
 				continue
 			}
-			broadcastMessage := []byte(`{
-                "type": "` + string(types.EnteredGame) + `",
-                "sessionId": "` + client.sessionID + `",
-                "lobbyId": "` + client.lobbyID + `",
-                "data": "` + message + `"
-            }`)
+			broadcastMessage := createBroadcastMessage(types.EnteredGame, client.sessionID, client.lobbyID, message)
+			connMap.Broadcast(broadcastMessage, client.lobbyID)
+
+		case types.AssignPromptsComplete:
+			message, ok := msg.Data.(string)
+			if !ok {
+				log.Printf("Error: msg.Data is not a string")
+				continue
+			}
+			broadcastMessage := createBroadcastMessage(types.AssignPromptsComplete, client.sessionID, client.lobbyID, message)
 			connMap.Broadcast(broadcastMessage, client.lobbyID)
 
 		case types.GotPrompt:
@@ -178,12 +192,7 @@ func ReadMessages(client *Client) {
 				log.Printf("Error: msg.Data is not a string")
 				continue
 			}
-			broadcastMessage := []byte(`{
-                "type": "` + string(types.GotPrompt) + `",
-                "sessionId": "` + client.sessionID + `",
-                "lobbyId": "` + client.lobbyID + `",
-                "data": "` + message + `"
-            }`)
+			broadcastMessage := createBroadcastMessage(types.GotPrompt, client.sessionID, client.lobbyID, message)
 			connMap.Broadcast(broadcastMessage, client.lobbyID)
 
 		case types.SubmitedPrompt:
@@ -192,20 +201,11 @@ func ReadMessages(client *Client) {
 				log.Printf("Error: msg.Data is not a string")
 				continue
 			}
-			broadcastMessage := []byte(`{
-                "type": "` + string(types.SubmitedPrompt) + `",
-                "sessionId": "` + client.sessionID + `",
-                "lobbyId": "` + client.lobbyID + `",
-                "data": "` + message + `"
-            }`)
+			broadcastMessage := createBroadcastMessage(types.SubmitedPrompt, client.sessionID, client.lobbyID, message)
 			connMap.Broadcast(broadcastMessage, client.lobbyID)
 
 		case types.EditLobbySettings:
-			broadcastMessage := []byte(`{
-                "type": "` + string(types.EditLobbySettings) + `",
-                "sessionId": "` + client.sessionID + `",
-                "lobbyId": "` + client.lobbyID + `"
-            }`)
+			broadcastMessage := createBroadcastMessage(types.EditLobbySettings, client.sessionID, client.lobbyID)
 			connMap.Broadcast(broadcastMessage, client.lobbyID)
 
 		default:

@@ -22,7 +22,7 @@ func GetLobbyDetailsHandler(w http.ResponseWriter, r *http.Request) {
 
 	sessionId := cookie.Value
 
-	lobbyId, role, username, err := utils.GetLobbyAndUsers(sessionId)
+	lobbyId, role, username, err := utils.GetLobbyAndUser(sessionId)
 	if err != nil {
 		http.Error(w, "Failed to retrieve session information", http.StatusInternalServerError)
 		return

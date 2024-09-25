@@ -12,6 +12,7 @@ import {
   handleEnteredGameMessage,
   handleSubmittedPromptMessage,
   handleGotPromptMessage,
+  handleAssignPromptsComplete,
 } from "../utils/messageHandler";
 import { useLanguage } from "../context/languageContext";
 import { useAssignPrompt } from "../hooks/useAssignPrompt";
@@ -46,7 +47,7 @@ const GamePage: React.FC = () => {
     if (sessionId && lobbyId && username) {
       handleEnteredGameMessage(sessionId, lobbyId, username, sendMessage);
     }
-  }, [sendMessage, sessionId, lobbyId, username]);
+  }, [sessionId]);
 
   useEffect(() => {
     const syncEnteredGameMessages = messages.filter(
@@ -55,10 +56,14 @@ const GamePage: React.FC = () => {
     const syncSubmittedPromptMessages = messages.filter(
       (msg) => msg.type === MessageType.SubmitedPrompt,
     );
+    const syncAssignPromptsCompleteMessages = messages.filter(
+      (msg) => msg.type === MessageType.AssignPromptsComplete,
+    );
     const syncGotPromptMessages = messages.filter(
       (msg) => msg.type === MessageType.GotPrompt,
     );
 
+    // Check if all players have entered the game
     if (
       syncEnteredGameMessages.length >= players.length &&
       gameStage === GameStage.WaitingForPlayers
@@ -66,37 +71,45 @@ const GamePage: React.FC = () => {
       setGameStage(GameStage.AllPlayersJoined);
     }
 
+    // Check if all prompts have been submitted
     if (
       syncSubmittedPromptMessages.length >= players.length &&
       gameStage === GameStage.TypingPrompts
     ) {
       setGameStage(GameStage.AllSubmittedPrompts);
+    }
 
-      if (role === "leader" && lobbyId) {
-        setGameStage(GameStage.AssigningPrompts);
-        executeAssignPrompt(lobbyId).then(() => {
-          if (response === "Prompt assigned successfully") {
-            setGameStage(GameStage.GettingPrompts);
-          }
-        });
+    // Start assigning prompts if in the AllSubmittedPrompts stage and the role is leader
+    if (lobbyId && gameStage === GameStage.AllSubmittedPrompts) {
+      setGameStage(GameStage.AssigningPrompts);
+      if (role === "leader") {
+        executeAssignPrompt(lobbyId); // Trigger prompt assignment
       }
     }
 
+    // Check if prompt assignment was successful and handle completion
+    if (response === "Prompt assigned successfully") {
+      handleAssignPromptsComplete(sessionId, lobbyId, sendMessage);
+    } else if (error) {
+      console.error("Failed to assign prompts:", error);
+    }
+
+    // Update game state when leader has finished assigning prompts
+    if (
+      syncAssignPromptsCompleteMessages.length === 1 &&
+      gameStage === GameStage.GettingPrompts
+    ) {
+      setGameStage(GameStage.AllPlayersJoined); // Reset stage to AllPlayersJoined
+    }
+
+    // Check if all prompts have been received by players
     if (
       syncGotPromptMessages.length >= players.length &&
       gameStage === GameStage.GettingPrompts
     ) {
-      setGameStage(GameStage.AllGotPrompts);
+      setGameStage(GameStage.AllGotPrompts); // Move to AllGotPrompts stage
     }
-  }, [
-    messages,
-    players,
-    gameStage,
-    role,
-    lobbyId,
-    executeAssignPrompt,
-    response,
-  ]);
+  }, [messages, players, gameStage, role, lobbyId, executeAssignPrompt]);
 
   const handlePromptSubmit = () => {
     if (sessionId && lobbyId && username) {
@@ -108,7 +121,7 @@ const GamePage: React.FC = () => {
   useEffect(() => {
     const fetchPrompt = async () => {
       if (
-        gameStage === GameStage.GettingPrompts &&
+        gameStage === GameStage.AllSubmittedPrompts &&
         sessionId &&
         username &&
         lobbyId
@@ -131,7 +144,7 @@ const GamePage: React.FC = () => {
       }
     };
     fetchPrompt();
-  }, [gameStage, sessionId, lobbyId, username, sendMessage, language]);
+  }, [sessionId]);
 
   const renderGameStage = () => {
     switch (gameStage) {

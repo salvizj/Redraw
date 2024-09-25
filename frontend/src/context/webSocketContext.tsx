@@ -45,7 +45,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
     const ws = new WebSocket(wsUrl);
 
     ws.addEventListener("open", () => {
-      console.log("WebSocket connection opened.");
       setIsConnected(true);
       const message: Message = {
         type: MessageType.Join,
@@ -109,7 +108,6 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
     return () => {
       if (socketRef.current) {
         socketRef.current.close();
-        console.log("WebSocket connection closed on component unmount.");
       }
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);

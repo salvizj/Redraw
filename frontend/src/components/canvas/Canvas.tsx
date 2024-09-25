@@ -90,7 +90,6 @@ const Canvas: React.FC<CanvasProps> = ({
           promptId,
           lobbyId,
         });
-        console.log("Canvas saved successfully");
       } catch (error) {
         console.error("Error saving canvas:", error);
       } finally {

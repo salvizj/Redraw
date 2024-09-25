@@ -51,7 +51,7 @@ func CreateTables() {
                 SessionId TEXT,
                 LobbyId TEXT,
                 Username TEXT,
-                AssignetToSessionId TEXT,
+                AssignedToSessionId TEXT,
                 FOREIGN KEY (SessionId) REFERENCES Session(SessionId),
                 FOREIGN KEY (LobbyId) REFERENCES Lobby(LobbyId)
             );`,

@@ -96,3 +96,21 @@ export const handleEditLobbySettings = (
 
   sendMessage(editLobbySettingsMessage);
 };
+export const handleAssignPromptsComplete = (
+  sessionId: string | null,
+  lobbyId: string | null,
+  sendMessage: (message: Message) => void,
+) => {
+  if (!sessionId || !lobbyId) {
+    return;
+  }
+
+  const assignPromptsCompleteMessage: Message = {
+    type: MessageType.AssignPromptsComplete,
+    sessionId: sessionId!,
+    lobbyId: lobbyId!,
+    data: {},
+  };
+
+  sendMessage(assignPromptsCompleteMessage);
+};

@@ -7,12 +7,17 @@ export const useAssignPrompt = () => {
 
   const executeAssignPrompt = useCallback(async (lobbyId: string) => {
     setError(null);
+    setResponse(null);
+
     try {
       const result = await assignPrompt({ lobbyId });
-      setResponse(result.message);
+      if (result.message) {
+        setResponse(result.message);
+      } else {
+        setError("Unexpected response format");
+      }
     } catch (err) {
-      setError("Failed to assign prompt");
-    } finally {
+      setError(err instanceof Error ? err.message : "Failed to assign prompt");
     }
   }, []);
 

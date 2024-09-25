@@ -2,6 +2,7 @@ package prompt
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/salvizj/Redraw/types"
@@ -9,7 +10,7 @@ import (
 )
 
 func AssignPromptandler(w http.ResponseWriter, r *http.Request) {
-
+	log.Printf("Received request: %s %s", r.Method, r.URL.Path)
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
