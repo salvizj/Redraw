@@ -48,7 +48,6 @@ const (
 	Join                  MessageType = "join"
 	Leave                 MessageType = "leave"
 	StartGame             MessageType = "startGame"
-	NavigateToGame        MessageType = "navigateToGame"
 	EnteredGame           MessageType = "enteredGame"
 	AssignPromptsComplete MessageType = "assignPromptsComplete"
 	GotPrompt             MessageType = "gotPrompt"

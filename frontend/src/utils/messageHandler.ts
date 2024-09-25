@@ -34,7 +34,7 @@ export const handleSubmittedPromptMessage = (
     type: MessageType.SubmitedPrompt,
     sessionId: sessionId!,
     lobbyId: lobbyId!,
-    data: username,
+    data: `${username} submitted prompt`,
   };
 
   sendMessage(submittedPromptMessage);
@@ -54,7 +54,7 @@ export const handleGotPromptMessage = (
     type: MessageType.GotPrompt,
     sessionId: sessionId!,
     lobbyId: lobbyId!,
-    data: username,
+    data: `${username} got prompt`,
   };
 
   sendMessage(gotPromptMessage);
@@ -62,6 +62,7 @@ export const handleGotPromptMessage = (
 export const handleStartGame = (
   sessionId: string | null,
   lobbyId: string | null,
+  username: string | null,
   sendMessage: (message: Message) => void,
 ) => {
   if (!sessionId || !lobbyId) {
@@ -72,11 +73,12 @@ export const handleStartGame = (
     type: MessageType.StartGame,
     sessionId: sessionId!,
     lobbyId: lobbyId!,
-    data: {},
+    data: `${username} started game`,
   };
 
   sendMessage(startGameMessage);
 };
+
 export const handleEditLobbySettings = (
   sessionId: string | null,
   lobbyId: string | null,
@@ -91,7 +93,7 @@ export const handleEditLobbySettings = (
     type: MessageType.EditLobbySettings,
     sessionId: sessionId!,
     lobbyId: lobbyId!,
-    data: username,
+    data: `${username} edited lobby settings`,
   };
 
   sendMessage(editLobbySettingsMessage);

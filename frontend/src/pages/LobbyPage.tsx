@@ -83,8 +83,8 @@ const LobbyPage: React.FC = () => {
   }, [gameStarted, navigate]);
 
   const onStartGame = () => {
-    if (sessionId && lobbyId) {
-      handleStartGame(sessionId, lobbyId, sendMessage);
+    if (sessionId && lobbyId && username) {
+      handleStartGame(sessionId, lobbyId, username, sendMessage);
     }
   };
 

@@ -3,8 +3,6 @@ package utils
 import (
 	"database/sql"
 	"fmt"
-	"math/rand"
-	"time"
 
 	"github.com/salvizj/Redraw/db"
 	"github.com/salvizj/Redraw/types"
@@ -60,12 +58,13 @@ func GetPrompt(sessionId, lobbyId string) (types.Prompt, error) {
 }
 func AssignPrompt(lobbyId string) error {
 	var sessionIds []string
-	sessionQuery := `SELECT SessionId FROM Session WHERE LobbyId = ?`
 
+	sessionQuery := `SELECT SessionId FROM Session WHERE LobbyId = ?`
 	rows, err := db.DB.Query(sessionQuery, lobbyId)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve session IDs for lobbyId %s: %v", lobbyId, err)
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var sessionId string
@@ -78,51 +77,44 @@ func AssignPrompt(lobbyId string) error {
 	if len(sessionIds) == 0 {
 		return fmt.Errorf("no session IDs found for lobbyId %s", lobbyId)
 	}
-	// Create a new random source with the current time
-	src := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(src)
-	for _, sessionId := range sessionIds {
-		var prompt types.Prompt
+
+	tx, err := db.DB.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to start transaction: %v", err)
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	for _, currentSessionId := range sessionIds {
 		promptQuery := `
-			SELECT PromptId, Prompt, SessionId, LobbyId, Username, AssignedToSessionId
-			FROM Prompt
-			WHERE AssignedToSessionId = ? AND LobbyId = ?
-			LIMIT 1`
+            SELECT PromptId
+            FROM Prompt
+            WHERE LobbyId = ? AND (AssignedToSessionId IS NULL OR AssignedToSessionId != ?)
+            AND AssignedToSessionId != ?
+            ORDER BY RANDOM()
+            LIMIT 1`
 
-		err := db.DB.QueryRow(promptQuery, sessionId, lobbyId).Scan(
-			&prompt.PromptId,
-			&prompt.Prompt,
-			&prompt.SessionId,
-			&prompt.LobbyId,
-			&prompt.Username,
-			&prompt.AssignedToSessionId,
-		)
-
+		var promptId string
+		err := tx.QueryRow(promptQuery, lobbyId, currentSessionId, currentSessionId).Scan(&promptId)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				continue
 			}
-			return fmt.Errorf("error fetching prompt for sessionId %s and lobbyId %s: %v", sessionId, lobbyId, err)
+			return fmt.Errorf("error fetching prompt for lobbyId %s: %v", lobbyId, err)
 		}
-
-		var availableSessions []string
-		for _, id := range sessionIds {
-			if id != prompt.AssignedToSessionId {
-				availableSessions = append(availableSessions, id)
-			}
-		}
-
-		if len(availableSessions) == 0 {
-			return fmt.Errorf("no available session ID to assign for prompt %s", prompt.PromptId)
-		}
-
-		newSessionId := availableSessions[r.Intn(len(availableSessions))]
 
 		updateQuery := `UPDATE Prompt SET AssignedToSessionId = ? WHERE PromptId = ?`
-		_, err = db.DB.Exec(updateQuery, newSessionId, prompt.PromptId)
+		_, err = tx.Exec(updateQuery, currentSessionId, promptId)
 		if err != nil {
-			return fmt.Errorf("failed to update AssignedToSessionId for prompt %s: %v", prompt.PromptId, err)
+			return fmt.Errorf("failed to update AssignedToSessionId for prompt %s: %v", promptId, err)
 		}
+
+		fmt.Printf("Assigned prompt %s to session %s\n", promptId, currentSessionId)
 	}
 
 	return nil

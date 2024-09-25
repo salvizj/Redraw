@@ -35,7 +35,6 @@ export enum MessageType {
   Join = "join",
   Leave = "leave",
   StartGame = "startGame",
-  NavigateToGame = "navigateToGame",
   EnteredGame = "enteredGame",
   AssignPromptsComplete = "assignPromptsComplete",
   GotPrompt = "gotPrompt",

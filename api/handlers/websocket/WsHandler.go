@@ -133,84 +133,37 @@ func ReadMessages(client *Client) {
 	defer func() {
 		connMap.RemoveClient(client)
 	}()
-
-	// Helper function to construct broadcast messages
-	createBroadcastMessage := func(msgType types.MessageType, sessionID, lobbyID string, data ...string) []byte {
-		message := `{"type": "` + string(msgType) + `", "sessionId": "` + sessionID + `", "lobbyId": "` + lobbyID + `"`
-		if len(data) > 0 {
-			message += `, "data": "` + data[0] + `"`
+	createBroadcastMessage := func(msgType types.MessageType, sessionID, lobbyID string, data interface{}) []byte {
+		message := map[string]interface{}{
+			"type":      string(msgType),
+			"sessionId": sessionID,
+			"lobbyId":   lobbyID,
+			"data":      data,
 		}
-		message += `}`
-		return []byte(message)
+		jsonMessage, err := json.Marshal(message)
+		if err != nil {
+			log.Printf("Error marshaling message: %v", err)
+			return nil
+		}
+		return jsonMessage
 	}
-
 	for {
 		_, msgData, err := client.conn.ReadMessage()
 		if err != nil {
 			log.Printf("Error reading message from client %s: %v", client.sessionID, err)
 			break
 		}
-
 		var msg types.Message
 		err = json.Unmarshal(msgData, &msg)
 		if err != nil {
 			log.Printf("Error unmarshaling message: %v", err)
 			continue
 		}
-
-		switch msg.Type {
-		case types.Join:
-			connMap.AddClient(client)
-			broadcastMessage := createBroadcastMessage(types.Join, client.sessionID, client.lobbyID)
-			connMap.Broadcast(broadcastMessage, client.lobbyID)
-
-		case types.StartGame:
-			broadcastMessage := createBroadcastMessage(types.StartGame, client.sessionID, client.lobbyID)
-			connMap.Broadcast(broadcastMessage, client.lobbyID)
-
-		case types.EnteredGame:
-			message, ok := msg.Data.(string)
-			if !ok {
-				log.Printf("Error: msg.Data is not a string")
-				continue
-			}
-			broadcastMessage := createBroadcastMessage(types.EnteredGame, client.sessionID, client.lobbyID, message)
-			connMap.Broadcast(broadcastMessage, client.lobbyID)
-
-		case types.AssignPromptsComplete:
-			message, ok := msg.Data.(string)
-			if !ok {
-				log.Printf("Error: msg.Data is not a string")
-				continue
-			}
-			broadcastMessage := createBroadcastMessage(types.AssignPromptsComplete, client.sessionID, client.lobbyID, message)
-			connMap.Broadcast(broadcastMessage, client.lobbyID)
-
-		case types.GotPrompt:
-			message, ok := msg.Data.(string)
-			if !ok {
-				log.Printf("Error: msg.Data is not a string")
-				continue
-			}
-			broadcastMessage := createBroadcastMessage(types.GotPrompt, client.sessionID, client.lobbyID, message)
-			connMap.Broadcast(broadcastMessage, client.lobbyID)
-
-		case types.SubmitedPrompt:
-			message, ok := msg.Data.(string)
-			if !ok {
-				log.Printf("Error: msg.Data is not a string")
-				continue
-			}
-			broadcastMessage := createBroadcastMessage(types.SubmitedPrompt, client.sessionID, client.lobbyID, message)
-			connMap.Broadcast(broadcastMessage, client.lobbyID)
-
-		case types.EditLobbySettings:
-			broadcastMessage := createBroadcastMessage(types.EditLobbySettings, client.sessionID, client.lobbyID)
-			connMap.Broadcast(broadcastMessage, client.lobbyID)
-
-		default:
-			log.Printf("Unknown message type: %s", msg.Type)
+		broadcastMessage := createBroadcastMessage(msg.Type, client.sessionID, client.lobbyID, msg.Data)
+		if broadcastMessage == nil {
+			continue
 		}
+		connMap.Broadcast(broadcastMessage, client.lobbyID)
 	}
 }
 
