@@ -17,20 +17,28 @@ func CreatePrompt(prompt types.Prompt) error {
 	query := `INSERT INTO Prompt (PromptId, Prompt, SessionId, LobbyId, Username)
 	          VALUES (?, ?, ?, ?, ?)`
 
-	_, err := db.DB.Exec(query,
-		prompt.PromptId,
-		prompt.Prompt,
-		prompt.SessionId,
-		prompt.LobbyId,
-		prompt.Username,
-	)
+	const maxRetries = 2
+	const retryDelay = 1 * time.Second
 
-	if err != nil {
-		fmt.Printf("Failed to execute query: %v\n", err)
-		return fmt.Errorf("failed to create prompt: %w", err)
+	var err error
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		_, err = db.DB.Exec(query,
+			prompt.PromptId,
+			prompt.Prompt,
+			prompt.SessionId,
+			prompt.LobbyId,
+			prompt.Username,
+		)
+
+		if err == nil {
+			return nil
+		}
+
+		fmt.Printf("Attempt %d: Failed to execute query: %v\n", attempt+1, err)
+		time.Sleep(retryDelay)
 	}
 
-	return nil
+	return fmt.Errorf("failed to create prompt after %d attempts: %w", maxRetries, err)
 }
 func GetPrompt(sessionId, lobbyId string) (types.Prompt, error) {
 	var prompt types.Prompt
@@ -60,20 +68,22 @@ func GetPrompt(sessionId, lobbyId string) (types.Prompt, error) {
 	return prompt, nil
 }
 func AssignPrompt(lobbyId string) error {
-	sessionQuery := `SELECT DISTINCT SessionId FROM Prompt WHERE LobbyId = ? AND SessionId IS NOT NULL`
-	rows, err := db.DB.Query(sessionQuery, lobbyId)
-	if err != nil {
-		return fmt.Errorf("failed to retrieve session IDs for lobbyId %s: %v", lobbyId, err)
-	}
-	defer rows.Close()
+	const sessionQueryRetries = 2
+	const sessionQueryRetryDelay = 500 * time.Millisecond
 
 	var sessionIds []string
-	for rows.Next() {
-		var sessionId string
-		if err := rows.Scan(&sessionId); err != nil {
-			return fmt.Errorf("error scanning session ID: %v", err)
+	var err error
+
+	for attempt := 0; attempt < sessionQueryRetries; attempt++ {
+		sessionIds, err = getSessionIdsFromPrompt(lobbyId)
+		if err == nil && len(sessionIds) >= 2 {
+			break
 		}
-		sessionIds = append(sessionIds, sessionId)
+
+		if attempt < sessionQueryRetries-1 {
+			log.Printf("Attempt %d: Failed to retrieve session IDs for lobbyId %s: %v", attempt+1, lobbyId, err)
+			time.Sleep(sessionQueryRetryDelay)
+		}
 	}
 
 	if len(sessionIds) < 2 {

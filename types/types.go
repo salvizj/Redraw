@@ -2,13 +2,6 @@ package types
 
 import "time"
 
-type LobbyStatus string
-
-const (
-	StatusWaiting LobbyStatus = "waiting"
-	StatusActive  LobbyStatus = "active"
-)
-
 type Role string
 
 const (
@@ -20,13 +13,25 @@ type Lobby struct {
 	LobbyId         string `json:"lobbyId"`
 	LobbySettingsId string `json:"lobbySettingsId"`
 }
+type GameState string
+
+const (
+	StatusWaitingForPlayers   GameState = "waitingForPlayers"
+	StatusAllPlayersJoined    GameState = "allPlayersJoined"
+	StatusTypingPrompts       GameState = "typingPrompts"
+	StatusAllSubmittedPrompts GameState = "allSubmittedPrompts"
+	StatusAssigningPrompts    GameState = "assigningPrompts"
+	StatusGettingPrompts      GameState = "gettingPrompts"
+	StatusAllGotPrompts       GameState = "allGotPrompts"
+	StatusDrawing             GameState = "drawing"
+	StatusAllFinishedDrawing  GameState = "allFinishedDrawing"
+)
 
 type LobbySettings struct {
-	LobbySettingsId string      `json:"lobbySettingsId"`
-	MaxPlayerCount  int         `json:"maxPlayerCount"`
-	PromptInputTime int         `json:"promptInputTime"`
-	DrawingTime     int         `json:"drawingTime"`
-	LobbyStatus     LobbyStatus `json:"lobbyStatus"`
+	LobbySettingsId string `json:"lobbySettingsId"`
+	MaxPlayerCount  int    `json:"maxPlayerCount"`
+	PromptInputTime int    `json:"promptInputTime"`
+	DrawingTime     int    `json:"drawingTime"`
 }
 
 type Session struct {
@@ -132,4 +137,11 @@ type AssignPromptResponse struct {
 }
 type AssignPromptRequeststruct struct {
 	LobbyId string `json:"lobbyId"`
+}
+type GameStateResponse struct {
+	GameState string `json:"gameState"`
+}
+type EditGameStateRequest struct {
+	LobbyId   string `json:"lobbyId"`
+	GameState string `json:"gameState"`
 }

@@ -50,7 +50,14 @@ func CreateLobbyHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to create lobby", http.StatusInternalServerError)
 		return
 	}
+	currentState := string(types.StatusWaitingForPlayers)
 
+	err = utils.CreateGameState(lobbyId, currentState)
+	if err != nil {
+		log.Printf("CreateGameState error: %v", err)
+		http.Error(w, "Failed to create gameState settings", http.StatusInternalServerError)
+		return
+	}
 	session := types.Session{
 		Username: req.Username,
 		LobbyId:  lobbyId,

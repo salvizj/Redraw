@@ -10,7 +10,6 @@ import (
 )
 
 func AssignPromptandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Received request: %s %s", r.Method, r.URL.Path)
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
@@ -24,6 +23,7 @@ func AssignPromptandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err = utils.AssignPrompt(req.LobbyId)
 	if err != nil {
+		log.Printf("Error assigning prompt: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(types.AssignPromptResponse{
 			Status:  "failed",
@@ -31,6 +31,7 @@ func AssignPromptandler(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	log.Println("Prompt assigned successfully")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(types.AssignPromptResponse{
 		Status:  "success",

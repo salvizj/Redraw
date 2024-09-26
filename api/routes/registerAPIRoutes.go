@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	canvasHandlers "github.com/salvizj/Redraw/api/handlers/canvas"
+	"github.com/salvizj/Redraw/api/handlers/gameState"
 	lobbyHandlers "github.com/salvizj/Redraw/api/handlers/lobby"
 	promptHandlers "github.com/salvizj/Redraw/api/handlers/prompt"
 	userHandlers "github.com/salvizj/Redraw/api/handlers/user"
@@ -31,6 +32,10 @@ func RegisterAPIRoutes(mux *http.ServeMux) {
 	mux.Handle("/create-canvas", middleware.CORS(http.HandlerFunc(canvasHandlers.CreateCanvasHandler)))
 	mux.Handle("/get-canvas", middleware.CORS(http.HandlerFunc(canvasHandlers.GetCanvasHandler)))
 	mux.Handle("/assign-canvas", middleware.CORS(http.HandlerFunc(canvasHandlers.AssignCanvasHandler)))
+
+	// Game Staterelated routes
+	mux.Handle("/get-game-state", middleware.CORS(http.HandlerFunc(gameState.GetGameStateHandler)))
+	mux.Handle("/edit-game-state", middleware.CORS(http.HandlerFunc(gameState.EditGameStateHandler)))
 
 	// WebSocket route
 	mux.Handle("/ws", middleware.CORS(http.HandlerFunc(websocket.WsHandler)))

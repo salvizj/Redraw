@@ -14,7 +14,6 @@ func EditLobbySettings(settings types.LobbySettings) error {
 		SET MaxPlayerCount = ?, 
 		    DrawingTime = ?, 
 		    PromptInputTime = ?, 
-		    LobbyStatus = ?
 		WHERE LobbySettingsId = ?
 	`
 
@@ -22,7 +21,6 @@ func EditLobbySettings(settings types.LobbySettings) error {
 		settings.MaxPlayerCount,
 		settings.DrawingTime,
 		settings.PromptInputTime,
-		settings.LobbyStatus,
 		settings.LobbySettingsId,
 	)
 
@@ -49,13 +47,12 @@ func GetLobbySettings(LobbyId string) (types.LobbySettings, error) {
 	}
 
 	var lobbySettings types.LobbySettings
-	query := `SELECT LobbySettingsId, MaxPlayerCount, LobbyStatus, DrawingTime, PromptInputTime 
+	query := `SELECT LobbySettingsId, MaxPlayerCount, DrawingTime, PromptInputTime 
               FROM LobbySettings WHERE LobbySettingsId = ?`
 
 	err = db.DB.QueryRow(query, LobbySettingsId).Scan(
 		&lobbySettings.LobbySettingsId,
 		&lobbySettings.MaxPlayerCount,
-		&lobbySettings.LobbyStatus,
 		&lobbySettings.DrawingTime,
 		&lobbySettings.PromptInputTime,
 	)
@@ -70,11 +67,10 @@ func GetLobbySettings(LobbyId string) (types.LobbySettings, error) {
 }
 func CreateLobbySettings(settings types.LobbySettings) (string, error) {
 	settings.LobbySettingsId = GenerateUUID()
-	settings.LobbyStatus = types.StatusWaiting
 
-	query := `INSERT INTO LobbySettings (LobbySettingsId, MaxPlayerCount, LobbyStatus, DrawingTime, PromptInputTime)
+	query := `INSERT INTO LobbySettings (LobbySettingsId, MaxPlayerCount, DrawingTime, PromptInputTime)
               VALUES (?, ?, ?, ?, ?)`
-	_, err := db.DB.Exec(query, settings.LobbySettingsId, settings.MaxPlayerCount, settings.LobbyStatus, settings.DrawingTime, settings.PromptInputTime)
+	_, err := db.DB.Exec(query, settings.LobbySettingsId, settings.MaxPlayerCount, settings.DrawingTime, settings.PromptInputTime)
 	if err != nil {
 		return "", fmt.Errorf("failed to create lobby settings: %w", err)
 	}

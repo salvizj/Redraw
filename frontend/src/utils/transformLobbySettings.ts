@@ -6,6 +6,5 @@ export const transformLobbySettings = (apiData: any): LobbySettings => {
     MaxPlayerCount: apiData.maxPlayerCount,
     PromptInputTime: apiData.promptInputTime,
     DrawingTime: apiData.drawingTime,
-    LobbyStatus: apiData.lobbyStatus,
   };
 };

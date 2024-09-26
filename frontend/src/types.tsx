@@ -8,7 +8,6 @@ export type LobbySettings = {
   MaxPlayerCount: number;
   PromptInputTime: number;
   DrawingTime: number;
-  LobbyStatus: LobbyStatus;
 };
 
 export type LobbyDetails = {
@@ -19,9 +18,16 @@ export type LobbyDetails = {
   lobbySettings: LobbySettings;
 };
 
-export enum LobbyStatus {
-  StatusWaiting = "waiting",
-  StatusActive = "active",
+export enum GameStage {
+  StatusWaitingForPlayers = "waitingForPlayers",
+  StatusAllPlayersJoined = "allPlayersJoined",
+  StatusTypingPrompts = "typingPrompts",
+  StatusAllSubmittedPrompts = "allSubmittedPrompts",
+  StatusAssigningPrompts = "assigningPrompts",
+  StatusGettingPrompts = "gettingPrompts",
+  StatusAllGotPrompts = "allGotPrompts",
+  StatusDrawing = "drawing",
+  StatusAllFinishedDrawing = "allFinishedDrawing",
 }
 
 export type Message = {

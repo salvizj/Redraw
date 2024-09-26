@@ -42,7 +42,8 @@ const GamePage: React.FC = () => {
   const [prompt, setPrompt] = useState<Prompt | null>(null);
   const [drawingComplete, setDrawingComplete] = useState(false);
   const [savingCanvasStatus, setSavingCanvasStatus] = useState(false);
-
+  const [isAssigned, setIsAssigned] = useState(false);
+  const [subbmitedPrompt, setSubmittedPrompt] = useState(false);
   useEffect(() => {
     if (sessionId && lobbyId && username) {
       handleEnteredGameMessage(sessionId, lobbyId, username, sendMessage);
@@ -63,59 +64,58 @@ const GamePage: React.FC = () => {
       (msg) => msg.type === MessageType.GotPrompt,
     );
 
-    // Check if all players have entered the game
     if (
-      syncEnteredGameMessages.length >= players.length &&
+      syncEnteredGameMessages.length === players.length &&
       gameStage === GameStage.WaitingForPlayers
     ) {
       setGameStage(GameStage.AllPlayersJoined);
     }
 
-    // Check if all prompts have been submitted
     if (
-      syncSubmittedPromptMessages.length >= players.length &&
+      syncSubmittedPromptMessages.length === players.length &&
       gameStage === GameStage.TypingPrompts
     ) {
       setGameStage(GameStage.AllSubmittedPrompts);
     }
 
-    // Start assigning prompts if in the AllSubmittedPrompts stage and the role is leader
-    if (lobbyId && gameStage === GameStage.AllSubmittedPrompts) {
+    if (
+      lobbyId &&
+      gameStage === GameStage.AllSubmittedPrompts &&
+      role === "leader" &&
+      !isAssigned
+    ) {
       setGameStage(GameStage.AssigningPrompts);
-      if (role === "leader") {
-        executeAssignPrompt(lobbyId); // Trigger prompt assignment
-      }
+      setTimeout(() => {
+        executeAssignPrompt(lobbyId);
+        setIsAssigned(true);
+      }, 2000);
     }
-
-    // Check if prompt assignment was successful and handle completion
-    if (response === "Prompt assigned successfully") {
+    if (response === "Prompt assigned successfully" && isAssigned) {
       handleAssignPromptsComplete(sessionId, lobbyId, sendMessage);
     } else if (error) {
       console.error("Failed to assign prompts:", error);
     }
 
-    // Update game state when leader has finished assigning prompts
     if (
-      syncAssignPromptsCompleteMessages.length === 1 &&
-      gameStage === GameStage.GettingPrompts
+      syncAssignPromptsCompleteMessages.length > 0 &&
+      gameStage === GameStage.AssigningPrompts
     ) {
-      setGameStage(GameStage.AllPlayersJoined); // Reset stage to AllPlayersJoined
+      setGameStage(GameStage.GettingPrompts);
     }
 
-    // Check if all prompts have been received by players
     if (
-      syncGotPromptMessages.length >= players.length &&
+      syncGotPromptMessages.length === players.length &&
       gameStage === GameStage.GettingPrompts
     ) {
-      setGameStage(GameStage.AllGotPrompts); // Move to AllGotPrompts stage
+      setGameStage(GameStage.AllGotPrompts);
     }
-  }, [messages, players, gameStage, role, lobbyId, executeAssignPrompt]);
+  }, [messages, gameStage, response, error]);
 
   const handlePromptSubmit = () => {
     if (sessionId && lobbyId && username) {
       handleSubmittedPromptMessage(sessionId, lobbyId, username, sendMessage);
-      setGameStage(GameStage.AllSubmittedPrompts);
     }
+    setSubmittedPrompt(true);
   };
 
   useEffect(() => {
@@ -160,7 +160,7 @@ const GamePage: React.FC = () => {
         setGameStage(GameStage.TypingPrompts);
         return null;
       case GameStage.TypingPrompts:
-        return sessionId && username && lobbyId ? (
+        return sessionId && username && lobbyId && !subbmitedPrompt ? (
           <>
             <CanvasPromptForm
               sessionId={sessionId}
@@ -174,12 +174,16 @@ const GamePage: React.FC = () => {
                   ? "Seconds left to submit your prompt"
                   : "Sekundes, lai nosūtītu nosacījumu"
               }
-              initialCounter={10}
+              initialCounter={20}
               onCountdownComplete={handlePromptSubmit}
             />
           </>
         ) : (
-          <p>{language === "en" ? "Loading..." : "Ielādē..."}</p>
+          <p>
+            {language === "en"
+              ? "Waiting for others to submitt prompts"
+              : "Gaidam, kad citi iesniegs nosacījumus"}
+          </p>
         );
       case GameStage.AllSubmittedPrompts:
         return (

@@ -160,6 +160,7 @@ func ReadMessages(client *Client) {
 			continue
 		}
 		broadcastMessage := createBroadcastMessage(msg.Type, client.sessionID, client.lobbyID, msg.Data)
+		log.Printf("Broadcasting message from client %s in lobby %s: %s", client.sessionID, client.lobbyID, broadcastMessage)
 		if broadcastMessage == nil {
 			continue
 		}

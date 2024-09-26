@@ -71,6 +71,16 @@ func CreateTables() {
                 FOREIGN KEY (LobbyId) REFERENCES Lobby(LobbyId)
             );`,
 		},
+		{
+			name: "GameState",
+			query: `
+            CREATE TABLE IF NOT EXISTS GameState (
+                GameStateId TEXT PRIMARY KEY,
+                LobbyId TEXT,
+                CurrentState TEXT,
+                FOREIGN KEY (LobbyId) REFERENCES Lobby(LobbyId)
+            );`,
+		},
 	}
 
 	for _, table := range tables {
