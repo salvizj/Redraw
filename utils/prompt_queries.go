@@ -3,6 +3,9 @@ package utils
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"math/rand"
+	"time"
 
 	"github.com/salvizj/Redraw/db"
 	"github.com/salvizj/Redraw/types"
@@ -57,15 +60,14 @@ func GetPrompt(sessionId, lobbyId string) (types.Prompt, error) {
 	return prompt, nil
 }
 func AssignPrompt(lobbyId string) error {
-	var sessionIds []string
-
-	sessionQuery := `SELECT SessionId FROM Session WHERE LobbyId = ?`
+	sessionQuery := `SELECT DISTINCT SessionId FROM Prompt WHERE LobbyId = ? AND SessionId IS NOT NULL`
 	rows, err := db.DB.Query(sessionQuery, lobbyId)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve session IDs for lobbyId %s: %v", lobbyId, err)
 	}
 	defer rows.Close()
 
+	var sessionIds []string
 	for rows.Next() {
 		var sessionId string
 		if err := rows.Scan(&sessionId); err != nil {
@@ -74,8 +76,8 @@ func AssignPrompt(lobbyId string) error {
 		sessionIds = append(sessionIds, sessionId)
 	}
 
-	if len(sessionIds) == 0 {
-		return fmt.Errorf("no session IDs found for lobbyId %s", lobbyId)
+	if len(sessionIds) < 2 {
+		return fmt.Errorf("at least two distinct sessions are required for assignment in lobbyId %s", lobbyId)
 	}
 
 	tx, err := db.DB.Begin()
@@ -83,19 +85,36 @@ func AssignPrompt(lobbyId string) error {
 		return fmt.Errorf("failed to start transaction: %v", err)
 	}
 	defer func() {
-		if err != nil {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			err = fmt.Errorf("panic occurred: %v", p)
+		} else if err != nil {
 			tx.Rollback()
 		} else {
-			tx.Commit()
+			err = tx.Commit()
 		}
 	}()
 
-	for _, currentSessionId := range sessionIds {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r.Shuffle(len(sessionIds), func(i, j int) {
+		sessionIds[i], sessionIds[j] = sessionIds[j], sessionIds[i]
+	})
+
+	updateStmt, err := tx.Prepare("UPDATE Prompt SET AssignedToSessionId = ? WHERE PromptId = ?")
+	if err != nil {
+		return fmt.Errorf("failed to prepare update statement: %v", err)
+	}
+	defer updateStmt.Close()
+
+	for i, currentSessionId := range sessionIds {
+		nextSessionId := sessionIds[(i+1)%len(sessionIds)]
+
 		promptQuery := `
             SELECT PromptId
             FROM Prompt
-            WHERE LobbyId = ? AND (AssignedToSessionId IS NULL OR AssignedToSessionId != ?)
-            AND AssignedToSessionId != ?
+            WHERE LobbyId = ?
+            AND SessionId = ?
+            AND (AssignedToSessionId IS NULL OR AssignedToSessionId != ?)
             ORDER BY RANDOM()
             LIMIT 1`
 
@@ -103,18 +122,17 @@ func AssignPrompt(lobbyId string) error {
 		err := tx.QueryRow(promptQuery, lobbyId, currentSessionId, currentSessionId).Scan(&promptId)
 		if err != nil {
 			if err == sql.ErrNoRows {
+				log.Printf("No unassigned prompts found for sessionId %s, skipping...", currentSessionId)
 				continue
 			}
-			return fmt.Errorf("error fetching prompt for lobbyId %s: %v", lobbyId, err)
+			return fmt.Errorf("failed to retrieve prompt for sessionId %s: %v", currentSessionId, err)
 		}
 
-		updateQuery := `UPDATE Prompt SET AssignedToSessionId = ? WHERE PromptId = ?`
-		_, err = tx.Exec(updateQuery, currentSessionId, promptId)
+		_, err = updateStmt.Exec(nextSessionId, promptId)
 		if err != nil {
 			return fmt.Errorf("failed to update AssignedToSessionId for prompt %s: %v", promptId, err)
 		}
-
-		fmt.Printf("Assigned prompt %s to session %s\n", promptId, currentSessionId)
+		log.Printf("Updated prompt %s with AssignedToSessionId %s", promptId, nextSessionId)
 	}
 
 	return nil
