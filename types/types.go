@@ -23,7 +23,6 @@ const (
 	StatusAssigningPrompts    GameState = "assigningPrompts"
 	StatusGettingPrompts      GameState = "gettingPrompts"
 	StatusAllGotPrompts       GameState = "allGotPrompts"
-	StatusDrawing             GameState = "drawing"
 	StatusAllFinishedDrawing  GameState = "allFinishedDrawing"
 )
 

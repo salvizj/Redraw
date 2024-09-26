@@ -1,118 +1,119 @@
 import { Message, MessageType } from "../types";
 
+export const createMessage = (
+  type: MessageType,
+  sessionId: string,
+  lobbyId: string,
+  data: any,
+): Message => ({
+  type,
+  sessionId,
+  lobbyId,
+  data,
+});
+
 export const handleEnteredGameMessage = (
-  sessionId: string | null,
-  lobbyId: string | null,
+  sessionId: string,
+  lobbyId: string,
   username: string,
   sendMessage: (message: Message) => void,
 ) => {
-  if (!sessionId || !lobbyId) {
-    return;
-  }
-
-  const enteredGameMessage: Message = {
-    type: MessageType.EnteredGame,
-    sessionId: sessionId!,
-    lobbyId: lobbyId!,
-    data: `${username} has entered the game`,
-  };
-
-  sendMessage(enteredGameMessage);
+  sendMessage(
+    createMessage(
+      MessageType.EnteredGame,
+      sessionId,
+      lobbyId,
+      `${username} has entered the game`,
+    ),
+  );
 };
 
 export const handleSubmittedPromptMessage = (
-  sessionId: string | null,
-  lobbyId: string | null,
+  sessionId: string,
+  lobbyId: string,
   username: string,
   sendMessage: (message: Message) => void,
 ) => {
-  if (!sessionId || !lobbyId) {
-    return;
-  }
-
-  const submittedPromptMessage: Message = {
-    type: MessageType.SubmitedPrompt,
-    sessionId: sessionId!,
-    lobbyId: lobbyId!,
-    data: `${username} submitted prompt`,
-  };
-
-  sendMessage(submittedPromptMessage);
+  sendMessage(
+    createMessage(
+      MessageType.SubmittedPrompt,
+      sessionId,
+      lobbyId,
+      `${username} submitted prompt`,
+    ),
+  );
 };
 
 export const handleGotPromptMessage = (
-  sessionId: string | null,
-  lobbyId: string | null,
+  sessionId: string,
+  lobbyId: string,
   username: string,
   sendMessage: (message: Message) => void,
 ) => {
-  if (!sessionId || !lobbyId) {
-    return;
-  }
-
-  const gotPromptMessage: Message = {
-    type: MessageType.GotPrompt,
-    sessionId: sessionId!,
-    lobbyId: lobbyId!,
-    data: `${username} got prompt`,
-  };
-
-  sendMessage(gotPromptMessage);
+  sendMessage(
+    createMessage(
+      MessageType.GotPrompt,
+      sessionId,
+      lobbyId,
+      `${username} got prompt`,
+    ),
+  );
 };
+
 export const handleStartGame = (
-  sessionId: string | null,
-  lobbyId: string | null,
-  username: string | null,
+  sessionId: string,
+  lobbyId: string,
+  username: string,
   sendMessage: (message: Message) => void,
 ) => {
-  if (!sessionId || !lobbyId) {
-    return;
-  }
-
-  const startGameMessage: Message = {
-    type: MessageType.StartGame,
-    sessionId: sessionId!,
-    lobbyId: lobbyId!,
-    data: `${username} started game`,
-  };
-
-  sendMessage(startGameMessage);
+  sendMessage(
+    createMessage(
+      MessageType.StartGame,
+      sessionId,
+      lobbyId,
+      `${username} started game`,
+    ),
+  );
 };
 
 export const handleEditLobbySettings = (
-  sessionId: string | null,
-  lobbyId: string | null,
+  sessionId: string,
+  lobbyId: string,
   username: string,
   sendMessage: (message: Message) => void,
 ) => {
-  if (!sessionId || !lobbyId) {
-    return;
-  }
-
-  const editLobbySettingsMessage: Message = {
-    type: MessageType.EditLobbySettings,
-    sessionId: sessionId!,
-    lobbyId: lobbyId!,
-    data: `${username} edited lobby settings`,
-  };
-
-  sendMessage(editLobbySettingsMessage);
+  sendMessage(
+    createMessage(
+      MessageType.EditLobbySettings,
+      sessionId,
+      lobbyId,
+      `${username} edited lobby settings`,
+    ),
+  );
 };
+
 export const handleAssignPromptsComplete = (
-  sessionId: string | null,
-  lobbyId: string | null,
+  sessionId: string,
+  lobbyId: string,
   sendMessage: (message: Message) => void,
 ) => {
-  if (!sessionId || !lobbyId) {
-    return;
-  }
+  sendMessage(
+    createMessage(MessageType.AssignPromptsComplete, sessionId, lobbyId, {}),
+  );
+};
 
-  const assignPromptsCompleteMessage: Message = {
-    type: MessageType.AssignPromptsComplete,
-    sessionId: sessionId!,
-    lobbyId: lobbyId!,
-    data: {},
-  };
-
-  sendMessage(assignPromptsCompleteMessage);
+export const handleFinishedDrawingMessage = (
+  sessionId: string,
+  lobbyId: string,
+  username: string,
+  sendMessage: (message: Message) => void,
+) => {
+  sendMessage(
+    createMessage(
+      MessageType.FinishedDrawing,
+      sessionId,
+      lobbyId,
+      `${username} finished drawing`,
+    ),
+  );
 };

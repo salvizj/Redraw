@@ -56,7 +56,6 @@ const LobbySettings: React.FC<LobbySettingsProps> = ({
           MaxPlayerCount: maxPlayerCount,
           PromptInputTime: promptInputTime,
           DrawingTime: drawingTime,
-          LobbyStatus: lobbySettings.LobbyStatus,
         },
       });
 

@@ -69,7 +69,7 @@ func CreateLobbySettings(settings types.LobbySettings) (string, error) {
 	settings.LobbySettingsId = GenerateUUID()
 
 	query := `INSERT INTO LobbySettings (LobbySettingsId, MaxPlayerCount, DrawingTime, PromptInputTime)
-              VALUES (?, ?, ?, ?, ?)`
+              VALUES (?, ?, ?, ?)`
 	_, err := db.DB.Exec(query, settings.LobbySettingsId, settings.MaxPlayerCount, settings.DrawingTime, settings.PromptInputTime)
 	if err != nil {
 		return "", fmt.Errorf("failed to create lobby settings: %w", err)

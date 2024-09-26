@@ -18,7 +18,7 @@ export type LobbyDetails = {
   lobbySettings: LobbySettings;
 };
 
-export enum GameStage {
+export enum GameState {
   StatusWaitingForPlayers = "waitingForPlayers",
   StatusAllPlayersJoined = "allPlayersJoined",
   StatusTypingPrompts = "typingPrompts",
@@ -26,12 +26,11 @@ export enum GameStage {
   StatusAssigningPrompts = "assigningPrompts",
   StatusGettingPrompts = "gettingPrompts",
   StatusAllGotPrompts = "allGotPrompts",
-  StatusDrawing = "drawing",
   StatusAllFinishedDrawing = "allFinishedDrawing",
 }
 
 export type Message = {
-  type: string;
+  type: MessageType;
   sessionId: string;
   lobbyId: string;
   data: any;
@@ -44,8 +43,9 @@ export enum MessageType {
   EnteredGame = "enteredGame",
   AssignPromptsComplete = "assignPromptsComplete",
   GotPrompt = "gotPrompt",
-  SubmitedPrompt = "submitedPrompt",
+  SubmittedPrompt = "submittedPrompt",
   EditLobbySettings = "editLobbySettings",
+  FinishedDrawing = "finishedDrawing",
 }
 
 export type FormData = {

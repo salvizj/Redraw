@@ -2,11 +2,11 @@ import { useState, useCallback } from "react";
 import { assignPrompt } from "../api/prompt/assignPrompt";
 
 export const useAssignPrompt = () => {
-  const [error, setError] = useState<string | null>(null);
+  const [assignError, setAssignError] = useState<string | null>(null);
   const [response, setResponse] = useState<string | null>(null);
 
   const executeAssignPrompt = useCallback(async (lobbyId: string) => {
-    setError(null);
+    setAssignError(null);
     setResponse(null);
 
     try {
@@ -14,12 +14,14 @@ export const useAssignPrompt = () => {
       if (result.message) {
         setResponse(result.message);
       } else {
-        setError("Unexpected response format");
+        setAssignError("Unexpected response format");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to assign prompt");
+      setAssignError(
+        err instanceof Error ? err.message : "Failed to assign prompt",
+      );
     }
   }, []);
 
-  return { executeAssignPrompt, error, response };
+  return { executeAssignPrompt, assignError, response };
 };
