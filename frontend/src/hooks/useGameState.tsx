@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
-import { getGameState } from "../api/gameState/getGameState";
-import { editGameState } from "../api/gameState/editGameState";
+import { getGameState } from "../api/gameState/getGameStateApi";
+import { editGameState } from "../api/gameState/editGameStateApi";
 import { GameState } from "../types";
 
 export const useGameState = () => {

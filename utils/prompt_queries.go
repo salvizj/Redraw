@@ -147,3 +147,19 @@ func AssignPrompt(lobbyId string) error {
 
 	return nil
 }
+func CheckSetPrompts(lobbyId string, playerCount int) error {
+	var count int
+
+	query := `SELECT COUNT(*) FROM Prompt WHERE LobbyId = ?`
+
+	err := db.DB.QueryRow(query, lobbyId).Scan(&count)
+	if err != nil {
+		return err
+	}
+
+	if count != playerCount {
+		return fmt.Errorf("prompt count does not match player count")
+	}
+
+	return nil
+}

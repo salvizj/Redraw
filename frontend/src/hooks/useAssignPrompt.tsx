@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { assignPrompt } from "../api/prompt/assignPrompt";
+import { assignPrompt } from "../api/prompt/assignPromptApi";
 
 export const useAssignPrompt = () => {
   const [assignError, setAssignError] = useState<string | null>(null);

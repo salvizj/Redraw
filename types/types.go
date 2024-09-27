@@ -144,3 +144,12 @@ type EditGameStateRequest struct {
 	LobbyId   string `json:"lobbyId"`
 	GameState string `json:"gameState"`
 }
+
+type CheckSetPromptsRequest struct {
+	LobbyId     string `json:"lobbyId"`
+	PlayerCount int    `json:"playerCount"`
+}
+type CheckSetPromptsResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}

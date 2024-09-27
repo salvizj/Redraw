@@ -6,7 +6,6 @@ import { useLobbyContext } from "../context/lobbyContext";
 import Canvas from "../components/canvas/Canvas";
 import { Countdown } from "../components/utils/Countdown";
 import CanvasPromptForm from "../components/canvas/CanvasPromptForm";
-import { getPrompt } from "../api/prompt/getPrompt";
 import {
   handleEnteredGameMessage,
   handleSubmittedPromptMessage,
@@ -18,6 +17,8 @@ import { useAssignPrompt } from "../hooks/useAssignPrompt";
 import ErrorMessage from "../components/utils/ErrorMessage";
 import { useGameState } from "../hooks/useGameState";
 import { GameState } from "../types";
+import useFetchPrompt from "../hooks/useFetchPrompt";
+import useCheckSetPrompts from "../hooks/useCheckSetPrompts";
 
 const GamePage = () => {
   const { sendMessage, messages } = useWebSocketContext();
@@ -27,8 +28,14 @@ const GamePage = () => {
   const { executeAssignPrompt, assignError, response } = useAssignPrompt();
   const { gameStateError, gameState, fetchGameState, fetchEditGameState } =
     useGameState();
+  const { getPromptError, fetchPrompt } = useFetchPrompt();
+  const { checkPrompts, checkPromptsError, executeCheckSetPrompts } =
+    useCheckSetPrompts();
 
-  const [currentGameState, setCurrentGameState] = useState("waitingForPlayers");
+  //states
+  const [currentGameState, setCurrentGameState] = useState(
+    GameState.StatusWaitingForPlayers,
+  );
   const [prompt, setPrompt] = useState<string | null>(null);
   const [submittedPrompt, setSubmittedPrompt] = useState(false);
   const [drawingComplete, setDrawingComplete] = useState(false);
@@ -39,12 +46,15 @@ const GamePage = () => {
     if (sessionId && lobbyId && username) {
       handleEnteredGameMessage(sessionId, lobbyId, username, sendMessage);
       fetchGameState();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (gameState) {
-      setCurrentGameState(gameState);
+      if (gameState) {
+        setCurrentGameState(gameState);
+      }
+      if (currentGameState === GameState.StatusGettingPrompts) {
+        fetchPrompt({ setPrompt });
+        if (prompt != null) {
+          handleGotPromptMessage(sessionId, lobbyId, username, sendMessage);
+        }
+      }
     }
   }, [gameState]);
 
@@ -76,10 +86,13 @@ const GamePage = () => {
         lobbyId
       ) {
         fetchEditGameState(GameState.StatusAssigningPrompts);
-        setTimeout(() => {
+        executeCheckSetPrompts(lobbyId, players.length);
+        if (checkPrompts) {
           executeAssignPrompt(lobbyId);
           setIsAssigned(true);
-        }, 2000);
+        } else {
+          executeCheckSetPrompts(lobbyId, players.length);
+        }
       } else if (
         currentGameState === GameState.StatusAssigningPrompts &&
         response === "Prompt assigned successfully" &&
@@ -100,7 +113,6 @@ const GamePage = () => {
     messages,
     currentGameState,
     response,
-    role,
     players.length,
     lobbyId,
     sessionId,
@@ -114,112 +126,86 @@ const GamePage = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchPrompt = async () => {
-      if (
-        currentGameState === GameState.StatusGettingPrompts &&
-        sessionId &&
-        username &&
-        lobbyId
-      ) {
-        try {
-          const response = await getPrompt({ sessionId, lobbyId });
-          setPrompt(response);
-          handleGotPromptMessage(sessionId, lobbyId, username, sendMessage);
-        } catch (error) {
-          console.error(
-            language === "en"
-              ? "Error getting prompt:"
-              : "Kļūda iegūstot nosacījumu",
-            error,
-          );
-        }
-      }
-    };
-    fetchPrompt();
-  }, [currentGameState, sessionId, username, lobbyId]);
-
   const renderGameContent = () => {
-    switch (currentGameState) {
-      case GameState.StatusWaitingForPlayers:
-        return (
-          <p>
-            {language === "en"
-              ? "Waiting for all players to enter the game..."
-              : "Gaidam, lai visi spēlētāji ienāk spēlē..."}
-          </p>
-        );
-      case GameState.StatusAllSubmittedPrompts:
-        return sessionId && username && lobbyId && !submittedPrompt ? (
-          <>
-            <CanvasPromptForm
-              sessionId={sessionId}
-              username={username}
-              lobbyId={lobbyId}
-              onPromptSent={handlePromptSubmit}
-            />
-            <Countdown
-              text={
-                language === "en"
-                  ? "Seconds left to submit your prompt"
-                  : "Sekundes, lai nosūtītu nosacījumu"
-              }
-              initialCounter={20}
-              onCountdownComplete={handlePromptSubmit}
-            />
-          </>
-        ) : (
-          <p>
-            {language === "en"
-              ? "Waiting for others to submit prompts"
-              : "Gaidam, kad citi iesniegs nosacījumus"}
-          </p>
-        );
-      case GameState.StatusAssigningPrompts:
-        return (
-          <p>
-            {language === "en"
-              ? "Assigning prompts to players..."
-              : "Piešķir nosacījumus spēlētājiem..."}
-          </p>
-        );
-      case GameState.StatusGettingPrompts:
-        return (
-          <p>
-            {language === "en"
-              ? "Getting your prompt..."
-              : "Iegūst tavu nosacījumu..."}
-          </p>
-        );
-      case GameState.StatusAllGotPrompts:
-        return (
-          <>
-            <Countdown
-              text={
-                language === "en"
-                  ? "Seconds left to draw"
-                  : "Sekundes, lai zīmētu"
-              }
-              initialCounter={60}
-              onCountdownComplete={() => setDrawingComplete(true)}
-            />
-            <Canvas
-              setSavingCanvasStatus={setSavingCanvasStatus}
-              drawingComplete={drawingComplete}
-              prompt={prompt}
-              promptId={prompt}
-              lobbyId={lobbyId}
-            />
-          </>
-        );
-      case GameState.StatusAllFinishedDrawing:
-        return <Navigate to="/guessing" />;
-      default:
-        return (
-          <p>
-            {language === "en" ? "Unknown game state" : "Nezināms spēles posms"}
-          </p>
-        );
+    if (currentGameState === GameState.StatusWaitingForPlayers) {
+      return (
+        <p>
+          {language === "en"
+            ? "Waiting for all players to enter the game..."
+            : "Gaidam, lai visi spēlētāji ienāk spēlē..."}
+        </p>
+      );
+    } else if (currentGameState === GameState.StatusAllSubmittedPrompts) {
+      return sessionId && username && lobbyId && !submittedPrompt ? (
+        <>
+          <CanvasPromptForm
+            sessionId={sessionId}
+            username={username}
+            lobbyId={lobbyId}
+            onPromptSent={handlePromptSubmit}
+          />
+          <Countdown
+            text={
+              language === "en"
+                ? "Seconds left to submit your prompt"
+                : "Sekundes, lai nosūtītu nosacījumu"
+            }
+            initialCounter={20}
+            onCountdownComplete={handlePromptSubmit}
+          />
+        </>
+      ) : (
+        <p>
+          {language === "en"
+            ? "Waiting for others to submit prompts"
+            : "Gaidam, kad citi iesniegs nosacījumus"}
+        </p>
+      );
+    } else if (currentGameState === GameState.StatusAssigningPrompts) {
+      return (
+        <p>
+          {language === "en"
+            ? "Assigning prompts to players..."
+            : "Piešķir nosacījumus spēlētājiem..."}
+        </p>
+      );
+    } else if (currentGameState === GameState.StatusGettingPrompts) {
+      return (
+        <p>
+          {language === "en"
+            ? "Getting your prompt..."
+            : "Iegūst tavu nosacījumu..."}
+        </p>
+      );
+    } else if (currentGameState === GameState.StatusAllGotPrompts) {
+      return (
+        <>
+          <Countdown
+            text={
+              language === "en"
+                ? "Seconds left to draw"
+                : "Sekundes, lai zīmētu"
+            }
+            initialCounter={60}
+            onCountdownComplete={() => setDrawingComplete(true)}
+          />
+          <Canvas
+            setSavingCanvasStatus={setSavingCanvasStatus}
+            drawingComplete={drawingComplete}
+            prompt={prompt}
+            promptId={prompt}
+            lobbyId={lobbyId}
+          />
+        </>
+      );
+    } else if (currentGameState === GameState.StatusAllFinishedDrawing) {
+      return <Navigate to="/guessing" />;
+    } else {
+      return (
+        <p>
+          {language === "en" ? "Unknown game state" : "Nezināms spēles posms"}
+        </p>
+      );
     }
   };
 
@@ -231,7 +217,11 @@ const GamePage = () => {
 
   return (
     <div className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark min-h-screen flex flex-col items-center justify-center">
-      <ErrorMessage message={gameStateError || assignError} />
+      <ErrorMessage
+        message={
+          gameStateError || assignError || getPromptError || checkPromptsError
+        }
+      />
       {renderGameContent()}
     </div>
   );
