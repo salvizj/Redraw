@@ -16,13 +16,14 @@ type Lobby struct {
 type GameState string
 
 const (
+	StatusStartGame           GameState = "startGame"
 	StatusWaitingForPlayers   GameState = "waitingForPlayers"
-	StatusAllPlayersJoined    GameState = "allPlayersJoined"
 	StatusTypingPrompts       GameState = "typingPrompts"
 	StatusAllSubmittedPrompts GameState = "allSubmittedPrompts"
 	StatusAssigningPrompts    GameState = "assigningPrompts"
 	StatusGettingPrompts      GameState = "gettingPrompts"
 	StatusAllGotPrompts       GameState = "allGotPrompts"
+	StatusDrawing             GameState = "drawing"
 	StatusAllFinishedDrawing  GameState = "allFinishedDrawing"
 )
 
@@ -50,19 +51,19 @@ type MessageType string
 
 const (
 	Join                  MessageType = "join"
-	Leave                 MessageType = "leave"
 	StartGame             MessageType = "startGame"
-	EnteredGame           MessageType = "enteredGame"
 	AssignPromptsComplete MessageType = "assignPromptsComplete"
 	GotPrompt             MessageType = "gotPrompt"
-	SubmitedPrompt        MessageType = "submitedPrompt"
-	EditLobbySettings     MessageType = "editLobbySettings"
+	SubmittedPrompt       MessageType = "submittedPrompt"
+	EditLobbySettings     MessageType = "editedLobbySettings"
+	SubmittedDrawing      MessageType = "SubmittedDrawing"
+	GameStateChanges      MessageType = "gameStateChanges"
 )
 
 type Message struct {
 	Type      MessageType `json:"type"`
-	SessionID string      `json:"sessionId"`
-	LobbyID   string      `json:"lobbyId"`
+	SessionId string      `json:"sessionId"`
+	LobbyId   string      `json:"lobbyId"`
 	Data      any         `json:"data"`
 }
 type Prompt struct {

@@ -25,7 +25,6 @@ func CreateTables() {
             CREATE TABLE IF NOT EXISTS LobbySettings (
                 LobbySettingsId TEXT PRIMARY KEY,
                 MaxPlayerCount INTEGER,
-                LobbyStatus TEXT,
                 DrawingTime INTEGER,
                 PromptInputTime INTEGER
             );`,
@@ -35,7 +34,7 @@ func CreateTables() {
 			query: `
             CREATE TABLE IF NOT EXISTS Session (
                 SessionId TEXT PRIMARY KEY,
-                Username TEXT UNIQUE,
+                Username TEXT,
                 LobbyId TEXT,
                 Role TEXT,
                 CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -68,16 +67,6 @@ func CreateTables() {
                 AssignetToSessionId TEXT,
                 FOREIGN KEY (SessionId) REFERENCES Session(SessionId),
                 FOREIGN KEY (PromptId) REFERENCES Prompt(PromptId),
-                FOREIGN KEY (LobbyId) REFERENCES Lobby(LobbyId)
-            );`,
-		},
-		{
-			name: "GameState",
-			query: `
-            CREATE TABLE IF NOT EXISTS GameState (
-                GameStateId TEXT PRIMARY KEY,
-                LobbyId TEXT,
-                CurrentState TEXT,
                 FOREIGN KEY (LobbyId) REFERENCES Lobby(LobbyId)
             );`,
 		},

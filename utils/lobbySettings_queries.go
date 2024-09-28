@@ -13,7 +13,7 @@ func EditLobbySettings(settings types.LobbySettings) error {
 		UPDATE LobbySettings
 		SET MaxPlayerCount = ?, 
 		    DrawingTime = ?, 
-		    PromptInputTime = ?, 
+		    PromptInputTime = ?
 		WHERE LobbySettingsId = ?
 	`
 

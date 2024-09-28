@@ -1,70 +1,74 @@
-import { useState, useCallback } from "react";
-import { getPrompt } from "../api/prompt/getPromptApi";
-import { useLobbyContext } from "../context/lobbyContext";
-import { useUserContext } from "../context/userContext";
-import { useLanguage } from "../context/languageContext";
+import { useState, useCallback } from "react"
+import { getPrompt } from "../api/prompt/getPromptApi"
+import { useLobbyContext } from "../context/lobbyContext"
+import { useUserContext } from "../context/userContext"
+import { useLanguage } from "../context/languageContext"
 
 type FetchPromptParams = {
-  setPrompt: (prompt: string) => void;
-};
+	setPrompt: (prompt: string) => void
+}
 
-const useFetchPrompt = () => {
-  const { lobbyId } = useLobbyContext();
-  const { sessionId, username } = useUserContext();
-  const [getPromptLoading, setGetPromptLoading] = useState<boolean>(false);
-  const [getPromptError, setGetPromptError] = useState<Error | null>(null);
-  const { language } = useLanguage();
+export const useFetchPrompt = () => {
+	const { lobbyId } = useLobbyContext()
+	const { sessionId, username } = useUserContext()
+	const [getPromptLoading, setGetPromptLoading] = useState<boolean>(false)
+	const [getPromptError, setGetPromptError] = useState<Error | null>(null)
+	const { language } = useLanguage()
 
-  const fetchPrompt = useCallback(
-    async ({ setPrompt }: FetchPromptParams) => {
-      setGetPromptLoading(true);
-      setGetPromptError(null);
+	const fetchPrompt = useCallback(
+		async ({ setPrompt }: FetchPromptParams) => {
+			setGetPromptLoading(true)
+			setGetPromptError(null)
 
-      if (!sessionId || !lobbyId || !username) {
-        const missingFields: string[] = [];
-        if (!sessionId) missingFields.push("sessionId");
-        if (!lobbyId) missingFields.push("lobbyId");
-        if (!username) missingFields.push("username");
+			if (!sessionId || !lobbyId || !username) {
+				const missingFields: string[] = []
+				if (!sessionId) missingFields.push("sessionId")
+				if (!lobbyId) missingFields.push("lobbyId")
+				if (!username) missingFields.push("username")
 
-        const errorMessage = new Error(
-          language === "en"
-            ? `Missing required context: ${missingFields.join(", ")}`
-            : `Trūkst vajadzīgais context: ${missingFields.join(", ")}`,
-        );
-        setGetPromptError(errorMessage);
-        console.error(errorMessage);
-        setGetPromptLoading(false);
-        return;
-      }
+				const errorMessage = new Error(
+					language === "en"
+						? `Missing required context: ${missingFields.join(
+								", "
+						  )}`
+						: `Trūkst vajadzīgais context: ${missingFields.join(
+								", "
+						  )}`
+				)
+				setGetPromptError(errorMessage)
+				console.error(errorMessage)
+				setGetPromptLoading(false)
+				return
+			}
 
-      try {
-        const response = await getPrompt({ sessionId, lobbyId });
-        if (response) {
-          setPrompt(response);
-        } else {
-          throw new Error(
-            language === "en" ? "Received null prompt" : "Saņēmām null props",
-          );
-        }
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error
-            ? err
-            : new Error(
-                language === "en"
-                  ? "An unknown error occurred"
-                  : "Notiek nezināma kļūda",
-              );
-        setGetPromptError(errorMessage);
-        console.error("Error fetching prompt:", errorMessage.message);
-      } finally {
-        setGetPromptLoading(false);
-      }
-    },
-    [sessionId, lobbyId, username, language],
-  );
+			try {
+				const response = await getPrompt({ sessionId, lobbyId })
+				if (response) {
+					setPrompt(response)
+				} else {
+					throw new Error(
+						language === "en"
+							? "Received null prompt"
+							: "Saņēmām null props"
+					)
+				}
+			} catch (err) {
+				const errorMessage =
+					err instanceof Error
+						? err
+						: new Error(
+								language === "en"
+									? "An unknown error occurred"
+									: "Notiek nezināma kļūda"
+						  )
+				setGetPromptError(errorMessage)
+				console.error("Error fetching prompt:", errorMessage.message)
+			} finally {
+				setGetPromptLoading(false)
+			}
+		},
+		[sessionId, lobbyId, username, language]
+	)
 
-  return { getPromptLoading, getPromptError, fetchPrompt };
-};
-
-export default useFetchPrompt;
+	return { getPromptLoading, getPromptError, fetchPrompt }
+}

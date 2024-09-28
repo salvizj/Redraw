@@ -16,168 +16,197 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+type Client struct {
+	conn *websocket.Conn
+	send chan []byte
+}
+
+type Lobby struct {
+	clients           map[string]*Client // key: sessionId
+	gameState         types.GameState
+	submittedPrompts  int
+	gottenPrompts     int
+	submittedDrawings int
+	mutex             sync.RWMutex
+}
+
 var (
-	connMap      = NewConnMap()
-	connMapMutex sync.Mutex
+	lobbies      = make(map[string]*Lobby) // key: lobbyId
+	lobbiesMutex sync.RWMutex
 )
 
-type Client struct {
-	conn      *websocket.Conn
-	send      chan []byte
-	sessionID string
-	lobbyID   string
-}
-
-func NewClient(conn *websocket.Conn, sessionID, lobbyID string) *Client {
-	return &Client{
-		conn:      conn,
-		send:      make(chan []byte),
-		sessionID: sessionID,
-		lobbyID:   lobbyID,
-	}
-}
-
-type ConnMap struct {
-	connections map[string]map[*Client]bool
-	sessionMap  map[string]*Client
-}
-
-func NewConnMap() *ConnMap {
-	return &ConnMap{
-		connections: make(map[string]map[*Client]bool),
-		sessionMap:  make(map[string]*Client),
-	}
-}
-
-func (cm *ConnMap) AddClient(client *Client) {
-	connMapMutex.Lock()
-	defer connMapMutex.Unlock()
-
-	if _, exists := cm.sessionMap[client.sessionID]; exists {
-		return
-	}
-
-	if _, ok := cm.connections[client.lobbyID]; !ok {
-		cm.connections[client.lobbyID] = make(map[*Client]bool)
-	}
-
-	cm.connections[client.lobbyID][client] = true
-	cm.sessionMap[client.sessionID] = client
-}
-
-func (cm *ConnMap) RemoveClient(client *Client) {
-	connMapMutex.Lock()
-	defer connMapMutex.Unlock()
-
-	if clients, ok := cm.connections[client.lobbyID]; ok {
-		delete(clients, client)
-		if len(clients) == 0 {
-			delete(cm.connections, client.lobbyID)
-		}
-	}
-	delete(cm.sessionMap, client.sessionID)
-	client.conn.Close()
-}
-
-func (cm *ConnMap) Broadcast(message []byte, lobbyID string) {
-	connMapMutex.Lock()
-	defer connMapMutex.Unlock()
-
-	if clients, ok := cm.connections[lobbyID]; ok {
-		for client := range clients {
-			select {
-			case client.send <- message:
-			default:
-				log.Println("Failed to send message to client, removing it")
-				cm.RemoveClient(client)
-			}
-		}
-	}
-}
-
 func WsHandler(w http.ResponseWriter, r *http.Request) {
-	sessionID := r.URL.Query().Get("sessionID")
-	lobbyID := r.URL.Query().Get("lobbyID")
-	if sessionID == "" || lobbyID == "" {
-		http.Error(w, "Session ID and Lobby ID required", http.StatusBadRequest)
+	sessionId := r.URL.Query().Get("sessionId")
+	lobbyId := r.URL.Query().Get("lobbyId")
+	if sessionId == "" || lobbyId == "" {
+		http.Error(w, "Session Id and Lobby Id required", http.StatusBadRequest)
 		return
 	}
 
-	connMapMutex.Lock()
-	client, exists := connMap.sessionMap[sessionID]
-	if exists {
-		if client.conn != nil && client.conn.WriteMessage(websocket.PingMessage, nil) == nil {
-			connMapMutex.Unlock()
-			http.Error(w, "Client already connected", http.StatusForbidden)
-			return
-		} else {
-			connMap.RemoveClient(client)
-		}
-	}
-	connMapMutex.Unlock()
-
-	wsConn, err := upgrader.Upgrade(w, r, nil)
+	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Printf("Error during connection upgrade: %v", err)
 		return
 	}
 
-	client = NewClient(wsConn, sessionID, lobbyID)
-	connMap.AddClient(client)
+	client := &Client{
+		conn: conn,
+		send: make(chan []byte, 256),
+	}
 
-	go ReadMessages(client)
-	go SendMessages(client)
+	lobby := joinLobby(client, sessionId, lobbyId)
+
+	go readMessages(client, lobby, sessionId, lobbyId)
+	go writeMessages(client)
 }
 
-func ReadMessages(client *Client) {
-	defer func() {
-		connMap.RemoveClient(client)
-	}()
-	createBroadcastMessage := func(msgType types.MessageType, sessionID, lobbyID string, data interface{}) []byte {
-		message := map[string]interface{}{
-			"type":      string(msgType),
-			"sessionId": sessionID,
-			"lobbyId":   lobbyID,
-			"data":      data,
+func joinLobby(client *Client, sessionId, lobbyId string) *Lobby {
+	lobbiesMutex.Lock()
+	defer lobbiesMutex.Unlock()
+
+	if _, exists := lobbies[lobbyId]; !exists {
+		lobbies[lobbyId] = &Lobby{
+			clients:   make(map[string]*Client),
+			gameState: types.StatusWaitingForPlayers,
 		}
-		jsonMessage, err := json.Marshal(message)
-		if err != nil {
-			log.Printf("Error marshaling message: %v", err)
-			return nil
-		}
-		return jsonMessage
 	}
+
+	lobby := lobbies[lobbyId]
+	lobby.mutex.Lock()
+	defer lobby.mutex.Unlock()
+
+	lobby.clients[sessionId] = client
+
+	broadcastMessage(types.Message{
+		Type:      types.Join,
+		SessionId: sessionId,
+		LobbyId:   lobbyId,
+	}, lobbyId)
+
+	return lobby
+}
+
+func readMessages(client *Client, lobby *Lobby, sessionId, lobbyId string) {
+	defer func() {
+		leaveLobby(sessionId, lobbyId)
+		client.conn.Close()
+	}()
+
 	for {
-		_, msgData, err := client.conn.ReadMessage()
+		_, message, err := client.conn.ReadMessage()
 		if err != nil {
-			log.Printf("Error reading message from client %s: %v", client.sessionID, err)
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				log.Printf("error: %v", err)
+			}
 			break
 		}
+
 		var msg types.Message
-		err = json.Unmarshal(msgData, &msg)
-		if err != nil {
-			log.Printf("Error unmarshaling message: %v", err)
+		if err := json.Unmarshal(message, &msg); err != nil {
+			log.Printf("error: %v", err)
 			continue
 		}
-		broadcastMessage := createBroadcastMessage(msg.Type, client.sessionID, client.lobbyID, msg.Data)
-		log.Printf("Broadcasting message from client %s in lobby %s: %s", client.sessionID, client.lobbyID, broadcastMessage)
-		if broadcastMessage == nil {
-			continue
-		}
-		connMap.Broadcast(broadcastMessage, client.lobbyID)
+
+		handleMessage(msg, lobbyId, sessionId, lobby)
 	}
 }
 
-func SendMessages(client *Client) {
-	for {
-		msg, ok := <-client.send
-		if !ok {
-			return
-		}
+func writeMessages(client *Client) {
+	defer client.conn.Close()
 
-		err := client.conn.WriteMessage(websocket.TextMessage, msg)
+	for message := range client.send {
+		err := client.conn.WriteMessage(websocket.TextMessage, message)
 		if err != nil {
 			return
+		}
+	}
+}
+
+func leaveLobby(sessionId, lobbyId string) {
+	lobbiesMutex.Lock()
+	defer lobbiesMutex.Unlock()
+
+	if lobby, exists := lobbies[lobbyId]; exists {
+		lobby.mutex.Lock()
+		defer lobby.mutex.Unlock()
+
+		delete(lobby.clients, sessionId)
+		if len(lobby.clients) == 0 {
+			delete(lobbies, lobbyId)
+		}
+	}
+}
+
+func handleMessage(msg types.Message, lobbyId, sessionId string, lobby *Lobby) {
+	switch msg.Type {
+	case types.Join:
+		broadcastMessage(msg, lobbyId)
+
+	case types.StartGame:
+		updateGameState(sessionId, lobbyId, types.StatusTypingPrompts)
+
+	case types.SubmittedPrompt:
+		lobby.submittedPrompts++
+		if lobby.submittedPrompts == len(lobby.clients) {
+			updateGameState(lobbyId, sessionId, types.StatusAssigningPrompts)
+		}
+
+	case types.GotPrompt:
+		lobby.gottenPrompts++
+		if lobby.gottenPrompts == len(lobby.clients) {
+			updateGameState(lobbyId, sessionId, types.StatusDrawing)
+
+		}
+
+	case types.AssignPromptsComplete:
+		updateGameState(sessionId, lobbyId, types.StatusGettingPrompts)
+
+	case types.SubmittedDrawing:
+		lobby.submittedDrawings++
+		if lobby.submittedDrawings == len(lobby.clients) {
+			updateGameState(lobbyId, sessionId, types.StatusAllFinishedDrawing)
+
+		}
+	case types.EditLobbySettings:
+		broadcastMessage(msg, lobbyId)
+	}
+
+}
+
+func updateGameState(lobbyId, sessionId string, newState types.GameState) {
+	lobbiesMutex.RLock()
+	defer lobbiesMutex.RUnlock()
+
+	if lobby, exists := lobbies[lobbyId]; exists {
+		lobby.mutex.Lock()
+		defer lobby.mutex.Unlock()
+
+		lobby.gameState = newState
+		broadcastMessage(types.Message{
+			Type:      types.GameStateChanges,
+			SessionId: sessionId,
+			LobbyId:   lobbyId,
+			Data:      newState,
+		}, lobbyId)
+	}
+}
+
+func broadcastMessage(msg types.Message, lobbyId string) {
+	lobbiesMutex.RLock()
+	defer lobbiesMutex.RUnlock()
+
+	if lobby, exists := lobbies[lobbyId]; exists {
+		lobby.mutex.RLock()
+		defer lobby.mutex.RUnlock()
+
+		message, _ := json.Marshal(msg)
+		for _, client := range lobby.clients {
+			select {
+			case client.send <- message:
+			default:
+				close(client.send)
+				delete(lobby.clients, msg.SessionId)
+			}
 		}
 	}
 }
