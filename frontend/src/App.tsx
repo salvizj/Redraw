@@ -11,6 +11,7 @@ import { ThemeProvider } from "./context/themeContext";
 import Layout from "../src/components/utils/Layout";
 import { LanguageProvider } from "./context/languageContext";
 import GuessingPage from "./pages/GuessingPage";
+import { GameStateProvider } from "./context/gameStateContext";
 
 const App: React.FC = () => {
   return (
@@ -20,15 +21,17 @@ const App: React.FC = () => {
           <UserProvider>
             <LobbyProvider>
               <WebSocketProvider>
-                <Routes>
-                  <Route path="/" element={<Layout />}>
-                    <Route index element={<IndexPage />} />
-                    <Route path="lobby" element={<LobbyPage />} />
-                    <Route path="game" element={<GamePage />} />
-                    <Route path="guessing" element={<GuessingPage />} />
-                    <Route path="showcase" element={<ShowcasePage />} />
-                  </Route>
-                </Routes>
+                <GameStateProvider>
+                  <Routes>
+                    <Route path="/" element={<Layout />}>
+                      <Route index element={<IndexPage />} />
+                      <Route path="lobby" element={<LobbyPage />} />
+                      <Route path="game" element={<GamePage />} />
+                      <Route path="guessing" element={<GuessingPage />} />
+                      <Route path="showcase" element={<ShowcasePage />} />
+                    </Route>
+                  </Routes>
+                </GameStateProvider>
               </WebSocketProvider>
             </LobbyProvider>
           </UserProvider>

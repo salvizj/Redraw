@@ -26,7 +26,6 @@ func RegisterAPIRoutes(mux *http.ServeMux) {
 	mux.Handle("/create-prompt", middleware.CORS(http.HandlerFunc(promptHandlers.CreatePromptHandler)))
 	mux.Handle("/get-prompt", middleware.CORS(http.HandlerFunc(promptHandlers.GetPromptHandler)))
 	mux.Handle("/assign-prompt", middleware.CORS(http.HandlerFunc(promptHandlers.AssignPromptandler)))
-	mux.Handle("/check-set-prompts", middleware.CORS(http.HandlerFunc(promptHandlers.CheckSetPromptsHandler)))
 
 	// Canvas-related routes
 	mux.Handle("/create-canvas", middleware.CORS(http.HandlerFunc(canvasHandlers.CreateCanvasHandler)))

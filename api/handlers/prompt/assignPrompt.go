@@ -31,7 +31,6 @@ func AssignPromptandler(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	log.Println("Prompt assigned successfully")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(types.AssignPromptResponse{
 		Status:  "success",
