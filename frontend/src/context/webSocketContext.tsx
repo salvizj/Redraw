@@ -16,7 +16,7 @@ const WebSocketContext = createContext<WebSocketContextType | undefined>(
 export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const BASE_URL = import.meta.env.VITE_BASE_URL;
+  const BASE_WS_URL = import.meta.env.VITE_BASE_WS_URL;
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -27,7 +27,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
       console.warn("WebSocket connection already open.");
       return;
     }
-    const wsUrl = `${BASE_URL}/ws?sessionID=${sessionID}&lobbyID=${lobbyID}`;
+    const wsUrl = `${BASE_WS_URL}/ws?sessionID=${sessionID}&lobbyID=${lobbyID}`;
     const ws = new WebSocket(wsUrl);
 
     ws.addEventListener("open", () => {
@@ -45,11 +45,7 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
 
     ws.addEventListener("close", (event) => {
       setIsConnected(false);
-      console.warn(
-        `WebSocket connection closed. Code: ${event.code}, Reason: ${event.reason}, Was Clean: ${event.wasClean}`,
-      );
       if (event.code !== 1000) {
-        console.warn("Attempting to reconnect...");
         reconnectTimeoutRef.current = setTimeout(
           () => connectWebSocket(sessionID, lobbyID),
           5000,
@@ -60,6 +56,12 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
     ws.addEventListener("error", (error) => {
       console.error("WebSocket error:", error);
       setIsConnected(false);
+      if (
+        ws.readyState === WebSocket.OPEN ||
+        ws.readyState === WebSocket.CONNECTING
+      ) {
+        ws.close();
+      }
     });
 
     socketRef.current = ws;
@@ -67,11 +69,15 @@ export const WebSocketProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     return () => {
-      if (socketRef.current) {
+      if (
+        socketRef.current &&
+        socketRef.current.readyState === WebSocket.OPEN
+      ) {
         socketRef.current.close();
       }
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
       }
     };
   }, []);

@@ -33,5 +33,5 @@ func RegisterAPIRoutes(mux *http.ServeMux) {
 	mux.Handle("/assign-canvas", middleware.CORS(http.HandlerFunc(canvasHandlers.AssignCanvasHandler)))
 
 	// WebSocket route
-	mux.Handle("/ws", middleware.CORS(http.HandlerFunc(websocket.WsHandler)))
+	mux.Handle("/ws", http.HandlerFunc(websocket.WsHandler))
 }

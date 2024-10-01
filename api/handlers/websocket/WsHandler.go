@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"sync"
 
 	"github.com/gorilla/websocket"
 	"github.com/salvizj/Redraw/types"
@@ -18,7 +17,7 @@ var upgrader = websocket.Upgrader{
 
 type Client struct {
 	conn *websocket.Conn
-	send chan []byte
+	ch   chan []byte
 }
 
 type Lobby struct {
@@ -27,13 +26,9 @@ type Lobby struct {
 	submittedPrompts  int
 	gottenPrompts     int
 	submittedDrawings int
-	mutex             sync.RWMutex
 }
 
-var (
-	lobbies      = make(map[string]*Lobby) // key: lobbyId
-	lobbiesMutex sync.RWMutex
-)
+var lobbies = make(map[string]*Lobby) // key: lobbyId
 
 func WsHandler(w http.ResponseWriter, r *http.Request) {
 	sessionId := r.URL.Query().Get("sessionId")
@@ -46,12 +41,13 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Printf("Error during connection upgrade: %v", err)
+		http.Error(w, "Could not upgrade connection", http.StatusInternalServerError)
 		return
 	}
 
 	client := &Client{
 		conn: conn,
-		send: make(chan []byte, 256),
+		ch:   make(chan []byte, 1024),
 	}
 
 	lobby := joinLobby(client, sessionId, lobbyId)
@@ -61,9 +57,6 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func joinLobby(client *Client, sessionId, lobbyId string) *Lobby {
-	lobbiesMutex.Lock()
-	defer lobbiesMutex.Unlock()
-
 	if _, exists := lobbies[lobbyId]; !exists {
 		lobbies[lobbyId] = &Lobby{
 			clients:   make(map[string]*Client),
@@ -72,9 +65,6 @@ func joinLobby(client *Client, sessionId, lobbyId string) *Lobby {
 	}
 
 	lobby := lobbies[lobbyId]
-	lobby.mutex.Lock()
-	defer lobby.mutex.Unlock()
-
 	lobby.clients[sessionId] = client
 
 	broadcastMessage(types.Message{
@@ -114,7 +104,7 @@ func readMessages(client *Client, lobby *Lobby, sessionId, lobbyId string) {
 func writeMessages(client *Client) {
 	defer client.conn.Close()
 
-	for message := range client.send {
+	for message := range client.ch {
 		err := client.conn.WriteMessage(websocket.TextMessage, message)
 		if err != nil {
 			return
@@ -123,13 +113,7 @@ func writeMessages(client *Client) {
 }
 
 func leaveLobby(sessionId, lobbyId string) {
-	lobbiesMutex.Lock()
-	defer lobbiesMutex.Unlock()
-
 	if lobby, exists := lobbies[lobbyId]; exists {
-		lobby.mutex.Lock()
-		defer lobby.mutex.Unlock()
-
 		delete(lobby.clients, sessionId)
 		if len(lobby.clients) == 0 {
 			delete(lobbies, lobbyId)
@@ -155,7 +139,6 @@ func handleMessage(msg types.Message, lobbyId, sessionId string, lobby *Lobby) {
 		lobby.gottenPrompts++
 		if lobby.gottenPrompts == len(lobby.clients) {
 			updateGameState(lobbyId, sessionId, types.StatusDrawing)
-
 		}
 
 	case types.AssignPromptsComplete:
@@ -165,22 +148,15 @@ func handleMessage(msg types.Message, lobbyId, sessionId string, lobby *Lobby) {
 		lobby.submittedDrawings++
 		if lobby.submittedDrawings == len(lobby.clients) {
 			updateGameState(lobbyId, sessionId, types.StatusAllFinishedDrawing)
-
 		}
+
 	case types.EditLobbySettings:
 		broadcastMessage(msg, lobbyId)
 	}
-
 }
 
 func updateGameState(lobbyId, sessionId string, newState types.GameState) {
-	lobbiesMutex.RLock()
-	defer lobbiesMutex.RUnlock()
-
 	if lobby, exists := lobbies[lobbyId]; exists {
-		lobby.mutex.Lock()
-		defer lobby.mutex.Unlock()
-
 		lobby.gameState = newState
 		broadcastMessage(types.Message{
 			Type:      types.GameStateChanges,
@@ -192,19 +168,13 @@ func updateGameState(lobbyId, sessionId string, newState types.GameState) {
 }
 
 func broadcastMessage(msg types.Message, lobbyId string) {
-	lobbiesMutex.RLock()
-	defer lobbiesMutex.RUnlock()
-
 	if lobby, exists := lobbies[lobbyId]; exists {
-		lobby.mutex.RLock()
-		defer lobby.mutex.RUnlock()
-
 		message, _ := json.Marshal(msg)
 		for _, client := range lobby.clients {
 			select {
-			case client.send <- message:
+			case client.ch <- message:
 			default:
-				close(client.send)
+				close(client.ch)
 				delete(lobby.clients, msg.SessionId)
 			}
 		}
