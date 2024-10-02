@@ -69,9 +69,11 @@ export type Prompt = {
 };
 export type WebSocketContextType = {
   connectWebSocket: (sessionID: string, lobbyID: string) => void;
+  sendMessage: (message: Message) => void;
   messages: Message[];
   isConnected: boolean;
-  socket: WebSocket | null;
+  isOpen: boolean;
+  socketRef: WebSocket | null;
 };
 export type UserContextType = {
   username: string;

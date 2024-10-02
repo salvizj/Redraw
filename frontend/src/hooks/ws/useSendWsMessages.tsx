@@ -3,17 +3,17 @@ import { useWebSocketContext } from "../../context/webSocketContext";
 import { Message } from "../../types";
 
 export const useSendWsMessages = () => {
-  const { socket } = useWebSocketContext();
+  const { socketRef } = useWebSocketContext();
 
   const sendMessage = useCallback(
     (message: Message) => {
-      if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify(message));
+      if (socketRef && socketRef.readyState === WebSocket.OPEN) {
+        socketRef.send(JSON.stringify(message));
       } else {
         console.warn("WebSocket is not open. Unable to send message.");
       }
     },
-    [socket],
+    [socketRef],
   );
 
   return { sendMessage };

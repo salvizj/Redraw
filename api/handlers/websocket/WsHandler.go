@@ -33,17 +33,21 @@ var lobbies = make(map[string]*Lobby) // key: lobbyId
 func WsHandler(w http.ResponseWriter, r *http.Request) {
 	sessionId := r.URL.Query().Get("sessionId")
 	lobbyId := r.URL.Query().Get("lobbyId")
+	log.Printf("[WS] New connection attempt - Session ID: %s, Lobby ID: %s", sessionId, lobbyId)
+
 	if sessionId == "" || lobbyId == "" {
+		log.Printf("[WS] Connection rejected - missing sessionId or lobbyId")
 		http.Error(w, "Session Id and Lobby Id required", http.StatusBadRequest)
 		return
 	}
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Printf("Error during connection upgrade: %v", err)
+		log.Printf("[WS] Error during connection upgrade: %v", err)
 		http.Error(w, "Could not upgrade connection", http.StatusInternalServerError)
 		return
 	}
+	log.Printf("[WS] Connection successfully upgraded for Session ID: %s", sessionId)
 
 	client := &Client{
 		conn: conn,
@@ -51,6 +55,7 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	lobby := joinLobby(client, sessionId, lobbyId)
+	log.Printf("[WS] Client joined lobby - Session ID: %s, Lobby ID: %s, Total clients: %d", sessionId, lobbyId, len(lobby.clients))
 
 	go readMessages(client, lobby, sessionId, lobbyId)
 	go writeMessages(client)
@@ -58,6 +63,7 @@ func WsHandler(w http.ResponseWriter, r *http.Request) {
 
 func joinLobby(client *Client, sessionId, lobbyId string) *Lobby {
 	if _, exists := lobbies[lobbyId]; !exists {
+		log.Printf("[Lobby] Creating new lobby - Lobby ID: %s", lobbyId)
 		lobbies[lobbyId] = &Lobby{
 			clients:   make(map[string]*Client),
 			gameState: types.StatusWaitingForPlayers,
@@ -67,6 +73,7 @@ func joinLobby(client *Client, sessionId, lobbyId string) *Lobby {
 	lobby := lobbies[lobbyId]
 	lobby.clients[sessionId] = client
 
+	log.Printf("[Lobby] Broadcasting join message - Session ID: %s, Lobby ID: %s", sessionId, lobbyId)
 	broadcastMessage(types.Message{
 		Type:      types.Join,
 		SessionId: sessionId,
@@ -78,6 +85,7 @@ func joinLobby(client *Client, sessionId, lobbyId string) *Lobby {
 
 func readMessages(client *Client, lobby *Lobby, sessionId, lobbyId string) {
 	defer func() {
+		log.Printf("[WS] Client disconnecting - Session ID: %s, Lobby ID: %s", sessionId, lobbyId)
 		leaveLobby(sessionId, lobbyId)
 		client.conn.Close()
 	}()
@@ -86,16 +94,19 @@ func readMessages(client *Client, lobby *Lobby, sessionId, lobbyId string) {
 		_, message, err := client.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("error: %v", err)
+				log.Printf("[WS] Unexpected close error: %v", err)
+			} else {
+				log.Printf("[WS] Connection closed normally - Session ID: %s", sessionId)
 			}
 			break
 		}
 
 		var msg types.Message
 		if err := json.Unmarshal(message, &msg); err != nil {
-			log.Printf("error: %v", err)
+			log.Printf("[WS] Error unmarshaling message: %v", err)
 			continue
 		}
+		log.Printf("[WS] Received message - Type: %s, Session ID: %s", msg.Type, sessionId)
 
 		handleMessage(msg, lobbyId, sessionId, lobby)
 	}
@@ -122,11 +133,14 @@ func leaveLobby(sessionId, lobbyId string) {
 }
 
 func handleMessage(msg types.Message, lobbyId, sessionId string, lobby *Lobby) {
+	log.Printf("[Handler] Processing message - Type: %s, Session ID: %s, Lobby ID: %s", msg.Type, sessionId, lobbyId)
 	switch msg.Type {
 	case types.Join:
+		log.Printf("[Game] Player joined - Session ID: %s, Lobby ID: %s", sessionId, lobbyId)
 		broadcastMessage(msg, lobbyId)
 
 	case types.StartGame:
+		log.Printf("[Game] Game starting - Lobby ID: %s", lobbyId)
 		updateGameState(sessionId, lobbyId, types.StatusTypingPrompts)
 
 	case types.SubmittedPrompt:
@@ -158,6 +172,7 @@ func handleMessage(msg types.Message, lobbyId, sessionId string, lobby *Lobby) {
 func updateGameState(lobbyId, sessionId string, newState types.GameState) {
 	if lobby, exists := lobbies[lobbyId]; exists {
 		lobby.gameState = newState
+		log.Print("Updated game state")
 		broadcastMessage(types.Message{
 			Type:      types.GameStateChanges,
 			SessionId: sessionId,
@@ -174,6 +189,7 @@ func broadcastMessage(msg types.Message, lobbyId string) {
 			select {
 			case client.ch <- message:
 			default:
+				log.Print("closes client ch")
 				close(client.ch)
 				delete(lobby.clients, msg.SessionId)
 			}
