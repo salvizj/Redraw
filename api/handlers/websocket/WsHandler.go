@@ -133,7 +133,7 @@ func leaveLobby(sessionId, lobbyId string) {
 }
 
 func handleMessage(msg types.Message, lobbyId, sessionId string, lobby *Lobby) {
-	log.Printf("[Handler] Processing message - Type: %s, Session ID: %s, Lobby ID: %s", msg.Type, sessionId, lobbyId)
+	// log.Printf("[Handler] Processing message - Type: %s, Session ID: %s, Lobby ID: %s", msg.Type, sessionId, lobbyId)
 	switch msg.Type {
 	case types.Join:
 		log.Printf("[Game] Player joined - Session ID: %s, Lobby ID: %s, Message: %s", sessionId, lobbyId, msg)
@@ -170,9 +170,9 @@ func handleMessage(msg types.Message, lobbyId, sessionId string, lobby *Lobby) {
 }
 
 func updateGameState(lobbyId, sessionId string, newState types.GameState) {
+	log.Print("Updated game state: ", newState)
 	if lobby, exists := lobbies[lobbyId]; exists {
 		lobby.gameState = newState
-		log.Print("Updated game state: ", newState)
 		broadcastMessage(types.Message{
 			Type:      types.GameStateChanges,
 			SessionId: sessionId,

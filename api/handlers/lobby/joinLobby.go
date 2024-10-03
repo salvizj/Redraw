@@ -10,6 +10,7 @@ import (
 )
 
 func JoinLobbyHandler(w http.ResponseWriter, r *http.Request) {
+	log.Print(r.Method)
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return

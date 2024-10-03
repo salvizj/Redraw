@@ -43,9 +43,10 @@ const LobbyPage: React.FC = () => {
       handleJoinGameMessage();
     }
 
-    if (gameState === GameState.StatusStartGame) {
+    if (gameState === GameState.StatusTypingPrompts) {
       navigate("/game");
     }
+    console.log("Current Game States", gameState);
   }, [sessionId, lobbyId, isConnected, socketRef, language, gameState]);
 
   if (isLoading) {
