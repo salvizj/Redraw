@@ -42,6 +42,7 @@ export const GameStateProvider: React.FC<{ children: React.ReactNode }> = ({
       message.type === MessageType.Join ||
       message.type === MessageType.EditLobbySettings
     ) {
+      console.log("We got join or edit messages", message);
       setShouldRefetchLobbyDetails(true);
     }
     if (message.type === MessageType.GameStateChanges) {

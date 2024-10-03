@@ -4,10 +4,10 @@ export type Player = {
 };
 
 export type LobbySettings = {
-  LobbySettingsId: string;
-  MaxPlayerCount: number;
-  PromptInputTime: number;
-  DrawingTime: number;
+  lobbySettingsId: string;
+  maxPlayerCount: number;
+  promptInputTime: number;
+  drawingTime: number;
 };
 
 export type LobbyDetails = {
@@ -117,4 +117,18 @@ export type LobbySettingsProps = {
   role: string;
   lobbySettings: LobbySettings;
   playerCount: number;
+};
+export type LobbySettingsDisplayProps = {
+  role: string;
+  isEditing: boolean;
+  setIsEditing: (isEditing: boolean) => void;
+  maxPlayerCount: number;
+  setMaxPlayerCount: (count: number) => void;
+  promptInputTime: number;
+  setPromptInputTime: (time: number) => void;
+  drawingTime: number;
+  setDrawingTime: (time: number) => void;
+  handleUpdateClick: () => void;
+  error: string | null;
+  lobbySettings: LobbySettings;
 };

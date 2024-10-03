@@ -1,21 +1,6 @@
 import React from "react";
-import { LobbySettings } from "../../types";
 import { useLanguage } from "../../context/languageContext";
-
-type LobbySettingsDisplayProps = {
-  role: string;
-  isEditing: boolean;
-  setIsEditing: (isEditing: boolean) => void;
-  maxPlayerCount: number;
-  setMaxPlayerCount: (count: number) => void;
-  promptInputTime: number;
-  setPromptInputTime: (time: number) => void;
-  drawingTime: number;
-  setDrawingTime: (time: number) => void;
-  handleUpdateClick: () => void;
-  error: string | null;
-  lobbySettings: LobbySettings;
-};
+import { LobbySettingsDisplayProps } from "../../types";
 
 const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
   role,
@@ -82,7 +67,7 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
           {translate("maxPlayerCount")}
         </p>
         <p className="text-text-light dark:text-text-dark">
-          {lobbySettings.MaxPlayerCount}
+          {lobbySettings.maxPlayerCount}
         </p>
       </div>
 
@@ -91,7 +76,7 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
           {translate("promptInputTime")}
         </p>
         <p className="text-text-light dark:text-text-dark">
-          {lobbySettings.PromptInputTime}
+          {lobbySettings.promptInputTime}
         </p>
       </div>
 
@@ -100,7 +85,7 @@ const LobbySettingsDisplay: React.FC<LobbySettingsDisplayProps> = ({
           {translate("drawingTime")}
         </p>
         <p className="text-text-light dark:text-text-dark">
-          {lobbySettings.DrawingTime}
+          {lobbySettings.drawingTime}
         </p>
       </div>
     </div>

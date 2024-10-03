@@ -136,11 +136,10 @@ func handleMessage(msg types.Message, lobbyId, sessionId string, lobby *Lobby) {
 	log.Printf("[Handler] Processing message - Type: %s, Session ID: %s, Lobby ID: %s", msg.Type, sessionId, lobbyId)
 	switch msg.Type {
 	case types.Join:
-		log.Printf("[Game] Player joined - Session ID: %s, Lobby ID: %s", sessionId, lobbyId)
+		log.Printf("[Game] Player joined - Session ID: %s, Lobby ID: %s, Message: %s", sessionId, lobbyId, msg)
 		broadcastMessage(msg, lobbyId)
 
 	case types.StartGame:
-		log.Printf("[Game] Game starting - Lobby ID: %s", lobbyId)
 		updateGameState(sessionId, lobbyId, types.StatusTypingPrompts)
 
 	case types.SubmittedPrompt:
@@ -165,6 +164,7 @@ func handleMessage(msg types.Message, lobbyId, sessionId string, lobby *Lobby) {
 		}
 
 	case types.EditLobbySettings:
+		log.Printf("[Game] EditLobbySettings - Session ID: %s, Lobby ID: %s, Message: %s", sessionId, lobbyId, msg)
 		broadcastMessage(msg, lobbyId)
 	}
 }
@@ -172,7 +172,7 @@ func handleMessage(msg types.Message, lobbyId, sessionId string, lobby *Lobby) {
 func updateGameState(lobbyId, sessionId string, newState types.GameState) {
 	if lobby, exists := lobbies[lobbyId]; exists {
 		lobby.gameState = newState
-		log.Print("Updated game state")
+		log.Print("Updated game state: ", newState)
 		broadcastMessage(types.Message{
 			Type:      types.GameStateChanges,
 			SessionId: sessionId,

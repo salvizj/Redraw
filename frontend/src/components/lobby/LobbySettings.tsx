@@ -16,9 +16,9 @@ const LobbySettings: React.FC<LobbySettingsProps> = ({
   const { language } = useLanguage();
   const [maxPlayerCount, setMaxPlayerCount] = useState(playerCount);
   const [promptInputTime, setPromptInputTime] = useState(
-    lobbySettings.PromptInputTime,
+    lobbySettings.promptInputTime,
   );
-  const [drawingTime, setDrawingTime] = useState(lobbySettings.DrawingTime);
+  const [drawingTime, setDrawingTime] = useState(lobbySettings.drawingTime);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [
@@ -43,12 +43,10 @@ const LobbySettings: React.FC<LobbySettingsProps> = ({
 
     try {
       await editLobbySettings({
-        settings: {
-          LobbySettingsId: lobbySettings.LobbySettingsId,
-          MaxPlayerCount: maxPlayerCount,
-          PromptInputTime: promptInputTime,
-          DrawingTime: drawingTime,
-        },
+        lobbySettingsId: lobbySettings.lobbySettingsId,
+        maxPlayerCount: maxPlayerCount,
+        promptInputTime: promptInputTime,
+        drawingTime: drawingTime,
       });
 
       if (!hasSentRefetchLobbyDetailsMessage) {

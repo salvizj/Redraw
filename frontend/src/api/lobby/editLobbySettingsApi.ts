@@ -3,11 +3,11 @@ import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-export const editLobbySettings = async (data: { settings: LobbySettings }) => {
+export const editLobbySettings = async (settings: LobbySettings) => {
   try {
     const response = await axios.patch(
       `${BASE_URL}/edit-lobby-settings`,
-      data,
+      settings,
       {
         headers: {
           "Content-Type": "application/json",
