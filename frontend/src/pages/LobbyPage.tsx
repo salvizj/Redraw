@@ -47,7 +47,7 @@ const LobbyPage: React.FC = () => {
       navigate("/game");
     }
     console.log("Current Game States", gameState);
-  }, [sessionId, lobbyId, isConnected, socketRef, language, gameState]);
+  }, [sessionId, lobbyId, isConnected, language, gameState]);
 
   if (isLoading) {
     return (

@@ -16,15 +16,12 @@ type Lobby struct {
 type GameState string
 
 const (
-	StatusStartGame           GameState = "startGame"
-	StatusWaitingForPlayers   GameState = "waitingForPlayers"
-	StatusTypingPrompts       GameState = "typingPrompts"
-	StatusAllSubmittedPrompts GameState = "allSubmittedPrompts"
-	StatusAssigningPrompts    GameState = "assigningPrompts"
-	StatusGettingPrompts      GameState = "gettingPrompts"
-	StatusAllGotPrompts       GameState = "allGotPrompts"
-	StatusDrawing             GameState = "drawing"
-	StatusAllFinishedDrawing  GameState = "allFinishedDrawing"
+	StatusWaitingForPlayers GameState = "waitingForPlayers"
+	StatusTypingPrompts     GameState = "typingPrompts"
+	StatusAssigningPrompts  GameState = "assigningPrompts"
+	StatusGettingPrompts    GameState = "gettingPrompts"
+	StatusDrawing           GameState = "drawing"
+	StatusGameFinished      GameState = "gameFinished"
 )
 
 type LobbySettings struct {

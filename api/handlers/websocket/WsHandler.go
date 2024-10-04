@@ -133,43 +133,36 @@ func leaveLobby(sessionId, lobbyId string) {
 }
 
 func handleMessage(msg types.Message, lobbyId, sessionId string, lobby *Lobby) {
-	// log.Printf("[Handler] Processing message - Type: %s, Session ID: %s, Lobby ID: %s", msg.Type, sessionId, lobbyId)
 	switch msg.Type {
 	case types.Join:
 		log.Printf("[Game] Player joined - Session ID: %s, Lobby ID: %s, Message: %s", sessionId, lobbyId, msg)
 		broadcastMessage(msg, lobbyId)
-
 	case types.StartGame:
 		updateGameState(sessionId, lobbyId, types.StatusTypingPrompts)
-
 	case types.SubmittedPrompt:
 		lobby.submittedPrompts++
 		if lobby.submittedPrompts == len(lobby.clients) {
-			updateGameState(lobbyId, sessionId, types.StatusAssigningPrompts)
+			updateGameState(sessionId, lobbyId, types.StatusAssigningPrompts)
 		}
-
+	case types.AssignPromptsComplete:
+		updateGameState(sessionId, lobbyId, types.StatusGettingPrompts)
 	case types.GotPrompt:
 		lobby.gottenPrompts++
 		if lobby.gottenPrompts == len(lobby.clients) {
-			updateGameState(lobbyId, sessionId, types.StatusDrawing)
+			updateGameState(sessionId, lobbyId, types.StatusDrawing)
 		}
-
-	case types.AssignPromptsComplete:
-		updateGameState(sessionId, lobbyId, types.StatusGettingPrompts)
-
 	case types.SubmittedDrawing:
 		lobby.submittedDrawings++
 		if lobby.submittedDrawings == len(lobby.clients) {
-			updateGameState(lobbyId, sessionId, types.StatusAllFinishedDrawing)
+			updateGameState(sessionId, lobbyId, types.StatusGameFinished)
 		}
-
 	case types.EditLobbySettings:
 		log.Printf("[Game] EditLobbySettings - Session ID: %s, Lobby ID: %s, Message: %s", sessionId, lobbyId, msg)
 		broadcastMessage(msg, lobbyId)
 	}
 }
 
-func updateGameState(lobbyId, sessionId string, newState types.GameState) {
+func updateGameState(sessionId, lobbyId string, newState types.GameState) {
 	log.Print("Updated game state: ", newState)
 	if lobby, exists := lobbies[lobbyId]; exists {
 		lobby.gameState = newState
@@ -179,6 +172,8 @@ func updateGameState(lobbyId, sessionId string, newState types.GameState) {
 			LobbyId:   lobbyId,
 			Data:      newState,
 		}, lobbyId)
+	} else {
+		log.Printf("Failed to update game state: lobby %s not found", lobbyId)
 	}
 }
 
