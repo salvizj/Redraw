@@ -135,7 +135,6 @@ func leaveLobby(sessionId, lobbyId string) {
 func handleMessage(msg types.Message, lobbyId, sessionId string, lobby *Lobby) {
 	switch msg.Type {
 	case types.Join:
-		log.Printf("[Game] Player joined - Session ID: %s, Lobby ID: %s, Message: %s", sessionId, lobbyId, msg)
 		broadcastMessage(msg, lobbyId)
 	case types.StartGame:
 		updateGameState(sessionId, lobbyId, types.StatusTypingPrompts)
@@ -145,7 +144,9 @@ func handleMessage(msg types.Message, lobbyId, sessionId string, lobby *Lobby) {
 			updateGameState(sessionId, lobbyId, types.StatusAssigningPrompts)
 		}
 	case types.AssignPromptsComplete:
-		updateGameState(sessionId, lobbyId, types.StatusGettingPrompts)
+		if lobby.gameState == types.StatusAssigningPrompts {
+			updateGameState(sessionId, lobbyId, types.StatusGettingPrompts)
+		}
 	case types.GotPrompt:
 		lobby.gottenPrompts++
 		if lobby.gottenPrompts == len(lobby.clients) {

@@ -3,7 +3,7 @@ import { getPrompt } from "../api/prompt/getPromptApi";
 import { useLobbyContext } from "../context/lobbyContext";
 import { useUserContext } from "../context/userContext";
 import { useLanguage } from "../context/languageContext";
-import { FetchPromptParams } from "../types";
+import { FetchPromptParams, Prompt } from "../types";
 
 export const useFetchPrompt = () => {
   const { lobbyId } = useLobbyContext();
@@ -34,10 +34,19 @@ export const useFetchPrompt = () => {
       }
 
       try {
-        const response = await getPrompt({ sessionId, lobbyId });
+        console.log("Calling getPrompt API with:", {
+          sessionId,
+          lobbyId,
+        });
+
+        const response = (await getPrompt({
+          sessionId,
+          lobbyId,
+        })) as Prompt;
+
         if (response) {
           setPrompt(response);
-          setPromptId(response);
+          setPromptId(response.promptId);
         } else {
           throw new Error(
             language === "en" ? "Received null prompt" : "Saņēmām null props",
@@ -50,7 +59,7 @@ export const useFetchPrompt = () => {
             : new Error(
                 language === "en"
                   ? "An unknown error occurred"
-                  : "Notiek nezināma kļūda",
+                  : "Notika nezināma kļūda",
               );
         setGetPromptError(errorMessage);
       } finally {

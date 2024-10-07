@@ -5,11 +5,11 @@ import CanvasLineWidthAdjuster from "./CanvasLineWidthAdjuster";
 import CanvasEraser from "./CanvasEraser";
 import CanvasGivenPrompt from "./CanvasGivenPrompt";
 import { createCanvas } from "../../api/canvas/createCanvasApi";
-
+import { Prompt } from "../../types";
 type CanvasProps = {
   lobbyId: string | null;
   promptId: string | null;
-  prompt: string | null;
+  prompt: Prompt | null;
   setSavingCanvasStatus: (savingCanvasStatus: boolean) => void;
   drawingComplete: boolean;
 };
@@ -116,7 +116,7 @@ const Canvas: React.FC<CanvasProps> = ({
   return (
     <div>
       <div>
-        <CanvasGivenPrompt prompt={prompt} />
+        <CanvasGivenPrompt prompt={prompt?.prompt ?? ""} />
         <CanvasColorPicker lineColor={lineColor} setLineColor={setLineColor} />
         <CanvasLineWidthAdjuster
           lineWidth={lineWidth}

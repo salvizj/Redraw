@@ -12,49 +12,37 @@ export const Countdown: React.FC<CountdownProps> = ({
   initialCounter,
   onCountdownComplete,
 }) => {
-  const [counter, setCounter] = useState<number>(() => {
-    const storedCounter = localStorage.getItem("countdown");
-    if (storedCounter !== null) {
-      return parseInt(storedCounter);
-    } else {
-      localStorage.setItem("countdown", String(initialCounter));
-      return initialCounter;
-    }
-  });
-
-  const counterRef = useRef<number>(counter);
+  const [counter, setCounter] = useState<number>(initialCounter);
   const intervalRef = useRef<number | null>(null);
   const { language } = useLanguage();
 
   useEffect(() => {
-    const startCountdown = () => {
-      intervalRef.current = window.setInterval(() => {
-        counterRef.current -= 1;
-        setCounter(counterRef.current);
-
-        localStorage.setItem("countdown", String(counterRef.current));
-
-        if (counterRef.current <= 0) {
-          if (intervalRef.current !== null)
-            window.clearInterval(intervalRef.current);
-          localStorage.removeItem("countdown");
+    intervalRef.current = window.setInterval(() => {
+      setCounter((prevCounter) => {
+        if (prevCounter <= 1) {
+          if (intervalRef.current !== null) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
           onCountdownComplete();
+          return 0;
         }
-      }, 1000);
-    };
-
-    startCountdown();
+        return prevCounter - 1;
+      });
+    }, 1000);
 
     return () => {
-      if (intervalRef.current !== null)
-        window.clearInterval(intervalRef.current);
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
   }, [onCountdownComplete]);
 
   return (
     <h2>
-      {text} {counter}
-      {language === "en" ? " seconds left" : " sekundas palikušas"}
+      {text} {counter}{" "}
+      {language === "en" ? "seconds left" : "sekundas palikušas"}
     </h2>
   );
 };
