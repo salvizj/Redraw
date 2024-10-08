@@ -1,86 +1,86 @@
-import React, { useState } from "react";
-import { editLobbySettings } from "../../api/lobby/editLobbySettingsApi";
-import LobbySettingsDisplay from "./LobbySettingsDisplay";
-import { useLanguage } from "../../context/languageContext";
-import { useWsMessageSender } from "../../hooks/ws/useWsMessageSender";
-import { LobbySettingsProps } from "../../types";
+import React, { useState } from "react"
+import { editLobbySettings } from "../../api/lobby/editLobbySettingsApi"
+import LobbySettingsDisplay from "./LobbySettingsDisplay"
+import { useLanguage } from "../../context/languageContext"
+import { useWsMessageSender } from "../../hooks/ws/useWsMessageSender"
+import { LobbySettingsProps } from "../../types"
 
 const LobbySettings: React.FC<LobbySettingsProps> = ({
-  sessionId,
-  lobbyId,
-  username,
-  role,
-  lobbySettings,
-  playerCount,
+	sessionId,
+	lobbyId,
+	username,
+	role,
+	lobbySettings,
+	playerCount,
 }) => {
-  const { language } = useLanguage();
-  const [maxPlayerCount, setMaxPlayerCount] = useState(playerCount);
-  const [promptInputTime, setPromptInputTime] = useState(
-    lobbySettings.promptInputTime,
-  );
-  const [drawingTime, setDrawingTime] = useState(lobbySettings.drawingTime);
-  const [error, setError] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [
-    hasSentRefetchLobbyDetailsMessage,
-    setHasSentRefetchLobbyDetailsMessage,
-  ] = useState(false);
-  const { handleEditLobbySettings } = useWsMessageSender(
-    sessionId,
-    lobbyId,
-    username,
-  );
+	const { language } = useLanguage()
+	const [maxPlayerCount, setMaxPlayerCount] = useState(playerCount)
+	const [promptInputTime, setPromptInputTime] = useState(
+		lobbySettings.promptInputTime
+	)
+	const [drawingTime, setDrawingTime] = useState(lobbySettings.drawingTime)
+	const [error, setError] = useState<string | null>(null)
+	const [isEditing, setIsEditing] = useState(false)
+	const [
+		hasSentRefetchLobbyDetailsMessage,
+		setHasSentRefetchLobbyDetailsMessage,
+	] = useState(false)
+	const { handleEditLobbySettings } = useWsMessageSender(
+		sessionId,
+		lobbyId,
+		username
+	)
 
-  const handleUpdateClick = async () => {
-    if (playerCount > maxPlayerCount) {
-      setError(
-        language === "en"
-          ? "Current player count exceeds the selected maximum player count."
-          : "Pašreizējais spēlētāju skaits pārsniedz izvēlēto maksimālo spēlētāju skaitu.",
-      );
-      return;
-    }
+	const handleUpdateClick = async () => {
+		if (playerCount > maxPlayerCount) {
+			setError(
+				language === "en"
+					? "Current player count exceeds the selected maximum player count."
+					: "Pašreizējais spēlētāju skaits pārsniedz izvēlēto maksimālo spēlētāju skaitu."
+			)
+			return
+		}
 
-    try {
-      await editLobbySettings({
-        lobbySettingsId: lobbySettings.lobbySettingsId,
-        maxPlayerCount: maxPlayerCount,
-        promptInputTime: promptInputTime,
-        drawingTime: drawingTime,
-      });
+		try {
+			await editLobbySettings({
+				lobbySettingsId: lobbySettings.lobbySettingsId,
+				maxPlayerCount: maxPlayerCount,
+				promptInputTime: promptInputTime,
+				drawingTime: drawingTime,
+			})
 
-      if (!hasSentRefetchLobbyDetailsMessage) {
-        handleEditLobbySettings();
-        setHasSentRefetchLobbyDetailsMessage(true);
-      }
+			if (!hasSentRefetchLobbyDetailsMessage) {
+				handleEditLobbySettings()
+				setHasSentRefetchLobbyDetailsMessage(true)
+			}
 
-      setError(null);
-      setIsEditing(false);
-    } catch (err) {
-      setError(
-        language === "en"
-          ? "Failed to edit lobby settings."
-          : "Neizdevās mainīt istabas iestatījumus.",
-      );
-    }
-  };
+			setError(null)
+			setIsEditing(false)
+		} catch (err) {
+			setError(
+				language === "en"
+					? "Failed to edit lobby settings."
+					: "Neizdevās mainīt istabas iestatījumus."
+			)
+		}
+	}
 
-  return (
-    <LobbySettingsDisplay
-      role={role}
-      isEditing={isEditing}
-      setIsEditing={setIsEditing}
-      maxPlayerCount={maxPlayerCount}
-      setMaxPlayerCount={setMaxPlayerCount}
-      promptInputTime={promptInputTime}
-      setPromptInputTime={setPromptInputTime}
-      drawingTime={drawingTime}
-      setDrawingTime={setDrawingTime}
-      handleUpdateClick={handleUpdateClick}
-      error={error}
-      lobbySettings={lobbySettings}
-    />
-  );
-};
+	return (
+		<LobbySettingsDisplay
+			role={role}
+			isEditing={isEditing}
+			setIsEditing={setIsEditing}
+			maxPlayerCount={maxPlayerCount}
+			setMaxPlayerCount={setMaxPlayerCount}
+			promptInputTime={promptInputTime}
+			setPromptInputTime={setPromptInputTime}
+			drawingTime={drawingTime}
+			setDrawingTime={setDrawingTime}
+			handleUpdateClick={handleUpdateClick}
+			error={error}
+			lobbySettings={lobbySettings}
+		/>
+	)
+}
 
-export default LobbySettings;
+export default LobbySettings

@@ -13,6 +13,11 @@ build:
 	go build -o $(BINARY_NAME) cmd/main.go
 	@chmod +x $(BINARY_NAME)
 	@ls -l $(BINARY_NAME)
+build-dev:
+	@cd frontend && npm run build:dev || (echo "Frontend build failed" && exit 1)
+	go build -o $(BINARY_NAME) cmd/main.go
+	@chmod +x $(BINARY_NAME)
+	@ls -l $(BINARY_NAME)
 
 run:
 	./$(BINARY_NAME)
